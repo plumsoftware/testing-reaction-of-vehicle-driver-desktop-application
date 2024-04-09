@@ -8,10 +8,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.res.loadImageBitmap
+import androidx.compose.ui.res.useResource
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import presentation.home.HomePage
 import presentation.theme.AppTheme
+import java.awt.image.BufferedImage
+import javax.imageio.ImageIO
 
 @Composable
 @Preview
@@ -28,7 +33,14 @@ fun App() {
 }
 
 fun main() = application {
-    Window(onCloseRequest = ::exitApplication) {
+
+//    val iconImage: BufferedImage = ImageIO.read(javaClass.getResource("test_icon.png"))
+
+    Window(
+        onCloseRequest = ::exitApplication,
+        icon = BitmapPainter(useResource("test_icon.png", ::loadImageBitmap)),
+        title = "Тест на рекацию"
+    ) {
         AppTheme {
             HomePage()
         }
