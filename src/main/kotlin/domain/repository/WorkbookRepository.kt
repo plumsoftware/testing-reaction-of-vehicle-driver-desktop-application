@@ -1,5 +1,5 @@
 package domain.repository
 
 interface WorkbookRepository {
-    suspend fun createWorkbookIfNotExists(path: String) : Boolean
+    suspend fun createWorkbookIfNotExists(fullPath: String, folderPath: String) : Boolean
 }
