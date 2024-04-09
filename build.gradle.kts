@@ -20,6 +20,7 @@ dependencies {
 
     implementation("org.apache.poi:poi:${apachi_poi}")
     implementation("org.apache.poi:poi-ooxml:${apachi_poi}")
+    implementation("org.jetbrains.compose.material3:material3-desktop:1.2.1")
 }
 
 compose.desktop {
