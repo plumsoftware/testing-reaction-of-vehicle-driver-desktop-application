@@ -8,12 +8,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import presentation.home.store.Event
 import presentation.padding.ExtensionPadding.mediumAsymmetricalContentPadding
 import presentation.padding.ExtensionPadding.mediumVerticalArrangement
 import presentation.size.ConstantSize
 
 @Composable
-fun HomePage() {
+fun HomePage(onEvent: (Event) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize(),
@@ -21,7 +22,9 @@ fun HomePage() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Button(
-            onClick = {},
+            onClick = {
+                onEvent(Event.TestsButtonClicked)
+            },
             modifier = Modifier
                 .defaultMinSize(minWidth = ConstantSize.homeButtonWidth)
                 .wrapContentHeight(),

@@ -1,48 +1,69 @@
 package presentation
 
-import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.useResource
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import androidx.compose.ui.window.rememberWindowState
+import moe.tlaster.precompose.PreComposeApp
+import moe.tlaster.precompose.navigation.NavHost
+import moe.tlaster.precompose.navigation.rememberNavigator
+import moe.tlaster.precompose.navigation.transition.NavTransition
+import moe.tlaster.precompose.viewmodel.viewModel
 import presentation.home.HomePage
+import presentation.home.store.Output
+import presentation.home.viewmodel.HomeViewModel
+import presentation.route.DesktopRouting
 import presentation.theme.AppTheme
-import java.awt.image.BufferedImage
-import javax.imageio.ImageIO
 
-@Composable
-@Preview
-fun App() {
-    var text by remember { mutableStateOf("Hello, World!") }
+fun main() = run {
+    application {
+        val windowState = rememberWindowState()
 
-    AppTheme {
-        Button(onClick = {
-            text = "Hello, Desktop!"
-        }) {
-            Text(text)
-        }
-    }
-}
+        Window(
+            onCloseRequest = ::exitApplication,
+            icon = BitmapPainter(useResource("test_icon.png", ::loadImageBitmap)),
+            title = "Тест на рекацию",
+            state = windowState
+        ) {
+            AppTheme(useDarkTheme = false) {
+                PreComposeApp {
 
-fun main() = application {
+                    val navigator = rememberNavigator()
+                    val homeViewModel =
+                        viewModel(modelClass = HomeViewModel::class) {
+                            HomeViewModel(
+                                output = { output ->
+                                    when(output) {
+                                        Output.AboutProgramButtonClicked -> {
 
-//    val iconImage: BufferedImage = ImageIO.read(javaClass.getResource("test_icon.png"))
+                                        }
+                                        Output.SettingsButtonClicked -> {
 
-    Window(
-        onCloseRequest = ::exitApplication,
-        icon = BitmapPainter(useResource("test_icon.png", ::loadImageBitmap)),
-        title = "Тест на рекацию"
-    ) {
-        AppTheme {
-            HomePage()
+                                        }
+                                        Output.TestsButtonClicked -> {
+
+                                        }
+                                    }
+                                }
+                            )
+                        }
+
+                    NavHost(
+                        navigator = navigator,
+                        navTransition = NavTransition(),
+                        initialRoute = DesktopRouting.home,
+                    ) {
+                        scene(
+                            route = DesktopRouting.home,
+                            navTransition = NavTransition(),
+                        ) {
+                            HomePage(homeViewModel::onEvent)
+                        }
+                    }
+                }
+            }
         }
     }
 }
