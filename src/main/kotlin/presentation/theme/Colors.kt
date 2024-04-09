@@ -1,4 +1,4 @@
-package theme
+package presentation.theme
 
 import androidx.compose.material3.ColorScheme
 import androidx.compose.ui.graphics.Color
