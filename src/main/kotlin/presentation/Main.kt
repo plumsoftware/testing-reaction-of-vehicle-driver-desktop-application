@@ -20,6 +20,9 @@ import presentation.testmenu.viewmodel.TestMenuViewModel
 import presentation.theme.AppTheme
 
 fun main() = run {
+
+    println("App started!")
+
     application {
         val windowState = rememberWindowState()
 
@@ -77,6 +80,7 @@ fun main() = run {
                             route = DesktopRouting.home,
                             navTransition = NavTransition(),
                         ) {
+                            println("Home page rendered")
                             HomePage(homeViewModel::onEvent)
                         }
 
@@ -84,6 +88,7 @@ fun main() = run {
                             route = DesktopRouting.testmenu,
                             navTransition = NavTransition()
                         ) {
+                            println("Test menu page rendered")
                             TestMenu(testMenuViewModel::onEvent)
                         }
                     }

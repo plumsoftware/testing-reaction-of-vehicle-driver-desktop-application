@@ -7,6 +7,10 @@ import presentation.testmenu.store.Output
 class TestMenuViewModel(
     private val output: (Output) -> Unit
 ) : ViewModel() {
+
+    init {
+        println("Test menu view model created")
+    }
     fun onEvent(event: Event) {
         when (event) {
             Event.Test1CLicked -> {

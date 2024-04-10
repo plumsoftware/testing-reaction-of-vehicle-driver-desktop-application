@@ -10,6 +10,10 @@ class HomeViewModel(
     private val output: (Output) -> Unit
 ) : ViewModel() {
 
+    init {
+        println("Home view model created")
+    }
+
     fun onEvent(event: Event) {
         when (event) {
             Event.AboutProgramButtonClicked -> {
