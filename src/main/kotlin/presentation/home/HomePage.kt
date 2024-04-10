@@ -9,9 +9,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import presentation.home.store.Event
-import presentation.padding.ExtensionPadding.mediumAsymmetricalContentPadding
-import presentation.padding.ExtensionPadding.mediumVerticalArrangement
-import presentation.size.ConstantSize
+import presentation.extension.padding.ExtensionPadding.mediumAsymmetricalContentPadding
+import presentation.extension.padding.ExtensionPadding.mediumVerticalArrangement
+import presentation.extension.size.ConstantSize
 
 @Composable
 fun HomePage(onEvent: (Event) -> Unit) {

@@ -14,7 +14,9 @@ import moe.tlaster.precompose.viewmodel.viewModel
 import presentation.home.HomePage
 import presentation.home.store.Output
 import presentation.home.viewmodel.HomeViewModel
-import presentation.route.DesktopRouting
+import presentation.extension.route.DesktopRouting
+import presentation.testmenu.TestMenu
+import presentation.testmenu.viewmodel.TestMenuViewModel
 import presentation.theme.AppTheme
 
 fun main() = run {
@@ -31,24 +33,40 @@ fun main() = run {
                 PreComposeApp {
 
                     val navigator = rememberNavigator()
-                    val homeViewModel =
-                        viewModel(modelClass = HomeViewModel::class) {
-                            HomeViewModel(
-                                output = { output ->
-                                    when(output) {
-                                        Output.AboutProgramButtonClicked -> {
+                    val homeViewModel = viewModel(modelClass = HomeViewModel::class) {
+                        HomeViewModel(
+                            output = { output ->
+                                when (output) {
+                                    Output.AboutProgramButtonClicked -> {
 
-                                        }
-                                        Output.SettingsButtonClicked -> {
+                                    }
 
-                                        }
-                                        Output.TestsButtonClicked -> {
+                                    Output.SettingsButtonClicked -> {
 
-                                        }
+                                    }
+
+                                    Output.TestsButtonClicked -> {
+                                        navigator.navigate(route = DesktopRouting.testmenu)
                                     }
                                 }
-                            )
-                        }
+                            }
+                        )
+                    }
+                    val testMenuViewModel = viewModel(modelClass = TestMenuViewModel::class) {
+                        TestMenuViewModel(
+                            output = { output ->
+                                when (output) {
+                                    presentation.testmenu.store.Output.Test1Clicked -> {
+
+                                    }
+
+                                    presentation.testmenu.store.Output.BackButtonClicked -> {
+                                        navigator.popBackStack()
+                                    }
+                                }
+                            }
+                        )
+                    }
 
                     NavHost(
                         navigator = navigator,
@@ -60,6 +78,13 @@ fun main() = run {
                             navTransition = NavTransition(),
                         ) {
                             HomePage(homeViewModel::onEvent)
+                        }
+
+                        scene(
+                            route = DesktopRouting.testmenu,
+                            navTransition = NavTransition()
+                        ) {
+                            TestMenu(testMenuViewModel::onEvent)
                         }
                     }
                 }

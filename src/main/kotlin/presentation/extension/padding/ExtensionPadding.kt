@@ -1,4 +1,4 @@
-package presentation.padding
+package presentation.extension.padding
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -11,6 +11,6 @@ object ExtensionPadding {
     private val mediumVerPadding = 18.dp
 
     val mediumVerticalArrangement =
-        Arrangement.spacedBy(space = ExtensionPadding.mediumItemSpacing, alignment = Alignment.CenterVertically)
+        Arrangement.spacedBy(space = mediumItemSpacing, alignment = Alignment.CenterVertically)
     val mediumAsymmetricalContentPadding = PaddingValues(horizontal = mediumHorPadding, vertical = mediumVerPadding)
 }
