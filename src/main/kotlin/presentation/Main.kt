@@ -11,6 +11,8 @@ import moe.tlaster.precompose.navigation.NavHost
 import moe.tlaster.precompose.navigation.rememberNavigator
 import moe.tlaster.precompose.navigation.transition.NavTransition
 import moe.tlaster.precompose.viewmodel.viewModel
+import presentation.authorization.AuthorizationPage
+import presentation.authorization.viewmodel.AuthorizationViewModel
 import presentation.home.HomePage
 import presentation.home.store.Output
 import presentation.home.viewmodel.HomeViewModel
@@ -60,10 +62,21 @@ fun main() = run {
                             output = { output ->
                                 when (output) {
                                     presentation.testmenu.store.Output.Test1Clicked -> {
-
+                                        navigator.navigate(route = DesktopRouting.auth)
                                     }
 
                                     presentation.testmenu.store.Output.BackButtonClicked -> {
+                                        navigator.popBackStack()
+                                    }
+                                }
+                            }
+                        )
+                    }
+                    val authorizationViewModel = viewModel(modelClass = AuthorizationViewModel::class) {
+                        AuthorizationViewModel(
+                            output = { output ->
+                                when (output) {
+                                    presentation.authorization.store.Output.BackButtonClicked -> {
                                         navigator.popBackStack()
                                     }
                                 }
@@ -76,20 +89,17 @@ fun main() = run {
                         navTransition = NavTransition(),
                         initialRoute = DesktopRouting.home,
                     ) {
-                        scene(
-                            route = DesktopRouting.home,
-                            navTransition = NavTransition(),
-                        ) {
+                        scene(route = DesktopRouting.home) {
                             println("Home page rendered")
                             HomePage(homeViewModel::onEvent)
                         }
-
-                        scene(
-                            route = DesktopRouting.testmenu,
-                            navTransition = NavTransition()
-                        ) {
+                        scene(route = DesktopRouting.testmenu) {
                             println("Test menu page rendered")
                             TestMenu(testMenuViewModel::onEvent)
+                        }
+                        scene(route = DesktopRouting.auth) {
+                            println("Authorization page rendered")
+                            AuthorizationPage(authorizationViewModel::onEvent)
                         }
                     }
                 }

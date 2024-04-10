@@ -1,17 +1,15 @@
 package presentation.home
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import presentation.components.DefaultButton
 import presentation.home.store.Event
-import presentation.extension.padding.ExtensionPadding.mediumAsymmetricalContentPadding
 import presentation.extension.padding.ExtensionPadding.mediumVerticalArrangement
-import presentation.extension.size.ConstantSize
 
 @Composable
 fun HomePage(onEvent: (Event) -> Unit) {
@@ -21,39 +19,33 @@ fun HomePage(onEvent: (Event) -> Unit) {
         verticalArrangement = mediumVerticalArrangement,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Button(
+        DefaultButton(
+            content = {
+                Text(text = "Тесты", style = MaterialTheme.typography.headlineMedium)
+            },
             onClick = {
                 onEvent(Event.TestsButtonClicked)
             },
-            modifier = Modifier
-                .defaultMinSize(minWidth = ConstantSize.homeButtonWidth)
-                .wrapContentHeight(),
-            shape = MaterialTheme.shapes.medium, contentPadding = mediumAsymmetricalContentPadding
-        ) {
-            Text(text = "Тесты", style = MaterialTheme.typography.headlineMedium)
-        }
-        Button(
-            onClick = {},
-            modifier = Modifier
-                .defaultMinSize(minWidth = ConstantSize.homeButtonWidth)
-                .wrapContentHeight(),
-            shape = MaterialTheme.shapes.medium, contentPadding = mediumAsymmetricalContentPadding
-        ) {
-            Text(text = "Настройки", style = MaterialTheme.typography.headlineMedium)
-        }
-        Button(
-            onClick = {},
-            modifier = Modifier
-                .defaultMinSize(minWidth = ConstantSize.homeButtonWidth)
-                .wrapContentHeight(),
-            shape = MaterialTheme.shapes.medium,
-            contentPadding = mediumAsymmetricalContentPadding,
+        )
+        DefaultButton(
+            content = {
+                Text(text = "Настройки", style = MaterialTheme.typography.headlineMedium)
+            },
+            onClick = {
+                onEvent(Event.TestsButtonClicked)
+            },
+        )
+        DefaultButton(
+            onClick = {
+                onEvent(Event.TestsButtonClicked)
+            },
+            content = {
+                Text(text = "О программе", style = MaterialTheme.typography.headlineMedium)
+            },
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                 contentColor = MaterialTheme.colorScheme.onTertiaryContainer
             )
-        ) {
-            Text(text = "О программе", style = MaterialTheme.typography.headlineMedium)
-        }
+        )
     }
 }
