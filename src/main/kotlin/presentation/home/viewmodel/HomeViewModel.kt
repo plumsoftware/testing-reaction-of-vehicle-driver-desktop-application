@@ -21,7 +21,7 @@ class HomeViewModel(
             }
 
             Event.SettingsButtonClicked -> {
-
+                onOutput(o = Output.SettingsButtonClicked)
             }
 
             Event.TestsButtonClicked -> {

@@ -3,6 +3,7 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 plugins {
     kotlin("jvm")
     id("org.jetbrains.compose")
+    kotlin("plugin.serialization") version "1.9.22"
 }
 
 group = "ru.plumsoftware"
@@ -18,6 +19,7 @@ dependencies {
     val apachi_poi = "5.2.3"
     val material3 = "1.2.1"
     val precompose_version = "1.6.0"
+    val kotlinx_serialization_json = "1.6.0"
 
 
     implementation(compose.desktop.currentOs)
@@ -25,6 +27,7 @@ dependencies {
     implementation("org.apache.poi:poi:${apachi_poi}")
     implementation("org.apache.poi:poi-ooxml:${apachi_poi}")
     implementation("org.jetbrains.compose.material3:material3-desktop:${material3}")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${kotlinx_serialization_json}")
 
     api("moe.tlaster:precompose-viewmodel:${precompose_version}")
 

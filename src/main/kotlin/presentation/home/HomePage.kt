@@ -32,7 +32,7 @@ fun HomePage(onEvent: (Event) -> Unit) {
                 Text(text = "Настройки", style = MaterialTheme.typography.headlineMedium)
             },
             onClick = {
-                onEvent(Event.TestsButtonClicked)
+                onEvent(Event.SettingsButtonClicked)
             },
         )
         DefaultButton(

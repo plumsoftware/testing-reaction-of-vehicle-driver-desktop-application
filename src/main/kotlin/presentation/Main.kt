@@ -1,13 +1,22 @@
 package presentation
 
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.useResource
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import data.repository.SettingsRepositoryImpl
 import data.tests.TrafficLight
 import domain.model.ReactionTest
+import domain.model.Settings
+import domain.storage.SettingsStorage
+import domain.usecase.settings.GetUserSettingsUseCase
+import domain.usecase.settings.SaveUserSettingsUseCase
+import kotlinx.coroutines.*
 import moe.tlaster.precompose.PreComposeApp
 import moe.tlaster.precompose.navigation.NavHost
 import moe.tlaster.precompose.navigation.rememberNavigator
@@ -19,9 +28,12 @@ import presentation.home.HomePage
 import presentation.home.store.Output
 import presentation.home.viewmodel.HomeViewModel
 import presentation.extension.route.DesktopRouting
+import presentation.settings.SettingsPage
+import presentation.settings.viewmodel.SettingsViewModel
 import presentation.testmenu.TestMenu
 import presentation.testmenu.viewmodel.TestMenuViewModel
 import presentation.theme.AppTheme
+import kotlin.coroutines.CoroutineContext
 
 fun main() = run {
 
@@ -33,13 +45,31 @@ fun main() = run {
             TrafficLight()
         )
 
+//        region::Storage
+        val settingsRepository = SettingsRepositoryImpl()
+        val settingsStorage = SettingsStorage(
+            getUserSettingsUseCase = GetUserSettingsUseCase(settingsRepository),
+            saveUserSettingsUseCase = SaveUserSettingsUseCase(settingsRepository)
+        )
+//        endregion
+
+//        region::Actions
+        val supervisorJob = SupervisorJob()
+        val coroutineContextIO: CoroutineContext = Dispatchers.IO + supervisorJob
+
+        var settings = Settings()
+        CoroutineScope(coroutineContextIO).launch {
+            settings = settingsStorage.get()
+        }
+//        endregion
+
         Window(
             onCloseRequest = ::exitApplication,
             icon = BitmapPainter(useResource("test_icon.png", ::loadImageBitmap)),
             title = "Тест на рекацию",
             state = windowState
         ) {
-            AppTheme(useDarkTheme = false) {
+            AppTheme(useDarkTheme = settings.isDarkTheme) {
                 PreComposeApp {
 
                     val navigator = rememberNavigator()
@@ -52,7 +82,7 @@ fun main() = run {
                                     }
 
                                     Output.SettingsButtonClicked -> {
-
+                                        navigator.navigate(route = DesktopRouting.settings)
                                     }
 
                                     Output.TestsButtonClicked -> {
@@ -88,11 +118,23 @@ fun main() = run {
                             }
                         )
                     }
+                    val settingsViewModel = viewModel(modelClass = SettingsViewModel::class) {
+                        SettingsViewModel(
+                            settingsStorage = settingsStorage,
+                            coroutineContextIO = coroutineContextIO,
+                            output = { output ->
+                                when (output) {
+                                    presentation.settings.store.Output.BackClicked -> navigator.popBackStack()
+                                }
+                            }
+                        )
+                    }
 
                     NavHost(
                         navigator = navigator,
                         navTransition = NavTransition(),
                         initialRoute = DesktopRouting.home,
+                        modifier = Modifier.padding(all = 0.dp)
                     ) {
                         scene(route = DesktopRouting.home) {
                             println("Home page rendered")
@@ -108,6 +150,10 @@ fun main() = run {
                         }
                         scene(route = DesktopRouting.trafficLight) {
                             println("TrafficLight page rendered")
+                        }
+                        scene(route = DesktopRouting.settings) {
+                            println("Settings page rendered")
+                            SettingsPage(settingsViewModel::onEvent, settingsViewModel.state)
                         }
                     }
                 }
