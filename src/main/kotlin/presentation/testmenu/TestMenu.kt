@@ -5,6 +5,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import domain.model.ReactionTest
 import presentation.components.BackButton
 import presentation.extension.padding.ExtensionPadding
 import presentation.extension.size.ConstantSize
@@ -12,7 +13,7 @@ import presentation.testmenu.store.Event
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TestMenu(onEvent: (Event) -> Unit) {
+fun TestMenu(onEvent: (Event) -> Unit, reactionTests: List<ReactionTest>) {
     Scaffold(
         topBar = {
             BackButton(
@@ -27,14 +28,17 @@ fun TestMenu(onEvent: (Event) -> Unit) {
             verticalArrangement = ExtensionPadding.mediumVerticalArrangement,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Button(
-                onClick = { onEvent(Event.Test1CLicked) },
-                modifier = Modifier
-                    .defaultMinSize(minWidth = ConstantSize.homeButtonWidth)
-                    .wrapContentHeight(),
-                shape = MaterialTheme.shapes.medium, contentPadding = ExtensionPadding.mediumAsymmetricalContentPadding
-            ) {
-                Text(text = "Тест 'Светофор'", style = MaterialTheme.typography.headlineMedium)
+            for (i in reactionTests) {
+                Button(
+                    onClick = { onEvent(Event.TestClicked(route = i.route)) },
+                    modifier = Modifier
+                        .defaultMinSize(minWidth = ConstantSize.homeButtonWidth)
+                        .wrapContentHeight(),
+                    shape = MaterialTheme.shapes.medium,
+                    contentPadding = ExtensionPadding.mediumAsymmetricalContentPadding
+                ) {
+                    Text(text = "Тест '${i.name}'", style = MaterialTheme.typography.headlineMedium)
+                }
             }
         }
     }

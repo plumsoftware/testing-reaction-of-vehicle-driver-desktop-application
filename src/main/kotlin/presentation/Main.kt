@@ -6,6 +6,8 @@ import androidx.compose.ui.res.useResource
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import data.tests.TrafficLight
+import domain.model.ReactionTest
 import moe.tlaster.precompose.PreComposeApp
 import moe.tlaster.precompose.navigation.NavHost
 import moe.tlaster.precompose.navigation.rememberNavigator
@@ -27,6 +29,9 @@ fun main() = run {
 
     application {
         val windowState = rememberWindowState()
+        val reactionTests: List<ReactionTest> = listOf(
+            TrafficLight()
+        )
 
         Window(
             onCloseRequest = ::exitApplication,
@@ -61,8 +66,8 @@ fun main() = run {
                         TestMenuViewModel(
                             output = { output ->
                                 when (output) {
-                                    presentation.testmenu.store.Output.Test1Clicked -> {
-                                        navigator.navigate(route = DesktopRouting.auth)
+                                    is presentation.testmenu.store.Output.TestClicked -> {
+                                        navigator.navigate(route = output.route)
                                     }
 
                                     presentation.testmenu.store.Output.BackButtonClicked -> {
@@ -95,11 +100,14 @@ fun main() = run {
                         }
                         scene(route = DesktopRouting.testmenu) {
                             println("Test menu page rendered")
-                            TestMenu(testMenuViewModel::onEvent)
+                            TestMenu(testMenuViewModel::onEvent, reactionTests)
                         }
                         scene(route = DesktopRouting.auth) {
                             println("Authorization page rendered")
                             AuthorizationPage(authorizationViewModel::onEvent)
+                        }
+                        scene(route = DesktopRouting.trafficLight) {
+                            println("TrafficLight page rendered")
                         }
                     }
                 }

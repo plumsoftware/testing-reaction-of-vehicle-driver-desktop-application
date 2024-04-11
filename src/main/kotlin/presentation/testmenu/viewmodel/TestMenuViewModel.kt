@@ -11,10 +11,11 @@ class TestMenuViewModel(
     init {
         println("Test menu view model created")
     }
+
     fun onEvent(event: Event) {
         when (event) {
-            Event.Test1CLicked -> {
-                onOutput(o = Output.Test1Clicked)
+            is Event.TestClicked -> {
+                onOutput(o = Output.TestClicked(route = event.route))
             }
 
             Event.BackCLicked -> {
