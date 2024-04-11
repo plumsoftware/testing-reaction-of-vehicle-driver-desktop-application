@@ -20,11 +20,12 @@ fun TestMenu(onEvent: (Event) -> Unit, reactionTests: List<ReactionTest>) {
                 onClick = { onEvent(Event.BackCLicked) }
             )
         },
-        modifier = Modifier.fillMaxSize().padding(ExtensionPadding.mediumAsymmetricalContentPadding)
+        modifier = Modifier.fillMaxSize()
     ) {
         Column(
             modifier = Modifier
-                .fillMaxSize(),
+                .fillMaxSize()
+                .padding(ExtensionPadding.mediumAsymmetricalContentPadding),
             verticalArrangement = ExtensionPadding.mediumVerticalArrangement,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {

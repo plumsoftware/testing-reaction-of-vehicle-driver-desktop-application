@@ -28,11 +28,12 @@ fun AuthorizationPage(onEvent: (Event) -> Unit) {
                 content = { Text(text = "Пройти тест", style = MaterialTheme.typography.headlineMedium) })
         },
         floatingActionButtonPosition = FabPosition.End,
-        modifier = Modifier.fillMaxSize().padding(ExtensionPadding.mediumAsymmetricalContentPadding)
+        modifier = Modifier.fillMaxSize()
     ) {
         Column(
             modifier = Modifier
-                .fillMaxSize(),
+                .fillMaxSize()
+                .padding(ExtensionPadding.mediumAsymmetricalContentPadding),
             verticalArrangement = ExtensionPadding.mediumVerticalArrangement,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
