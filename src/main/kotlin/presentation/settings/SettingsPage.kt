@@ -55,9 +55,49 @@ fun SettingsPage(onEvent: (Event) -> Unit, _state: MutableStateFlow<State>) {
                             horizontalArrangement = ExtensionPadding.mediumHorizontalArrangement
                         ) {
                             Checkbox(checked = state.isDarkTheme, onCheckedChange = {
-                                onEvent(Event.OnCheckboxChanged(isChecked = it))
+                                onEvent(Event.OnCheckboxThemeChanged(isChecked = it))
                             })
                             Text(text = "Тёмная тема", style = MaterialTheme.typography.bodyMedium)
+                        }
+                    }
+                }
+            }
+
+            item {
+                Column(
+                    modifier = Modifier
+                        .wrapContentSize(),
+                    verticalArrangement = ExtensionPadding.mediumVerticalArrangementTop,
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Text(text = "Форматы экспорта", style = MaterialTheme.typography.headlineSmall)
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(ExtensionPadding.smallAsymmetricalContentPadding),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = ExtensionPadding.mediumHorizontalArrangement
+                        ) {
+                            Checkbox(checked = state.isXlsxFormat, onCheckedChange = {
+                                onEvent(Event.OnCheckboxXlsxFormatChanged(isChecked = it))
+                            })
+                            Text(text = ".XLSX", style = MaterialTheme.typography.bodyMedium)
+                        }
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(ExtensionPadding.smallAsymmetricalContentPadding),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = ExtensionPadding.mediumHorizontalArrangement
+                        ) {
+                            Checkbox(checked = state.isXlsFormat, onCheckedChange = {
+                                onEvent(Event.OnCheckboxXlsFormatChanged(isChecked = it))
+                            })
+                            Text(text = ".XLS", style = MaterialTheme.typography.bodyMedium)
                         }
                     }
                 }

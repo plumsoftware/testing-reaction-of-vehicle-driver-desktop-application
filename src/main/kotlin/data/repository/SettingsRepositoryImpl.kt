@@ -1,5 +1,6 @@
 package data.repository
 
+import data.Constants
 import domain.model.Settings
 import domain.repository.SettingsRepository
 import kotlinx.serialization.json.Json
@@ -11,9 +12,24 @@ class SettingsRepositoryImpl : SettingsRepository {
         println("SettingsRepositoryImpl: User settings to save is: $settings")
         val settingsFile = File("settings.json")
 //        val jsonString = Json.encodeToString("""{$settings}""".trimIndent())
-        val jsonString = "{\n" +
-                "\t\"isDarkTheme\" : ${settings.isDarkTheme}" + "\n" +
+        val stringBuffer = StringBuffer()
+        stringBuffer.append("\t\"dataFormats\" : {\n")
+        settings.dataFormats.forEach { (key, value) ->
+            if (key != Constants.XLS)
+                stringBuffer
+                    .append("\t\t\t\"$key\" : $value,\n")
+            else
+                stringBuffer
+                    .append("\t\t\t\"$key\" : $value\n")
+        }
+        stringBuffer.append("\t}")
+
+        val jsonString =
+                "{\n" +
+                "\t\"isDarkTheme\" : ${settings.isDarkTheme}," + "\n" +
+                stringBuffer.toString() + "\n" +
                 "}"
+
         settingsFile.writeText(jsonString)
         println("SettingsRepositoryImpl: json to save: $jsonString")
     }

@@ -1,5 +1,7 @@
 package presentation.settings.viewmodel
 
+import androidx.compose.runtime.MutableState
+import data.Constants
 import domain.model.Settings
 import domain.storage.SettingsStorage
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +20,7 @@ class SettingsViewModel(
     coroutineContextIO: CoroutineContext,
 ) : ViewModel() {
 
-    val state = MutableStateFlow(State())
+    val state: MutableStateFlow<State> =  MutableStateFlow(State())
 
     init {
         println("Settings ViewModel created")
@@ -28,6 +30,8 @@ class SettingsViewModel(
             state.update {
                 it.copy(
                     isDarkTheme = settings.isDarkTheme,
+                    isXlsFormat = settings.dataFormats[Constants.XLS]!!,
+                    isXlsxFormat = settings.dataFormats[Constants.XLSX]!!,
                     settings = settings
                 )
             }
@@ -40,17 +44,46 @@ class SettingsViewModel(
                 onOutput(Output.BackClicked)
             }
 
-            is Event.OnCheckboxChanged -> {
+            is Event.OnCheckboxThemeChanged -> {
                 state.update {
                     it.copy(
                         isDarkTheme = event.isChecked
                     )
                 }
-
-                viewModelScope.launch {
-                    settingsStorage.save(settings = Settings(isDarkTheme = state.value.isDarkTheme))
-                }
+                save(state = state)
             }
+
+            is Event.OnCheckboxXlsFormatChanged -> {
+                state.update {
+                    it.copy(
+                        isXlsFormat = event.isChecked
+                    )
+                }
+                save(state = state)
+            }
+
+            is Event.OnCheckboxXlsxFormatChanged -> {
+                state.update {
+                    it.copy(
+                        isXlsxFormat = event.isChecked
+                    )
+                }
+                save(state = state)
+            }
+        }
+    }
+
+    private fun save(state: MutableStateFlow<State>) {
+        viewModelScope.launch {
+            settingsStorage.save(
+                settings = Settings(
+                    isDarkTheme = state.value.isDarkTheme,
+                    dataFormats = mapOf(
+                        Constants.XLSX to state.value.isXlsxFormat,
+                        Constants.XLS to state.value.isXlsFormat
+                    )
+                )
+            )
         }
     }
 
