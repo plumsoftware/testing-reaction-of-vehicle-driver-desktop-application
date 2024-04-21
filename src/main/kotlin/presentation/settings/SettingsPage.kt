@@ -43,15 +43,22 @@ fun SettingsPage(onEvent: (Event) -> Unit, _state: MutableStateFlow<State>) {
                     horizontalAlignment = Alignment.Start
                 ) {
                     Text(text = "Внешний вид", style = MaterialTheme.typography.headlineSmall)
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = ExtensionPadding.mediumHorizontalArrangement
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
                     ) {
-                        Text(text = "Тёмная тема", style = MaterialTheme.typography.bodyMedium)
-                        Checkbox(checked = state.isDarkTheme, onCheckedChange = {
-                            onEvent(Event.OnCheckboxChanged(isChecked = it))
-                        })
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(ExtensionPadding.smallAsymmetricalContentPadding),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = ExtensionPadding.mediumHorizontalArrangement
+                        ) {
+                            Checkbox(checked = state.isDarkTheme, onCheckedChange = {
+                                onEvent(Event.OnCheckboxChanged(isChecked = it))
+                            })
+                            Text(text = "Тёмная тема", style = MaterialTheme.typography.bodyMedium)
+                        }
                     }
                 }
             }

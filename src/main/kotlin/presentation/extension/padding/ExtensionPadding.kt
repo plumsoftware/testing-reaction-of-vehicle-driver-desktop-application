@@ -8,7 +8,9 @@ import androidx.compose.ui.unit.dp
 object ExtensionPadding {
     private val mediumItemSpacing = 18.dp
     private val mediumHorPadding = 22.dp
+    private val smallHorPadding = 16.dp
     private val mediumVerPadding = 18.dp
+    private val smallVerPadding = 14.dp
     val scaffoldTopPadding = 80.dp
 
     val mediumVerticalArrangement =
@@ -16,6 +18,7 @@ object ExtensionPadding {
     val mediumVerticalArrangementTop =
         Arrangement.spacedBy(space = mediumItemSpacing, alignment = Alignment.Top)
     val mediumAsymmetricalContentPadding = PaddingValues(horizontal = mediumHorPadding, vertical = mediumVerPadding)
+    val smallAsymmetricalContentPadding = PaddingValues(horizontal = smallHorPadding, vertical = smallVerPadding)
 
     val mediumHorizontalArrangement =
         Arrangement.spacedBy(space = mediumItemSpacing, alignment = Alignment.Start)
