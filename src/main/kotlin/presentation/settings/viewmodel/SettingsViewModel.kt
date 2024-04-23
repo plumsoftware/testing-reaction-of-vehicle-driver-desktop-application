@@ -1,6 +1,5 @@
 package presentation.settings.viewmodel
 
-import androidx.compose.runtime.MutableState
 import data.Constants
 import domain.model.Settings
 import domain.storage.SettingsStorage
@@ -12,6 +11,7 @@ import moe.tlaster.precompose.viewmodel.viewModelScope
 import presentation.settings.store.Event
 import presentation.settings.store.Output
 import presentation.settings.store.State
+import java.io.File
 import kotlin.coroutines.CoroutineContext
 
 class SettingsViewModel(
@@ -19,8 +19,9 @@ class SettingsViewModel(
     private val settingsStorage: SettingsStorage,
     coroutineContextIO: CoroutineContext,
 ) : ViewModel() {
+    private val listRoots = File.listRoots().asList()
 
-    val state: MutableStateFlow<State> =  MutableStateFlow(State())
+    val state: MutableStateFlow<State> = MutableStateFlow(State(selectedNetworkDrive = listRoots[0]))
 
     init {
         println("Settings ViewModel created")
@@ -28,11 +29,15 @@ class SettingsViewModel(
             val settings: Settings = settingsStorage.get()
 
             state.update {
+
                 it.copy(
                     isDarkTheme = settings.isDarkTheme,
-                    isXlsFormat = settings.dataFormats[Constants.XLS]!!,
-                    isXlsxFormat = settings.dataFormats[Constants.XLSX]!!,
-                    settings = settings
+                    isXlsFormat = settings.dataFormats[Constants.Settings.XLS]!!,
+                    isXlsxFormat = settings.dataFormats[Constants.Settings.XLSX]!!,
+                    settings = settings,
+
+                    listRoots = listRoots,
+                    selectedNetworkDrive = if(settings.networkDrive.isNotEmpty()) File(settings.networkDrive) else listRoots[0]
                 )
             }
         }
@@ -70,6 +75,31 @@ class SettingsViewModel(
                 }
                 save(state = state)
             }
+
+            Event.CollapseDropDownMenu -> {
+                state.update {
+                    it.copy(
+                        dropdownMenuExpanded = false
+                    )
+                }
+            }
+
+            Event.ExpandDropDownMenu -> {
+                state.update {
+                    it.copy(
+                        dropdownMenuExpanded = true
+                    )
+                }
+            }
+
+            is Event.SelectDropDownMenuItem -> {
+                state.update {
+                    it.copy(
+                        selectedNetworkDrive = event.item
+                    )
+                }
+                save(state = state)
+            }
         }
     }
 
@@ -79,9 +109,10 @@ class SettingsViewModel(
                 settings = Settings(
                     isDarkTheme = state.value.isDarkTheme,
                     dataFormats = mapOf(
-                        Constants.XLSX to state.value.isXlsxFormat,
-                        Constants.XLS to state.value.isXlsFormat
-                    )
+                        Constants.Settings.XLSX to state.value.isXlsxFormat,
+                        Constants.Settings.XLS to state.value.isXlsFormat
+                    ),
+                    networkDrive = "${state.value.selectedNetworkDrive.absolutePath}\\"
                 )
             )
         }

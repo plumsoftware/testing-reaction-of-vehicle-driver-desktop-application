@@ -18,7 +18,7 @@ class WorkbookRepositoryImpl : WorkbookRepository {
 
         return if (workbook == null) {
 //            Folder
-            val folder: File = File(folderPath)
+            val folder = File(folderPath)
             if (!folder.exists()) {
                 folder.mkdir()
             }
@@ -27,7 +27,7 @@ class WorkbookRepositoryImpl : WorkbookRepository {
             workbook = XSSFWorkbook()
 
 //            Create sheet "Данные тестирования"
-            val sheet = workbook.createSheet(Constants.SHEET_NAME)
+            val sheet = workbook.createSheet(Constants.Table.SHEET_NAME)
 
 //            Cell style
             val font = workbook.createFont() as XSSFFont

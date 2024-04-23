@@ -1,7 +1,11 @@
 package presentation.settings
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -10,6 +14,7 @@ import androidx.compose.ui.Modifier
 import kotlinx.coroutines.flow.MutableStateFlow
 import presentation.components.BackButton
 import presentation.extension.padding.ExtensionPadding
+import presentation.extension.size.ConstantSize
 import presentation.settings.store.Event
 import presentation.settings.store.State
 
@@ -32,7 +37,7 @@ fun SettingsPage(onEvent: (Event) -> Unit, _state: MutableStateFlow<State>) {
                 .fillMaxSize()
                 .padding(top = ExtensionPadding.scaffoldTopPadding)
                 .padding(ExtensionPadding.mediumAsymmetricalContentPadding),
-            verticalArrangement = ExtensionPadding.mediumVerticalArrangementTop,
+            verticalArrangement = ExtensionPadding.largeVerticalArrangementTop,
             horizontalAlignment = Alignment.Start
         ) {
             item {
@@ -98,6 +103,61 @@ fun SettingsPage(onEvent: (Event) -> Unit, _state: MutableStateFlow<State>) {
                                 onEvent(Event.OnCheckboxXlsFormatChanged(isChecked = it))
                             })
                             Text(text = ".XLS", style = MaterialTheme.typography.bodyMedium)
+                        }
+                    }
+                }
+            }
+
+            item {
+                Column(
+                    modifier = Modifier
+                        .wrapContentSize(),
+                    verticalArrangement = ExtensionPadding.mediumVerticalArrangementTop,
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Text(text = "Специальные настройки", style = MaterialTheme.typography.headlineSmall)
+                    OutlinedCard(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        border = BorderStroke(
+                            ConstantSize.regularBorderWidth,
+                            MaterialTheme.colorScheme.errorContainer
+                        ),
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(ExtensionPadding.smallAsymmetricalContentPadding),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = ExtensionPadding.mediumHorizontalArrangement
+                        ) {
+                            DropdownMenu(
+                                expanded = state.dropdownMenuExpanded,
+                                onDismissRequest = { onEvent(Event.CollapseDropDownMenu) },
+                                modifier = Modifier.background(color = MaterialTheme.colorScheme.background)
+                            ) {
+                                state.listRoots.forEachIndexed { _, file ->
+                                    DropdownMenuItem(
+                                        onClick = {
+                                            onEvent(Event.SelectDropDownMenuItem(item = file))
+                                            onEvent(Event.CollapseDropDownMenu)
+                                        },
+                                    ) {
+                                        Text(
+                                            text = file.absolutePath,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onBackground
+                                        )
+                                    }
+                                }
+                            }
+                            Button(onClick = { onEvent(Event.ExpandDropDownMenu) }) {
+                                Text(
+                                    text = state.selectedNetworkDrive.absolutePath,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                            Text(text = "Выберите сетевой диск", style = MaterialTheme.typography.bodyMedium)
                         }
                     }
                 }

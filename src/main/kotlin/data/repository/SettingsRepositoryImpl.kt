@@ -19,14 +19,18 @@ class SettingsRepositoryImpl : SettingsRepository {
         val stringBuffer = StringBuffer()
         stringBuffer.append("\t\"dataFormats\" : \n\t{\n")
         settings.dataFormats.forEach { (key, value) ->
-            if (key != Constants.XLS)
+            if (key != Constants.Settings.XLS)
                 stringBuffer
                     .append("\t\t\"$key\" : $value,\n")
             else
                 stringBuffer
                     .append("\t\t\"$key\" : $value\n")
         }
-        stringBuffer.append("\t}")
+        stringBuffer.append("\t},\n")
+
+//        Network drive
+        stringBuffer
+            .append("\t\"networkDrive\" : \"${settings.networkDrive}\"")
 
         val jsonString =
             "{\n" +
@@ -40,26 +44,27 @@ class SettingsRepositoryImpl : SettingsRepository {
 
     override suspend fun loadSettings(): Settings {
         try {
-            val settingsFile = File(Constants.PATH_TO_SETTINGS_FILE)
+            val settingsFile = File(Constants.General.PATH_TO_SETTINGS_FILE)
             settingsFile.readText()
         } catch (e: FileNotFoundException) {
             println("SettingsRepositoryImpl: Ошибка в settingsViewModel: " + e.message)
             createFolderAndFileIfNotExists()
         }
 
-        var settingsFile: File = createFolderIfNotExists()
+//        var settingsFile: File = createFolderIfNotExists()
+        var settingsFile = File(Constants.General.PATH_TO_SETTINGS_FILE)
         var jsonString = settingsFile.readText()
-        try {
+
+        if (jsonString.isNotEmpty()) {
             val settings: Settings = Json.decodeFromString<Settings>(jsonString)
             println("User settings to load is: $settings")
             return settings
-        } catch (e: Exception) {
-            println("SettingsRepositoryImpl: Ошибка в settingsViewModel: " + e.message)
+        } else {
+            println("User setting is empty ")
             saveData(settings = Settings())
-
-            settingsFile = File(Constants.PATH_TO_SETTINGS_FILE)
+            settingsFile = File(Constants.General.PATH_TO_SETTINGS_FILE)
             jsonString = settingsFile.readText()
-            println("SettingsRepositoryImpl: $jsonString")
+            println("SettingsRepositoryImpl: string from file: $jsonString")
 
             val settings: Settings = Json.decodeFromString<Settings>(jsonString)
             return settings
@@ -67,26 +72,26 @@ class SettingsRepositoryImpl : SettingsRepository {
     }
 
     private fun createFolderIfNotExists(): File {
-        val folder = File(Constants.PATH_TO_SETTINGS_FOLDER)
+        val folder = File(Constants.General.PATH_TO_SETTINGS_FOLDER)
         val settingsFile: File = if (!folder.exists()) {
             folder.mkdir()
-            File(Constants.PATH_TO_SETTINGS_FILE)
+            File(Constants.General.PATH_TO_SETTINGS_FILE)
         } else {
-            File(Constants.PATH_TO_SETTINGS_FILE)
+            File(Constants.General.PATH_TO_SETTINGS_FILE)
         }
         return settingsFile
     }
 
     private suspend fun createFolderAndFileIfNotExists() {
-        val folder = File(Constants.PATH_TO_SETTINGS_FOLDER)
+        val folder = File(Constants.General.PATH_TO_SETTINGS_FOLDER)
         if (!folder.exists()) {
             folder.mkdir()
             withContext(Dispatchers.IO) {
-                File(Constants.PATH_TO_SETTINGS_FILE).createNewFile()
+                File(Constants.General.PATH_TO_SETTINGS_FILE).createNewFile()
             }
         } else {
             withContext(Dispatchers.IO) {
-                File(Constants.PATH_TO_SETTINGS_FILE).createNewFile()
+                File(Constants.General.PATH_TO_SETTINGS_FILE).createNewFile()
             }
         }
     }
