@@ -1,6 +1,5 @@
 package domain.model
 
-import androidx.compose.ui.unit.Constraints
 import data.Constants
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

@@ -13,7 +13,7 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 
 class WorkbookRepositoryImpl : WorkbookRepository {
-    override suspend fun createWorkbookIfNotExists(fullPath: String, folderPath: String): Boolean {
+    override suspend fun createWorkbookIfNotExists(fullPath: String, folderPath: String, dataFormats: Map<String,Boolean>): Boolean {
         var workbook: Workbook? = getWorkbook(path = fullPath)
 
         return if (workbook == null) {
