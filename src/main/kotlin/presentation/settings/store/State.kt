@@ -9,8 +9,12 @@ data class State(
     val isXlsFormat: Boolean = false,
 
     val listRoots: List<File> = emptyList(),
-    val selectedNetworkDrive: File = listRoots[0],
-    val dropdownMenuExpanded: Boolean = false,
+
+    val selectedNetworkDrive: File = File("C:\\"),
+    val dropdownMenuNetworkDriveExpanded: Boolean = false,
+
+    val selectedLocalDrive: File = File("C:\\"),
+    val dropdownMenuLocalDriveExpanded: Boolean = false,
 
     val settings: Settings = Settings()
 )

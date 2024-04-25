@@ -30,6 +30,10 @@ class SettingsViewModel(
 
             state.update {
 
+                /**
+                 *  Initial state for the settings
+                 * */
+
                 it.copy(
                     isDarkTheme = settings.isDarkTheme,
                     isXlsFormat = settings.dataFormats[Constants.Settings.XLS]!!,
@@ -37,7 +41,8 @@ class SettingsViewModel(
                     settings = settings,
 
                     listRoots = listRoots,
-                    selectedNetworkDrive = if(settings.networkDrive.isNotEmpty()) File(settings.networkDrive) else listRoots[0]
+                    selectedNetworkDrive = if(settings.networkDrive.isNotEmpty()) File(settings.networkDrive) else listRoots[0],
+                    selectedLocalDrive = if(settings.localDrive.isNotEmpty()) File(settings.localDrive) else listRoots[0],
                 )
             }
         }
@@ -49,6 +54,7 @@ class SettingsViewModel(
                 onOutput(Output.BackClicked)
             }
 
+//            region::Check boxes
             is Event.OnCheckboxThemeChanged -> {
                 state.update {
                     it.copy(
@@ -75,24 +81,24 @@ class SettingsViewModel(
                 }
                 save(state = state)
             }
+//            endregion
 
-            Event.CollapseDropDownMenu -> {
+//            region::Network drive
+            Event.CollapseDropDownMenuNetworkDrive -> {
                 state.update {
                     it.copy(
-                        dropdownMenuExpanded = false
+                        dropdownMenuNetworkDriveExpanded = false
                     )
                 }
             }
-
-            Event.ExpandDropDownMenu -> {
+            Event.ExpandDropDownMenuNetworkDrive -> {
                 state.update {
                     it.copy(
-                        dropdownMenuExpanded = true
+                        dropdownMenuNetworkDriveExpanded = true
                     )
                 }
             }
-
-            is Event.SelectDropDownMenuItem -> {
+            is Event.SelectDropDownMenuNetworkDriveItem -> {
                 state.update {
                     it.copy(
                         selectedNetworkDrive = event.item
@@ -100,6 +106,32 @@ class SettingsViewModel(
                 }
                 save(state = state)
             }
+//            endregion
+
+//            region::Local drive
+            Event.CollapseDropDownMenuLocalDrive -> {
+                state.update {
+                    it.copy(
+                        dropdownMenuLocalDriveExpanded = false
+                    )
+                }
+            }
+            Event.ExpandDropDownMenuLocalDrive -> {
+                state.update {
+                    it.copy(
+                        dropdownMenuLocalDriveExpanded = true
+                    )
+                }
+            }
+            is Event.SelectDropDownMenuLocalDriveItem -> {
+                state.update {
+                    it.copy(
+                        selectedLocalDrive = event.item
+                    )
+                }
+                save(state = state)
+            }
+//            endregion
         }
     }
 
@@ -112,7 +144,8 @@ class SettingsViewModel(
                         Constants.Settings.XLSX to state.value.isXlsxFormat,
                         Constants.Settings.XLS to state.value.isXlsFormat
                     ),
-                    networkDrive = "${state.value.selectedNetworkDrive.absolutePath}\\"
+                    networkDrive = "${state.value.selectedNetworkDrive.absolutePath}\\",
+                    localDrive = "${state.value.selectedLocalDrive.absolutePath}\\"
                 )
             )
         }

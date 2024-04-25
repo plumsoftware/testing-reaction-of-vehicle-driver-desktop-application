@@ -12,5 +12,6 @@ data class Settings(
         Constants.Settings.XLSX to true,
         Constants.Settings.XLS to false
     ),
-    @SerialName("networkDrive") val networkDrive: String = Constants.Settings.NETWORK_DRIVE
+    @SerialName("networkDrive") val networkDrive: String = Constants.Settings.NETWORK_DRIVE,
+    @SerialName("localDrive") val localDrive: String = Constants.Settings.LOCAL_DRIVE
 )

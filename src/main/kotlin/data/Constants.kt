@@ -22,6 +22,7 @@ object Constants {
         const val XLSX: String = ".xlsx"
         const val XLS: String = ".xls"
         const val NETWORK_DRIVE: String = ""
+        const val LOCAL_DRIVE: String = ""
         val ADMIN: String = System.getProperty("user.name")
     }
 }

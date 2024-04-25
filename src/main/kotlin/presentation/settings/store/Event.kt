@@ -9,8 +9,13 @@ sealed class Event {
     data class OnCheckboxXlsxFormatChanged(val isChecked: Boolean) : Event()
     data class OnCheckboxXlsFormatChanged(val isChecked: Boolean) : Event()
 
-    data object ExpandDropDownMenu : Event()
+    data object ExpandDropDownMenuNetworkDrive : Event()
 
-    data object CollapseDropDownMenu : Event()
-    data class SelectDropDownMenuItem(val item: File) : Event()
+    data object CollapseDropDownMenuNetworkDrive : Event()
+    data class SelectDropDownMenuNetworkDriveItem(val item: File) : Event()
+
+    data object ExpandDropDownMenuLocalDrive : Event()
+
+    data object CollapseDropDownMenuLocalDrive : Event()
+    data class SelectDropDownMenuLocalDriveItem(val item: File) : Event()
 }

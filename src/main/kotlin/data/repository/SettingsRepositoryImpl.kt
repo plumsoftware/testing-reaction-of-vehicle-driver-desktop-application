@@ -31,6 +31,8 @@ class SettingsRepositoryImpl : SettingsRepository {
 //        Network drive
         stringBuffer
             .append("\t\"networkDrive\" : \"${settings.networkDrive}\"")
+            .append(",\n")
+            .append("\t\"localDrive\" : \"${settings.localDrive}\"")
 
         val jsonString =
             "{\n" +
