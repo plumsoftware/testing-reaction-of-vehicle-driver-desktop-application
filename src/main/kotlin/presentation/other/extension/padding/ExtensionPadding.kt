@@ -1,4 +1,4 @@
-package presentation.extension.padding
+package presentation.other.extension.padding
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues

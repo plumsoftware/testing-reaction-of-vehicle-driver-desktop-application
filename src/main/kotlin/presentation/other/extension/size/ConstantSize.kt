@@ -1,4 +1,4 @@
-package presentation.extension.size
+package presentation.other.extension.size
 
 import androidx.compose.ui.unit.dp
 

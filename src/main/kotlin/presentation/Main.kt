@@ -27,11 +27,13 @@ import presentation.authorization.viewmodel.AuthorizationViewModel
 import presentation.home.HomePage
 import presentation.home.store.Output
 import presentation.home.viewmodel.HomeViewModel
-import presentation.extension.route.DesktopRouting
+import presentation.other.extension.route.DesktopRouting
 import presentation.settings.SettingsPage
 import presentation.settings.viewmodel.SettingsViewModel
 import presentation.testmenu.TestMenu
 import presentation.testmenu.viewmodel.TestMenuViewModel
+import presentation.tests.traffic_light_test.TrafficLightTest
+import presentation.tests.traffic_light_test.viewmodel.TrafficLightTestViewModel
 import presentation.theme.AppTheme
 import kotlin.coroutines.CoroutineContext
 
@@ -72,6 +74,7 @@ fun main() = run {
             AppTheme(useDarkTheme = settings.isDarkTheme) {
                 PreComposeApp {
 
+//                    region::View models
                     val navigator = rememberNavigator()
                     val homeViewModel = viewModel(modelClass = HomeViewModel::class) {
                         HomeViewModel(
@@ -129,6 +132,16 @@ fun main() = run {
                             }
                         )
                     }
+                    val trafficLightTestViewModel = viewModel(modelClass = TrafficLightTestViewModel::class) {
+                        TrafficLightTestViewModel(
+                            output = { output ->
+                                when (output) {
+                                    presentation.tests.traffic_light_test.store.Output.BackButtonClicked -> navigator.popBackStack()
+                                }
+                            }
+                        )
+                    }
+//                    endregion
 
                     NavHost(
                         navigator = navigator,
@@ -136,6 +149,7 @@ fun main() = run {
                         initialRoute = DesktopRouting.home,
                         modifier = Modifier.padding(all = 0.dp)
                     ) {
+//                        region::Home menu
                         scene(route = DesktopRouting.home) {
                             println("Home page rendered")
                             HomePage(homeViewModel::onEvent)
@@ -148,13 +162,22 @@ fun main() = run {
                             println("Authorization page rendered")
                             AuthorizationPage(authorizationViewModel::onEvent)
                         }
-                        scene(route = DesktopRouting.trafficLight) {
-                            println("TrafficLight page rendered")
-                        }
                         scene(route = DesktopRouting.settings) {
                             println("Settings page rendered")
                             SettingsPage(settingsViewModel::onEvent, settingsViewModel.state)
                         }
+//                        endregion
+
+//                        region::Tests
+                        scene(route = DesktopRouting.trafficLight) {
+                            println("TrafficLightTest page rendered")
+                            TrafficLightTest(
+                                trafficLightTestViewModel::onEvent,
+                                trafficLightTestViewModel.state,
+                                trafficLightTestViewModel.actions
+                            )
+                        }
+//                        endregion
                     }
                 }
             }

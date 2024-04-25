@@ -1,4 +1,4 @@
-package presentation.components
+package presentation.other.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.*

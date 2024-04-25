@@ -1,4 +1,4 @@
-package presentation.components
+package presentation.other.components
 
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.defaultMinSize
@@ -9,8 +9,8 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import presentation.extension.padding.ExtensionPadding
-import presentation.extension.size.ConstantSize
+import presentation.other.extension.padding.ExtensionPadding
+import presentation.other.extension.size.ConstantSize
 
 @Composable
 fun DefaultButton(content: @Composable() (RowScope.() -> Unit), onClick: () -> Unit, colors: ButtonColors = ButtonDefaults.buttonColors()) {

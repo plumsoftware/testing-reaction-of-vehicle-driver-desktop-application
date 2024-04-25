@@ -5,10 +5,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import presentation.components.BackButton
-import presentation.components.DefaultButton
+import presentation.other.components.BackButton
+import presentation.other.components.DefaultButton
 import presentation.home.store.Event
-import presentation.extension.padding.ExtensionPadding.mediumVerticalArrangement
+import presentation.other.extension.padding.ExtensionPadding.mediumVerticalArrangement
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

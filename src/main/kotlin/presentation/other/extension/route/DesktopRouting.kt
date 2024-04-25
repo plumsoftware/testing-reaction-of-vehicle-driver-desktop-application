@@ -1,4 +1,4 @@
-package presentation.extension.route
+package presentation.other.extension.route
 
 object DesktopRouting {
     const val home = "/home"

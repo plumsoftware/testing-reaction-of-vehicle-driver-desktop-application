@@ -6,9 +6,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import domain.model.ReactionTest
-import presentation.components.BackButton
-import presentation.extension.padding.ExtensionPadding
-import presentation.extension.size.ConstantSize
+import presentation.other.components.BackButton
+import presentation.other.extension.padding.ExtensionPadding
+import presentation.other.extension.size.ConstantSize
 import presentation.testmenu.store.Event
 
 @OptIn(ExperimentalMaterial3Api::class)

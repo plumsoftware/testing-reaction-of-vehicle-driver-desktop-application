@@ -7,11 +7,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import presentation.components.BackButton
-import presentation.extension.padding.ExtensionPadding
+import presentation.other.components.BackButton
+import presentation.other.extension.padding.ExtensionPadding
 import presentation.authorization.store.Event
-import presentation.components.AuthTextField
-import presentation.components.DefaultButton
+import presentation.other.components.AuthTextField
+import presentation.other.components.DefaultButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
