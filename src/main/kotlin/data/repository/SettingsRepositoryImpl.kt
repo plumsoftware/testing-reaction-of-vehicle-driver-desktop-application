@@ -28,7 +28,7 @@ class SettingsRepositoryImpl : SettingsRepository {
         }
         stringBuffer.append("\t},\n")
 
-//        Network drive
+//        Network drive & local drive
         stringBuffer
             .append("\t\"networkDrive\" : \"${settings.networkDrive}\"")
             .append(",\n")
