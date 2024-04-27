@@ -193,7 +193,52 @@ fun SettingsPage(onEvent: (Event) -> Unit, _state: MutableStateFlow<State>) {
                                     style = MaterialTheme.typography.bodyMedium
                                 )
                             }
-                            Text(text = "Выберите диск для локального сохранения", style = MaterialTheme.typography.bodyMedium)
+                            Text(
+                                text = "Выберите диск для локального сохранения",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+
+                        Column(
+                            modifier = Modifier
+                                .wrapContentSize()
+                                .padding(ExtensionPadding.smallVerticalContentPadding),
+                            verticalArrangement = Arrangement.Top,
+                            horizontalAlignment = Alignment.Start
+                        ) {
+                            Text(
+                                text = "Выберите место для локального сохранения таблицы",
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier
+                                    .wrapContentSize()
+                                    .padding(ExtensionPadding.mediumSymmetricalContentPadding)
+                            )
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(ExtensionPadding.smallAsymmetricalContentPadding),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = ExtensionPadding.mediumHorizontalArrangement
+                            ) {
+                                OutlinedButton(
+                                    onClick = {
+                                        onEvent(Event.SelectLocalFolderToTable)
+                                    }
+                                ) {
+                                    Text(
+                                        text = state.selectedLocalFolderToTable.path.toString(),
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                }
+                                Button(onClick = {
+                                    onEvent(Event.SaveSelectedLocalFolderToTable)
+                                }) {
+                                    Text(
+                                        text = "Сохранить",
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                }
+                            }
                         }
                     }
                 }

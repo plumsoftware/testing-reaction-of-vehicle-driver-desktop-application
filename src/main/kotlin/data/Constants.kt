@@ -23,6 +23,7 @@ object Constants {
         const val XLS: String = ".xls"
         const val NETWORK_DRIVE: String = ""
         const val LOCAL_DRIVE: String = ""
+        const val LOCAL_FOLDER_TO_TABLE: String = "C:\\Users\\Default"
         val ADMIN: String = System.getProperty("user.name")
     }
 }
