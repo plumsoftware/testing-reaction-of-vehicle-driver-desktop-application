@@ -35,4 +35,6 @@ object ExtensionPadding {
 
     val mediumHorizontalArrangement =
         Arrangement.spacedBy(space = mediumItemSpacing, alignment = Alignment.Start)
+    val mediumHorizontalArrangementCenter =
+        Arrangement.spacedBy(space = mediumItemSpacing, alignment = Alignment.CenterHorizontally)
 }

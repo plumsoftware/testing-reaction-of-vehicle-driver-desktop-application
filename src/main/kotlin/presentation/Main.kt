@@ -7,6 +7,7 @@ import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.useResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import data.repository.SettingsRepositoryImpl
@@ -42,7 +43,7 @@ fun main() = run {
     println("App started!")
 
     application {
-        val windowState = rememberWindowState()
+        val windowState = rememberWindowState(placement = WindowPlacement.Fullscreen)
         val reactionTests: List<ReactionTest> = listOf(
             TrafficLight()
         )
@@ -69,7 +70,7 @@ fun main() = run {
             onCloseRequest = ::exitApplication,
             icon = BitmapPainter(useResource("main_icon.png", ::loadImageBitmap)),
             title = "Тест на рекацию",
-            state = windowState
+            state = windowState,
         ) {
             AppTheme(useDarkTheme = settings.isDarkTheme) {
                 PreComposeApp {
@@ -171,6 +172,7 @@ fun main() = run {
 //                        region::Tests
                         scene(route = DesktopRouting.trafficLight) {
                             println("TrafficLightTest page rendered")
+                            trafficLightTestViewModel.collectActions()
                             TrafficLightTest(
                                 trafficLightTestViewModel::onEvent,
                                 trafficLightTestViewModel.state,
