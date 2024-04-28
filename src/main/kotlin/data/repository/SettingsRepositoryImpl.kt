@@ -33,6 +33,11 @@ class SettingsRepositoryImpl : SettingsRepository {
             .append("\t\"networkDrive\" : \"${settings.networkDrive}\"")
             .append(",\n")
             .append("\t\"localDrive\" : \"${settings.localDrive}\"")
+            .append(",\n")
+
+//        Local folder to table
+        stringBuffer
+            .append("\t\"localFolderToTable\" : \"${settings.localFolderToTable.replace("\\", "\\\\")}\"")
 
         val jsonString =
             "{\n" +

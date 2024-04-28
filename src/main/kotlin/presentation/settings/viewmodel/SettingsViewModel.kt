@@ -11,6 +11,7 @@ import moe.tlaster.precompose.viewmodel.viewModelScope
 import presentation.settings.store.Event
 import presentation.settings.store.Output
 import presentation.settings.store.State
+import utils.showFilePicker
 import java.io.File
 import kotlin.coroutines.CoroutineContext
 
@@ -43,6 +44,8 @@ class SettingsViewModel(
                     listRoots = listRoots,
                     selectedNetworkDrive = if(settings.networkDrive.isNotEmpty()) File(settings.networkDrive) else listRoots[0],
                     selectedLocalDrive = if(settings.localDrive.isNotEmpty()) File(settings.localDrive) else listRoots[0],
+
+                    selectedLocalFolderToTable = File(settings.localFolderToTable)
                 )
             }
         }
@@ -132,6 +135,22 @@ class SettingsViewModel(
                 save(state = state)
             }
 //            endregion
+
+//            region::Local folder
+            Event.SelectLocalFolderToTable -> {
+                val selectedLocalFolderToTable: File = showFilePicker()
+
+                state.update {
+                    it.copy(
+                        selectedLocalFolderToTable = selectedLocalFolderToTable
+                    )
+                }
+            }
+
+            Event.SaveSelectedLocalFolderToTable -> {
+                save(state = state)
+            }
+//            endregion
         }
     }
 
@@ -145,7 +164,8 @@ class SettingsViewModel(
                         Constants.Settings.XLS to state.value.isXlsFormat
                     ),
                     networkDrive = "${state.value.selectedNetworkDrive.absolutePath}\\",
-                    localDrive = "${state.value.selectedLocalDrive.absolutePath}\\"
+                    localDrive = "${state.value.selectedLocalDrive.absolutePath}\\",
+                    localFolderToTable = state.value.selectedLocalFolderToTable.path
                 )
             )
         }
