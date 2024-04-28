@@ -67,7 +67,7 @@ fun main() = run {
 
         Window(
             onCloseRequest = ::exitApplication,
-            icon = BitmapPainter(useResource("test_icon.png", ::loadImageBitmap)),
+            icon = BitmapPainter(useResource("main_icon.png", ::loadImageBitmap)),
             title = "Тест на рекацию",
             state = windowState
         ) {

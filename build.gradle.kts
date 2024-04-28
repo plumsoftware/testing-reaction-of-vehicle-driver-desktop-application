@@ -54,6 +54,7 @@ compose.desktop {
                 packageVersion = "1.0.0"
                 msiPackageVersion = "1.0.0"
                 exePackageVersion = "1.0.0"
+                iconFile.set(project.file("icon.ico"))
             }
         }
     }
