@@ -4,7 +4,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
 import presentation.tests.traffic_light_test.store.Action
@@ -58,19 +57,25 @@ class TrafficLightTestViewModel(
             }
 
             is Event.OnTrafficLightLampButtonClicked -> {
-                generateRandomInterval()
-            }
+                val calendar: Calendar = Calendar.getInstance()
+                calendar.timeInMillis = System.currentTimeMillis()
 
-            Event.RegisterTrafficLightLampButtonClick -> {
-                val end: Calendar = Calendar.getInstance()
-                end.timeInMillis = System.currentTimeMillis()
                 state.update {
                     it.copy(
-                        end = end.timeInMillis
+                        end = calendar.timeInMillis
                     )
                 }
-                val interval = state.value.end - state.value.start
-                registerData(interval, state.value.start, state.value.end)
+
+                println("==================")
+                println(
+                    "Button was clicked: ${calendar.get(Calendar.HOUR_OF_DAY)}:${calendar.get(Calendar.MINUTE)}:${
+                        calendar.get(
+                            Calendar.SECOND
+                        )
+                    }"
+                )
+
+                generateRandomInterval()
             }
         }
     }
@@ -83,36 +88,40 @@ class TrafficLightTestViewModel(
         if (state.value.startTimerTime == 0) {
             val currentIndex = Random.nextInt(0, 3)
 
+            val calendar: Calendar = Calendar.getInstance()
+            calendar.timeInMillis = System.currentTimeMillis()
+
             state.update {
                 it.copy(
-                    currentLampIndex = currentIndex
+                    currentLampIndex = currentIndex,
+                    start = calendar.timeInMillis
                 )
             }
+            println("==================")
+            println(
+                "Signal was shown: ${calendar.get(Calendar.HOUR_OF_DAY)}:${calendar.get(Calendar.MINUTE)}:${
+                    calendar.get(
+                        Calendar.SECOND
+                    )
+                }"
+            )
         }
     }
 
-    private fun generateRandomInterval() = viewModelScope.launch {
-        if (state.value.startTimerTime == 0 && state.value.currentLampIndex != -1) {
-            state.update {
-                it.copy(
-                    currentLampIndex = -1
-                )
+    private fun generateRandomInterval() {
+        viewModelScope.launch {
+            if (state.value.startTimerTime == 0 && state.value.currentLampIndex != -1) {
+                state.update {
+                    it.copy(
+                        currentLampIndex = -1
+                    )
+                }
+                val intervalSignal = Random.nextLong(2000, 10000)
+                println("==================")
+                println("Signal interval: ${intervalSignal}msc")
+                delay(intervalSignal)
+                generateRandomSignal()
             }
-            val intervalSignal = Random.nextLong(2000, 10000)
-            delay(intervalSignal)
-            generateRandomSignal()
         }
-    }
-
-    private fun registerData(intervalSignal: Long, start: Long, end: Long) {
-        println("==================")
-        val instance: Calendar = Calendar.getInstance()
-        instance.timeInMillis = intervalSignal
-        println("Интервал сигнала: ${instance.get(Calendar.HOUR_OF_DAY)}:${instance.get(Calendar.MINUTE)}:${instance.get(Calendar.SECOND)}")
-        instance.timeInMillis = start
-        println("Сигнал показался: ${instance.get(Calendar.HOUR_OF_DAY)}:${instance.get(Calendar.MINUTE)}:${instance.get(Calendar.SECOND)}")
-        instance.timeInMillis = end
-        println("На кнопку нажали: ${instance.get(Calendar.HOUR_OF_DAY)}:${instance.get(Calendar.MINUTE)}:${instance.get(Calendar.SECOND)}")
-        println("==================")
     }
 }

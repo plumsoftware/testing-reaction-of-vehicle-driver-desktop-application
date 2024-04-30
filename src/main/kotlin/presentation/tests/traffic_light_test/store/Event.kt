@@ -4,6 +4,4 @@ sealed class Event {
     data object BackCLicked : Event()
 
     data class OnTrafficLightLampButtonClicked(val clickedLampIndex: Int) : Event()
-
-    data object RegisterTrafficLightLampButtonClick: Event()
 }
