@@ -25,6 +25,8 @@ import moe.tlaster.precompose.navigation.transition.NavTransition
 import moe.tlaster.precompose.viewmodel.viewModel
 import presentation.authorization.auth.AuthorizationPage
 import presentation.authorization.auth.viewmodel.AuthorizationViewModel
+import presentation.authorization.login.Login
+import presentation.authorization.login.viewmodel.LoginViewModel
 import presentation.home.HomePage
 import presentation.home.store.Output
 import presentation.home.viewmodel.HomeViewModel
@@ -90,7 +92,7 @@ fun main() = run {
                                     }
 
                                     Output.TestsButtonClicked -> {
-                                        navigator.navigate(route = DesktopRouting.testmenu)
+                                        navigator.navigate(route = DesktopRouting.login)
                                     }
                                 }
                             }
@@ -142,6 +144,19 @@ fun main() = run {
                             }
                         )
                     }
+                    val loginViewModel = viewModel(modelClass = LoginViewModel::class) {
+                        LoginViewModel(
+                            output = { output ->
+                                when (output) {
+                                    presentation.authorization.login.store.Output.BackButtonClicked -> navigator.popBackStack()
+
+                                    presentation.authorization.login.store.Output.OpenTestMenu -> {
+                                        navigator.navigate(route = DesktopRouting.testmenu)
+                                    }
+                                }
+                            }
+                        )
+                    }
 //                    endregion
 
                     NavHost(
@@ -166,6 +181,9 @@ fun main() = run {
                         scene(route = DesktopRouting.settings) {
                             println("Settings page rendered")
                             SettingsPage(settingsViewModel::onEvent, settingsViewModel.state)
+                        }
+                        scene(route = DesktopRouting.login) {
+                            Login(onEvent = loginViewModel::onEvent)
                         }
 //                        endregion
 
