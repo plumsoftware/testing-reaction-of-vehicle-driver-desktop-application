@@ -1,4 +1,4 @@
-package presentation.authorization.store
+package presentation.authorization.auth.store
 
 sealed class Event {
     data object BackCLicked : Event()

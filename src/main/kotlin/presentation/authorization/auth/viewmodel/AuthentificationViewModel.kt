@@ -1,12 +1,12 @@
-package presentation.authorization.viewmodel
+package presentation.authorization.auth.viewmodel
 
 import domain.model.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import moe.tlaster.precompose.viewmodel.ViewModel
-import presentation.authorization.store.Event
-import presentation.authorization.store.Output
-import presentation.authorization.store.State
+import presentation.authorization.auth.store.Event
+import presentation.authorization.auth.store.Output
+import presentation.authorization.auth.store.State
 
 class AuthorizationViewModel(
     private val output: (Output) -> Unit

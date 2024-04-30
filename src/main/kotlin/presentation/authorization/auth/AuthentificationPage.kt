@@ -1,4 +1,4 @@
-package presentation.authorization
+package presentation.authorization.auth
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,7 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import presentation.other.components.BackButton
 import presentation.other.extension.padding.ExtensionPadding
-import presentation.authorization.store.Event
+import presentation.authorization.auth.store.Event
 import presentation.other.components.AuthTextField
 import presentation.other.components.DefaultButton
 

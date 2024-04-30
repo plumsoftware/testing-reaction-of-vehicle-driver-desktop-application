@@ -23,8 +23,8 @@ import moe.tlaster.precompose.navigation.NavHost
 import moe.tlaster.precompose.navigation.rememberNavigator
 import moe.tlaster.precompose.navigation.transition.NavTransition
 import moe.tlaster.precompose.viewmodel.viewModel
-import presentation.authorization.AuthorizationPage
-import presentation.authorization.viewmodel.AuthorizationViewModel
+import presentation.authorization.auth.AuthorizationPage
+import presentation.authorization.auth.viewmodel.AuthorizationViewModel
 import presentation.home.HomePage
 import presentation.home.store.Output
 import presentation.home.viewmodel.HomeViewModel
@@ -115,7 +115,7 @@ fun main() = run {
                         AuthorizationViewModel(
                             output = { output ->
                                 when (output) {
-                                    presentation.authorization.store.Output.BackButtonClicked -> {
+                                    presentation.authorization.auth.store.Output.BackButtonClicked -> {
                                         navigator.popBackStack()
                                     }
                                 }
