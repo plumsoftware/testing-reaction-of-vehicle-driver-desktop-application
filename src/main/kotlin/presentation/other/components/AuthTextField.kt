@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 
 @Composable
-fun AuthTextField(labelHint: String, onValueChange: (String) -> Unit) {
+fun AuthTextField(labelHint: String, onValueChange: (String) -> Unit, isError: Boolean = false) {
     var value by remember { mutableStateOf("") }
 
     OutlinedTextField(
@@ -30,6 +30,7 @@ fun AuthTextField(labelHint: String, onValueChange: (String) -> Unit) {
         },
         textStyle = MaterialTheme.typography.bodyMedium,
         maxLines = 2,
-        shape = MaterialTheme.shapes.medium
+        shape = MaterialTheme.shapes.medium,
+        isError = isError
     )
 }

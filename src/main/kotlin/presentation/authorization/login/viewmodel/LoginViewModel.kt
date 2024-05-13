@@ -38,7 +38,15 @@ class LoginViewModel(
             }
 
             Event.StartTest -> {
-                onOutput(Output.OpenTestMenu)
+                if (state.value.login.isEmpty() || state.value.password.isEmpty()) {
+                    state.update {
+                        it.copy(
+                            isLoginError = state.value.login.isEmpty(),
+                            isPasswordError = state.value.password.isEmpty()
+                        )
+                    }
+                } else
+                    onOutput(Output.OpenTestMenu)
             }
         }
     }

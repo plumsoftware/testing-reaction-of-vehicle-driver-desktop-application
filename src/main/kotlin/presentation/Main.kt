@@ -1,6 +1,7 @@
 package presentation
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.res.loadImageBitmap
@@ -183,7 +184,7 @@ fun main() = run {
                             SettingsPage(settingsViewModel::onEvent, settingsViewModel.state)
                         }
                         scene(route = DesktopRouting.login) {
-                            Login(onEvent = loginViewModel::onEvent)
+                            Login(onEvent = loginViewModel::onEvent, loginViewModel.state.collectAsState())
                         }
 //                        endregion
 
