@@ -68,7 +68,7 @@ class LoginViewModel(
                         gender = Gender.MALE,
                         drivingLicenseCategory = DrivingLicenseCategory.NoDrivingLicense
                     )
-                    onOutput(Output.OpenTestMenu)
+                    onOutput(Output.OpenTestMenu(user = user, count = state.value.count))
                 }
             }
 

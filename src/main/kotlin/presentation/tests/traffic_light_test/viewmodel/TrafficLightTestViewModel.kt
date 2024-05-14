@@ -59,25 +59,21 @@ class TrafficLightTestViewModel(
             }
 
             is Event.OnTrafficLightLampButtonClicked -> {
-                val calendar: Calendar = Calendar.getInstance()
-                calendar.timeInMillis = System.currentTimeMillis()
 
-                state.update {
-                    it.copy(
-                        end = calendar.timeInMillis
-                    )
-                }
+                registerUserReactionTime()
+                registerErrors(event.clickedLampIndex)
 
-                println("==================")
-                println(
-                    "Button was clicked: ${calendar.get(Calendar.HOUR_OF_DAY)}:${calendar.get(Calendar.MINUTE)}:${
-                        calendar.get(
-                            Calendar.SECOND
-                        )
-                    }"
+                if (state.value.userClicked != state.value.count)
+                    generateRandomInterval()
+                else
+                    println("Test is finished")
+            }
+
+            is Event.InitStartData -> state.update {
+                it.copy(
+                    user = event.user,
+                    count = event.count
                 )
-
-                generateRandomInterval()
             }
         }
     }
@@ -101,7 +97,7 @@ class TrafficLightTestViewModel(
             }
             println("==================")
             println(
-                "Signal was shown: ${calendar.get(Calendar.HOUR_OF_DAY)}:${calendar.get(Calendar.MINUTE)}:${
+                "Signal was shown at ${calendar.get(Calendar.HOUR_OF_DAY)}:${calendar.get(Calendar.MINUTE)}:${
                     calendar.get(
                         Calendar.SECOND
                     )
@@ -118,12 +114,50 @@ class TrafficLightTestViewModel(
                         currentLampIndex = -1
                     )
                 }
+
                 val intervalSignal = Random.nextLong(2000, 10000)
+
                 println("==================")
-                println("Signal interval: ${intervalSignal}msc")
+                println("Signal interval is ${intervalSignal}msc")
+
                 delay(intervalSignal)
                 generateRandomSignal()
             }
         }
+    }
+
+    private fun registerErrors(clickedLampIndex: Int) {
+        if (state.value.currentLampIndex != clickedLampIndex) {
+            state.update {
+                it.copy(errors = state.value.errors + 1)
+            }
+        }
+    }
+
+    private fun registerUserReactionTime() {
+        val calendar: Calendar = Calendar.getInstance()
+        calendar.timeInMillis = System.currentTimeMillis()
+
+        val userInterval: Long = calendar.timeInMillis - state.value.start
+        val userCalendar = Calendar.getInstance()
+        userCalendar.timeInMillis = userInterval
+        println("User reaction time is ${userCalendar.get(Calendar.SECOND)} seconds")
+
+        state.value.intervals.add(userInterval)
+        state.update {
+            it.copy(
+                end = calendar.timeInMillis,
+                userClicked = state.value.userClicked + 1,
+            )
+        }
+
+        println("==================")
+        println(
+            "Button was clicked at ${calendar.get(Calendar.HOUR_OF_DAY)}:${calendar.get(Calendar.MINUTE)}:${
+                calendar.get(
+                    Calendar.SECOND
+                )
+            }"
+        )
     }
 }

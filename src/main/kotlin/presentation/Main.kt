@@ -1,6 +1,7 @@
 package presentation
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.BitmapPainter
@@ -24,6 +25,7 @@ import domain.usecase.workbook.CreateWorkbookIfNotExistsUseCase
 import kotlinx.coroutines.*
 import moe.tlaster.precompose.PreComposeApp
 import moe.tlaster.precompose.navigation.NavHost
+import moe.tlaster.precompose.navigation.NavOptions
 import moe.tlaster.precompose.navigation.rememberNavigator
 import moe.tlaster.precompose.navigation.transition.NavTransition
 import moe.tlaster.precompose.viewmodel.viewModel
@@ -40,6 +42,8 @@ import presentation.settings.viewmodel.SettingsViewModel
 import presentation.testmenu.TestMenu
 import presentation.testmenu.viewmodel.TestMenuViewModel
 import presentation.tests.traffic_light_test.TrafficLightTest
+import presentation.tests.traffic_light_test.store.Action
+import presentation.tests.traffic_light_test.store.Event
 import presentation.tests.traffic_light_test.viewmodel.TrafficLightTestViewModel
 import presentation.theme.AppTheme
 import kotlin.coroutines.CoroutineContext
@@ -159,7 +163,13 @@ fun main() = run {
                                 when (output) {
                                     presentation.authorization.login.store.Output.BackButtonClicked -> navigator.popBackStack()
 
-                                    presentation.authorization.login.store.Output.OpenTestMenu -> {
+                                    is presentation.authorization.login.store.Output.OpenTestMenu -> {
+                                        trafficLightTestViewModel.onEvent(
+                                            Event.InitStartData(
+                                                user = output.user,
+                                                count = output.count
+                                            )
+                                        )
                                         navigator.navigate(route = DesktopRouting.testmenu)
                                     }
                                 }
@@ -192,6 +202,7 @@ fun main() = run {
                             SettingsPage(settingsViewModel::onEvent, settingsViewModel.state)
                         }
                         scene(route = DesktopRouting.login) {
+                            println("Login page rendered")
                             Login(onEvent = loginViewModel::onEvent, loginViewModel.state.collectAsState())
                         }
 //                        endregion

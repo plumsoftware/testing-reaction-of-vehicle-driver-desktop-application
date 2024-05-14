@@ -18,7 +18,7 @@ data class User(
             patronymic = "",
             age = 0,
             gender = Gender.MALE,
-            DrivingLicenseCategory.AM
+            DrivingLicenseCategory.NoDrivingLicense
         )
     }
 }
