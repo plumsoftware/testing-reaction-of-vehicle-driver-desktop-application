@@ -1,5 +1,6 @@
 package presentation.tests.traffic_light_test.viewmodel
 
+import data.Constants
 import domain.storage.WorkbookStorage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -42,6 +43,7 @@ class TrafficLightTestViewModel(
                         if (state.value.startTimerTime == 0) {
                             actions.emit(Action.GenerateRandomSignal)
                         }
+                        println("Count is ${state.value.count}")
                     }
 
                     Action.GenerateRandomSignal -> {
@@ -65,8 +67,13 @@ class TrafficLightTestViewModel(
 
                 if (state.value.userClicked != state.value.count)
                     generateRandomInterval()
-                else
+                else {
+                    stopTest()
+                    viewModelScope.launch {
+                        registerDataInDatabase()
+                    }
                     println("Test is finished")
+                }
             }
 
             is Event.InitStartData -> state.update {
@@ -159,5 +166,21 @@ class TrafficLightTestViewModel(
                 )
             }"
         )
+    }
+
+    private suspend fun registerDataInDatabase() {
+        workbookStorage.createWorkbookIfNotExistsUseCase(
+            fullPath = Constants.Table.PATH,
+            folderPath = Constants.Table.PATH_FOLDER,
+            dataFormats = mapOf()
+        )
+    }
+
+    private fun stopTest() {
+        state.update {
+            it.copy(
+                currentLampIndex = -1
+            )
+        }
     }
 }
