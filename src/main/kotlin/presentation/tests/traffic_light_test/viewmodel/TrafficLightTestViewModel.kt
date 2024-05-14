@@ -1,5 +1,6 @@
 package presentation.tests.traffic_light_test.viewmodel
 
+import domain.storage.WorkbookStorage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
@@ -14,7 +15,8 @@ import java.util.Calendar
 import kotlin.random.Random
 
 class TrafficLightTestViewModel(
-    private val output: (Output) -> Unit
+    private val output: (Output) -> Unit,
+    private val workbookStorage: WorkbookStorage
 ) : ViewModel() {
 
     val state = MutableStateFlow(State())

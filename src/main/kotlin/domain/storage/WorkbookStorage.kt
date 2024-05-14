@@ -1,6 +1,6 @@
 package domain.storage
 
-import domain.usecase.CreateWorkbookIfNotExistsUseCase
+import domain.usecase.workbook.CreateWorkbookIfNotExistsUseCase
 
 class WorkbookStorage(
     private val createWorkbookIfNotExistsUseCase: CreateWorkbookIfNotExistsUseCase

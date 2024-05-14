@@ -1,6 +1,18 @@
 package domain.model
 
 enum class DrivingLicenseCategory {
+    Empty {
+        override fun toString(): String {
+            return "Пусто"
+        }
+    },
+
+    NoDrivingLicense {
+        override fun toString(): String {
+            return "Нет водительских плав"
+        }
+    },
+
     AM {
         override fun toString(): String {
             return "AM"

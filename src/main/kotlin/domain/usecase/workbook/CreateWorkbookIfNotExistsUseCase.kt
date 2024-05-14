@@ -1,4 +1,4 @@
-package domain.usecase
+package domain.usecase.workbook
 
 import domain.repository.WorkbookRepository
 

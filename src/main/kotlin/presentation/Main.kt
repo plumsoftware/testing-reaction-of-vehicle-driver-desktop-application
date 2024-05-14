@@ -12,12 +12,15 @@ import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import data.repository.SettingsRepositoryImpl
+import data.repository.WorkbookRepositoryImpl
 import data.tests.TrafficLight
 import domain.model.ReactionTest
 import domain.model.Settings
 import domain.storage.SettingsStorage
+import domain.storage.WorkbookStorage
 import domain.usecase.settings.GetUserSettingsUseCase
 import domain.usecase.settings.SaveUserSettingsUseCase
+import domain.usecase.workbook.CreateWorkbookIfNotExistsUseCase
 import kotlinx.coroutines.*
 import moe.tlaster.precompose.PreComposeApp
 import moe.tlaster.precompose.navigation.NavHost
@@ -56,6 +59,10 @@ fun main() = run {
         val settingsStorage = SettingsStorage(
             getUserSettingsUseCase = GetUserSettingsUseCase(settingsRepository),
             saveUserSettingsUseCase = SaveUserSettingsUseCase(settingsRepository)
+        )
+        val workbookRepository = WorkbookRepositoryImpl()
+        val workBookStorage = WorkbookStorage(
+            createWorkbookIfNotExistsUseCase = CreateWorkbookIfNotExistsUseCase(workbookRepository)
         )
 //        endregion
 
@@ -138,6 +145,7 @@ fun main() = run {
                     }
                     val trafficLightTestViewModel = viewModel(modelClass = TrafficLightTestViewModel::class) {
                         TrafficLightTestViewModel(
+                            workbookStorage = workBookStorage,
                             output = { output ->
                                 when (output) {
                                     presentation.tests.traffic_light_test.store.Output.BackButtonClicked -> navigator.popBackStack()
