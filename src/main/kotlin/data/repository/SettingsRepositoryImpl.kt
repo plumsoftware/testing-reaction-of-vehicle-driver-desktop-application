@@ -19,7 +19,7 @@ class SettingsRepositoryImpl : SettingsRepository {
         val stringBuffer = StringBuffer()
         stringBuffer.append("\t\"dataFormats\" : \n\t{\n")
         settings.dataFormats.forEach { (key, value) ->
-            if (key != Constants.Settings.XLS)
+            if (key != Constants.Settings.XLSM)
                 stringBuffer
                     .append("\t\t\"$key\" : $value,\n")
             else

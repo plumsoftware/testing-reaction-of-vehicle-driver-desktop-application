@@ -88,7 +88,7 @@ fun Login(
                         onEvent(Event.OnCountChanged(it))
                     },
                     isError = state.value.isCountError,
-                    list = listOf(10, 50, 100, 150, 200, 250, 300),
+                    list = listOf(1, 10, 50, 100, 150, 200, 250, 300),
                     modifier = Modifier.fillMaxWidth().weight(1.0f)
                 )
             }

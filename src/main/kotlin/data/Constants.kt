@@ -15,12 +15,16 @@ object Constants {
     object Table {
         const val SHEET_NAME: String = "Данные тестирования"
         const val PATH: String = "C:\\Данные тестирования\\База тестирования.xlsx"
+
+        const val TABLE_NAME_XLSX: String = "База тестирования.xlsx"
+        const val TABLE_NAME_XLSM: String = "База тестирования.xlsm"
+
         const val PATH_FOLDER: String = "C:\\Данные тестирования"
     }
 
     object Settings {
         const val XLSX: String = ".xlsx"
-        const val XLS: String = ".xls"
+        const val XLSM: String = ".xlsm"
         const val NETWORK_DRIVE: String = ""
         const val LOCAL_DRIVE: String = ""
         const val LOCAL_FOLDER_TO_TABLE: String = "C:\\Users\\Default"

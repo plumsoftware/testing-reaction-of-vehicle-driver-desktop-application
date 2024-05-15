@@ -10,7 +10,7 @@ data class Settings(
     @SerialName("isDarkTheme") val isDarkTheme: Boolean = false,
     @SerialName("dataFormats") val dataFormats: Map<String,Boolean> = mapOf(
         Constants.Settings.XLSX to true,
-        Constants.Settings.XLS to false
+        Constants.Settings.XLSM to false
     ),
     @SerialName("networkDrive") val networkDrive: String = Constants.Settings.NETWORK_DRIVE,
     @SerialName("localDrive") val localDrive: String = Constants.Settings.LOCAL_DRIVE,

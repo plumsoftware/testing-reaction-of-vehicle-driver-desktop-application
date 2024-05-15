@@ -17,7 +17,9 @@ import kotlin.random.Random
 
 class TrafficLightTestViewModel(
     private val output: (Output) -> Unit,
-    private val workbookStorage: WorkbookStorage
+    private val workbookStorage: WorkbookStorage,
+    private val dataFormats: Map<String, Boolean>,
+    private val localFolderToTable: String
 ) : ViewModel() {
 
     val state = MutableStateFlow(State())
@@ -170,9 +172,9 @@ class TrafficLightTestViewModel(
 
     private suspend fun registerDataInDatabase() {
         workbookStorage.createWorkbookIfNotExistsUseCase(
-            fullPath = Constants.Table.PATH,
-            folderPath = Constants.Table.PATH_FOLDER,
-            dataFormats = mapOf()
+            fullPath = "$localFolderToTable\\${Constants.Table.TABLE_NAME_XLSX}",
+            folderPath = localFolderToTable,
+            dataFormats = dataFormats
         )
     }
 

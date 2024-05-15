@@ -1,7 +1,6 @@
 package presentation
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.BitmapPainter
@@ -25,7 +24,6 @@ import domain.usecase.workbook.CreateWorkbookIfNotExistsUseCase
 import kotlinx.coroutines.*
 import moe.tlaster.precompose.PreComposeApp
 import moe.tlaster.precompose.navigation.NavHost
-import moe.tlaster.precompose.navigation.NavOptions
 import moe.tlaster.precompose.navigation.rememberNavigator
 import moe.tlaster.precompose.navigation.transition.NavTransition
 import moe.tlaster.precompose.viewmodel.viewModel
@@ -42,7 +40,6 @@ import presentation.settings.viewmodel.SettingsViewModel
 import presentation.testmenu.TestMenu
 import presentation.testmenu.viewmodel.TestMenuViewModel
 import presentation.tests.traffic_light_test.TrafficLightTest
-import presentation.tests.traffic_light_test.store.Action
 import presentation.tests.traffic_light_test.store.Event
 import presentation.tests.traffic_light_test.viewmodel.TrafficLightTestViewModel
 import presentation.theme.AppTheme
@@ -150,6 +147,8 @@ fun main() = run {
                     val trafficLightTestViewModel = viewModel(modelClass = TrafficLightTestViewModel::class) {
                         TrafficLightTestViewModel(
                             workbookStorage = workBookStorage,
+                            dataFormats = settings.dataFormats,
+                            localFolderToTable = settings.localFolderToTable,
                             output = { output ->
                                 when (output) {
                                     presentation.tests.traffic_light_test.store.Output.BackButtonClicked -> navigator.popBackStack()

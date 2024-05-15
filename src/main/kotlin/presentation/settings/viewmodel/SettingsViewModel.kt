@@ -37,7 +37,7 @@ class SettingsViewModel(
 
                 it.copy(
                     isDarkTheme = settings.isDarkTheme,
-                    isXlsFormat = settings.dataFormats[Constants.Settings.XLS]!!,
+                    isXlsFormat = settings.dataFormats[Constants.Settings.XLSM]!!,
                     isXlsxFormat = settings.dataFormats[Constants.Settings.XLSX]!!,
                     settings = settings,
 
@@ -161,7 +161,7 @@ class SettingsViewModel(
                     isDarkTheme = state.value.isDarkTheme,
                     dataFormats = mapOf(
                         Constants.Settings.XLSX to state.value.isXlsxFormat,
-                        Constants.Settings.XLS to state.value.isXlsFormat
+                        Constants.Settings.XLSM to state.value.isXlsFormat
                     ),
                     networkDrive = "${state.value.selectedNetworkDrive.absolutePath}\\",
                     localDrive = "${state.value.selectedLocalDrive.absolutePath}\\",
