@@ -15,12 +15,14 @@ import java.io.FileOutputStream
 
 class WorkbookRepositoryImpl : WorkbookRepository {
     override suspend fun createWorkbookIfNotExists(
-        fullPath: String,
         folderPath: String,
         formats: List<XSSFWorkbookType>
     ): Boolean {
         formats.forEach { format ->
-            var workbook: Workbook? = getWorkbook(path = fullPath)
+
+            val path = "$folderPath\\${Constants.Table.FILE_NAME}.${format.toString().lowercase()}"
+
+            var workbook: Workbook? = getWorkbook(path = path)
 
             return if (workbook == null) {
 //            Folder
@@ -301,7 +303,7 @@ class WorkbookRepositoryImpl : WorkbookRepository {
                     }
                 }
 //            Save
-                return saveInFile(fullPath, workbook)
+                return saveInFile(path, workbook)
             } else {
                 true
             }

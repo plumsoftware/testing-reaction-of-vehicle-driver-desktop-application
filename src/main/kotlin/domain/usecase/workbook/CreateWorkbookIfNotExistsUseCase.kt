@@ -5,23 +5,18 @@ import domain.repository.WorkbookRepository
 import org.apache.poi.xssf.usermodel.XSSFWorkbookType
 
 class CreateWorkbookIfNotExistsUseCase(private val workbookRepository: WorkbookRepository) {
-    suspend fun execute(fullPath: String, folderPath: String, dataFormats: Map<String, Boolean>): Boolean {
-
-        val xlsx = XSSFWorkbookType.XLSX
-        val xlsm = XSSFWorkbookType.XLSM
+    suspend fun execute(folderPath: String, dataFormats: Map<String, Boolean>): Boolean {
 
         val formats = mutableListOf<XSSFWorkbookType>()
 
         dataFormats.forEach { (t, u) ->
-            if (u && t == Constants.Settings.XLSX) {
-                formats.add(xlsx)
-            } else if (u && t == Constants.Settings.XLSM) {
-                formats.add(xlsm)
+            if (u) {
+                val item = Constants.Settings.FORMAT_LIST[t] ?: XSSFWorkbookType.XLSX
+                formats.add(item)
             }
         }
 
         return workbookRepository.createWorkbookIfNotExists(
-            fullPath = fullPath,
             folderPath = folderPath,
             formats = formats
         )

@@ -172,7 +172,6 @@ class TrafficLightTestViewModel(
 
     private suspend fun registerDataInDatabase() {
         workbookStorage.createWorkbookIfNotExistsUseCase(
-            fullPath = "$localFolderToTable\\${Constants.Table.TABLE_NAME_XLSX}",
             folderPath = localFolderToTable,
             dataFormats = dataFormats
         )
