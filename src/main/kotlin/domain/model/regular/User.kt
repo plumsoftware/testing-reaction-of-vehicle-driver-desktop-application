@@ -1,4 +1,4 @@
-package domain.model
+package domain.model.regular
 
 data class User(
     var name: String,

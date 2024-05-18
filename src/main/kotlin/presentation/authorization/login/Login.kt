@@ -5,7 +5,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import domain.model.DrivingLicenseCategory
+import data.Constants
+import domain.model.regular.DrivingLicenseCategory
+import domain.model.regular.Interval
 import presentation.authorization.login.store.Event
 import presentation.authorization.login.store.State
 import presentation.other.components.AuthSpinnerField
@@ -64,9 +66,17 @@ fun Login(
                 modifier = Modifier.fillMaxWidth().wrapContentHeight()
             ) {
                 AuthTextField(
-                    labelHint = "Стаж воздения",
+                    labelHint = "Стаж вождения",
                     onValueChange = {
-                        onEvent(Event.OnExperienceChanged(experience = try { it.toInt() } catch (e: Exception) { 0 }))
+                        onEvent(
+                            Event.OnExperienceChanged(
+                                experience = try {
+                                    it.toInt()
+                                } catch (e: Exception) {
+                                    0
+                                }
+                            )
+                        )
                     },
                     isError = state.value.isExperienceError,
                     modifier = Modifier.fillMaxWidth().weight(1.0f)
@@ -88,11 +98,20 @@ fun Login(
                         onEvent(Event.OnCountChanged(it))
                     },
                     isError = state.value.isCountError,
-                    list = listOf(1, 10, 50, 100, 150, 200, 250, 300),
+                    list = Constants.Test.counts.toList(),
                     modifier = Modifier.fillMaxWidth().weight(1.0f)
                 )
             }
 
+            AuthSpinnerField(
+                labelHint = "Интервал сигнала в секундах",
+                onValueChange = {
+                    onEvent(Event.OnIntervalChanged(it as Interval))
+                },
+                isError = state.value.isIntervalError,
+                list = Constants.Test.intervals.toList(),
+                modifier = Modifier.wrapContentWidth().wrapContentHeight().align(Alignment.Start)
+            )
         }
     }
 }

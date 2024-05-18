@@ -1,8 +1,10 @@
 package presentation.authorization.login.viewmodel
 
-import domain.model.DrivingLicenseCategory
-import domain.model.Gender
-import domain.model.User
+import domain.model.dto.TestDTO
+import domain.model.regular.DrivingLicenseCategory
+import domain.model.regular.Gender
+import domain.model.regular.Interval
+import domain.model.regular.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import moe.tlaster.precompose.viewmodel.ViewModel
@@ -46,7 +48,8 @@ class LoginViewModel(
                     state.value.password.isEmpty() ||
                     state.value.count == 0 ||
                     state.value.drivingLicenseCategory == DrivingLicenseCategory.Empty ||
-                    state.value.experience < 0
+                    state.value.experience < 0 ||
+                    state.value.selectedInterval == Interval()
                 ) {
                     state.update {
                         it.copy(
@@ -54,12 +57,17 @@ class LoginViewModel(
                             isPasswordError = state.value.password.isEmpty(),
                             isCountError = state.value.count == 0,
                             isDrivingLicenseCategoryError = state.value.drivingLicenseCategory == DrivingLicenseCategory.Empty,
-                            isExperienceError = state.value.experience < 0
+                            isExperienceError = state.value.experience < 0,
+                            isIntervalError = state.value.selectedInterval == Interval()
                         )
                     }
                 } else {
-                    //Go to the database with users and get a user data
-                    //MOCK DATA
+                    /**
+                    Go to the database with users and get a user data
+                    MOCK DATA
+                    MOCK DATA
+                    MOCK DATA
+                     **/
                     val user = User(
                         name = "Slava",
                         surname = "Deych",
@@ -68,7 +76,12 @@ class LoginViewModel(
                         gender = Gender.MALE,
                         drivingLicenseCategory = DrivingLicenseCategory.NoDrivingLicense
                     )
-                    onOutput(Output.OpenTestMenu(user = user, count = state.value.count))
+                    val testDto = TestDTO(
+                        user = user,
+                        count = state.value.count,
+                        interval = state.value.selectedInterval
+                    )
+                    onOutput(Output.OpenTestMenu(testDTO = testDto))
                 }
             }
 
@@ -92,6 +105,14 @@ class LoginViewModel(
                 state.update {
                     it.copy(
                         experience = event.experience
+                    )
+                }
+            }
+
+            is Event.OnIntervalChanged -> {
+                state.update {
+                    it.copy(
+                        selectedInterval = event.interval
                     )
                 }
             }

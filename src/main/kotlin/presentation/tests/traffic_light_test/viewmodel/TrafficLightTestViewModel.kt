@@ -78,10 +78,13 @@ class TrafficLightTestViewModel(
             }
 
             is Event.InitStartData -> state.update {
-                it.copy(
-                    user = event.user,
-                    count = event.count
-                )
+                with(event.testDTO) {
+                    it.copy(
+                        user = this.user,
+                        count = this.count,
+                        signalInterval = this.interval
+                    )
+                }
             }
         }
     }
@@ -123,7 +126,8 @@ class TrafficLightTestViewModel(
                     )
                 }
 
-                val intervalSignal = Random.nextLong(2000, 10000)
+                val intervalSignal =
+                    Random.nextLong(state.value.signalInterval.start, state.value.signalInterval.finish)
 
                 println("==================")
                 println("Signal interval is ${intervalSignal}msc")

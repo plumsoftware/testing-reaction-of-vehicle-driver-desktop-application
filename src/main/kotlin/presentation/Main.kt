@@ -14,8 +14,8 @@ import androidx.compose.ui.window.rememberWindowState
 import data.repository.SettingsRepositoryImpl
 import data.repository.WorkbookRepositoryImpl
 import data.tests.TrafficLight
-import domain.model.ReactionTest
-import domain.model.Settings
+import domain.model.regular.ReactionTest
+import domain.model.regular.Settings
 import domain.storage.SettingsStorage
 import domain.storage.WorkbookStorage
 import domain.usecase.settings.GetUserSettingsUseCase
@@ -163,12 +163,7 @@ fun main() = run {
                                     presentation.authorization.login.store.Output.BackButtonClicked -> navigator.popBackStack()
 
                                     is presentation.authorization.login.store.Output.OpenTestMenu -> {
-                                        trafficLightTestViewModel.onEvent(
-                                            Event.InitStartData(
-                                                user = output.user,
-                                                count = output.count
-                                            )
-                                        )
+                                        trafficLightTestViewModel.onEvent(Event.InitStartData(testDTO = output.testDTO))
                                         navigator.navigate(route = DesktopRouting.testmenu)
                                     }
                                 }

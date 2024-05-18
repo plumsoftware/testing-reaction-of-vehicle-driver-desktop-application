@@ -1,5 +1,6 @@
 package data
 
+import domain.model.regular.Interval
 import org.apache.poi.xssf.usermodel.XSSFWorkbookType
 
 object Constants {
@@ -40,6 +41,15 @@ object Constants {
             ".xlsx" to XSSFWorkbookType.XLSX,
             ".xls" to XSSFWorkbookType.XLSX,
             ".xltx" to XSSFWorkbookType.XLSX,
+        )
+    }
+
+    object Test {
+        val counts = arrayOf(1, 10, 50, 100, 150, 200, 250, 300)
+        val intervals: Array<Interval> = arrayOf(
+            Interval(start = 1000, finish = 2000),
+            Interval(start = 2000, finish = 5000),
+            Interval(start = 2000, finish = 10000),
         )
     }
 }

@@ -1,6 +1,7 @@
 package presentation.authorization.login.store
 
-import domain.model.DrivingLicenseCategory
+import domain.model.regular.DrivingLicenseCategory
+import domain.model.regular.Interval
 
 data class State (
     val login: String = "",
@@ -14,4 +15,8 @@ data class State (
     val isExperienceError: Boolean = false,
     val isCountError: Boolean = false,
     val isDrivingLicenseCategoryError: Boolean = false,
+    val isIntervalError: Boolean = false,
+
+    val intervals: List<Interval> = emptyList(),
+    val selectedInterval: Interval = Interval()
 )

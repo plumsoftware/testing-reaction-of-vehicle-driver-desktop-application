@@ -1,4 +1,4 @@
-package domain.model
+package domain.model.regular
 
 enum class DrivingLicenseCategory {
     Empty {

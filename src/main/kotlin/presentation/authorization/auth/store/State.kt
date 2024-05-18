@@ -1,6 +1,6 @@
 package presentation.authorization.auth.store
 
-import domain.model.User
+import domain.model.regular.User
 
 data class State (
     val user: User

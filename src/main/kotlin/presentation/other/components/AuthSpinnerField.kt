@@ -1,5 +1,3 @@
-@file:Suppress("IMPLICIT_CAST_TO_ANY", "UNCHECKED_CAST")
-
 package presentation.other.components
 
 import androidx.compose.foundation.background
@@ -12,7 +10,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import domain.model.DrivingLicenseCategory
+import domain.model.regular.DrivingLicenseCategory
+import domain.model.regular.Interval
 
 @Composable
 fun AuthSpinnerField(
@@ -53,11 +52,12 @@ fun AuthSpinnerField(
                 {
                     list.forEachIndexed { _, any ->
 
-                        val item = if (any is DrivingLicenseCategory)
-                            any
-                        else if (any is Int)
-                            any
-                        else DrivingLicenseCategory.Empty
+                        val item = when (any) {
+                            is DrivingLicenseCategory -> any
+                            is Int -> any
+                            is Interval -> any
+                            else -> DrivingLicenseCategory.Empty
+                        }
 
                         DropdownMenuItem(
                             onClick = {

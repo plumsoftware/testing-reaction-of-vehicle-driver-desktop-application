@@ -1,6 +1,6 @@
 package data.tests
 
-import domain.model.ReactionTest
+import domain.model.regular.ReactionTest
 import presentation.other.extension.route.DesktopRouting
 
 data class TrafficLight(

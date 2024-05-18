@@ -115,7 +115,7 @@ fun TrafficLightTest(
                     ) {}
                     Button(
                         onClick = {
-                            onEvent(Event.OnTrafficLightLampButtonClicked(clickedLampIndex = 0))
+                            onEvent(Event.OnTrafficLightLampButtonClicked(clickedLampIndex = 1))
                         },
                         modifier = Modifier.size(ConstantSize.trafficLightLampButtonSize),
                         colors = ButtonDefaults.buttonColors(
@@ -125,7 +125,7 @@ fun TrafficLightTest(
                     ) {}
                     Button(
                         onClick = {
-                            onEvent(Event.OnTrafficLightLampButtonClicked(clickedLampIndex = 0))
+                            onEvent(Event.OnTrafficLightLampButtonClicked(clickedLampIndex = 2))
                         },
                         modifier = Modifier.size(ConstantSize.trafficLightLampButtonSize),
                         colors = ButtonDefaults.buttonColors(

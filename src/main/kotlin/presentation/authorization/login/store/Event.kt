@@ -1,6 +1,7 @@
 package presentation.authorization.login.store
 
-import domain.model.DrivingLicenseCategory
+import domain.model.regular.DrivingLicenseCategory
+import domain.model.regular.Interval
 
 sealed class Event {
 
@@ -12,4 +13,5 @@ sealed class Event {
     data class OnExperienceChanged(val experience: Int) : Event()
     data class OnCountChanged(val count: Int) : Event()
     data class OnDrivingLicenseCategoryChanged(val drivingLicenseCategory: DrivingLicenseCategory) : Event()
+    data class OnIntervalChanged(val interval: Interval) : Event()
 }
