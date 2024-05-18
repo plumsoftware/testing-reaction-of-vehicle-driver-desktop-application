@@ -47,7 +47,7 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "reaction-test"
+            packageName = "Тест на реакцию"
             packageVersion = "1.0.0"
 
             windows {
@@ -58,10 +58,17 @@ compose.desktop {
             }
             macOS {
                 packageVersion = "1.0.0"
+                dmgPackageVersion = "1.0.0"
+                pkgPackageVersion = "1.0.0"
+                packageBuildVersion = "1.0.0"
+                dmgPackageBuildVersion = "1.0.0"
+                pkgPackageBuildVersion = "1.0.0"
                 iconFile.set(project.file("main_icon.icns"))
             }
             linux {
                 packageVersion = "1.0.0"
+                debPackageVersion = "1.0.0"
+                rpmPackageVersion = "1.0.0"
                 iconFile.set(project.file("main_icon.png"))
             }
         }
