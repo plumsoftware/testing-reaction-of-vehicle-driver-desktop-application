@@ -1,10 +1,10 @@
 package domain.storage
 
-import domain.usecase.CreateWorkbookIfNotExistsUseCase
+import domain.usecase.workbook.CreateWorkbookIfNotExistsUseCase
 
 class WorkbookStorage(
     private val createWorkbookIfNotExistsUseCase: CreateWorkbookIfNotExistsUseCase
 ) {
-    suspend fun createWorkbookIfNotExistsUseCase(fullPath: String, folderPath: String, dataFormats: Map<String, Boolean>): Boolean =
-        createWorkbookIfNotExistsUseCase.execute(fullPath = fullPath, folderPath = folderPath, dataFormats = dataFormats)
+    suspend fun createWorkbookIfNotExistsUseCase(folderPath: String, dataFormats: Map<String, Boolean>) =
+        createWorkbookIfNotExistsUseCase.execute(folderPath = folderPath, dataFormats = dataFormats)
 }

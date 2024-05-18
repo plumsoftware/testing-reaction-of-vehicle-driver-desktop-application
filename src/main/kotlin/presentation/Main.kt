@@ -1,37 +1,47 @@
 package presentation
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.useResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import data.repository.SettingsRepositoryImpl
+import data.repository.WorkbookRepositoryImpl
 import data.tests.TrafficLight
-import domain.model.ReactionTest
-import domain.model.Settings
+import domain.model.regular.ReactionTest
+import domain.model.regular.Settings
 import domain.storage.SettingsStorage
+import domain.storage.WorkbookStorage
 import domain.usecase.settings.GetUserSettingsUseCase
 import domain.usecase.settings.SaveUserSettingsUseCase
+import domain.usecase.workbook.CreateWorkbookIfNotExistsUseCase
 import kotlinx.coroutines.*
 import moe.tlaster.precompose.PreComposeApp
 import moe.tlaster.precompose.navigation.NavHost
 import moe.tlaster.precompose.navigation.rememberNavigator
 import moe.tlaster.precompose.navigation.transition.NavTransition
 import moe.tlaster.precompose.viewmodel.viewModel
-import presentation.authorization.AuthorizationPage
-import presentation.authorization.viewmodel.AuthorizationViewModel
+import presentation.authorization.auth.AuthorizationPage
+import presentation.authorization.auth.viewmodel.AuthorizationViewModel
+import presentation.authorization.login.Login
+import presentation.authorization.login.viewmodel.LoginViewModel
 import presentation.home.HomePage
 import presentation.home.store.Output
 import presentation.home.viewmodel.HomeViewModel
-import presentation.extension.route.DesktopRouting
+import presentation.other.extension.route.DesktopRouting
 import presentation.settings.SettingsPage
 import presentation.settings.viewmodel.SettingsViewModel
 import presentation.testmenu.TestMenu
 import presentation.testmenu.viewmodel.TestMenuViewModel
+import presentation.tests.traffic_light_test.TrafficLightTest
+import presentation.tests.traffic_light_test.store.Event
+import presentation.tests.traffic_light_test.viewmodel.TrafficLightTestViewModel
 import presentation.theme.AppTheme
 import kotlin.coroutines.CoroutineContext
 
@@ -40,7 +50,7 @@ fun main() = run {
     println("App started!")
 
     application {
-        val windowState = rememberWindowState()
+        val windowState = rememberWindowState(placement = WindowPlacement.Fullscreen)
         val reactionTests: List<ReactionTest> = listOf(
             TrafficLight()
         )
@@ -50,6 +60,10 @@ fun main() = run {
         val settingsStorage = SettingsStorage(
             getUserSettingsUseCase = GetUserSettingsUseCase(settingsRepository),
             saveUserSettingsUseCase = SaveUserSettingsUseCase(settingsRepository)
+        )
+        val workbookRepository = WorkbookRepositoryImpl()
+        val workBookStorage = WorkbookStorage(
+            createWorkbookIfNotExistsUseCase = CreateWorkbookIfNotExistsUseCase(workbookRepository)
         )
 //        endregion
 
@@ -65,13 +79,14 @@ fun main() = run {
 
         Window(
             onCloseRequest = ::exitApplication,
-            icon = BitmapPainter(useResource("test_icon.png", ::loadImageBitmap)),
+            icon = BitmapPainter(useResource("main_icon.png", ::loadImageBitmap)),
             title = "Тест на рекацию",
-            state = windowState
+            state = windowState,
         ) {
             AppTheme(useDarkTheme = settings.isDarkTheme) {
                 PreComposeApp {
 
+//                    region::View models
                     val navigator = rememberNavigator()
                     val homeViewModel = viewModel(modelClass = HomeViewModel::class) {
                         HomeViewModel(
@@ -86,7 +101,7 @@ fun main() = run {
                                     }
 
                                     Output.TestsButtonClicked -> {
-                                        navigator.navigate(route = DesktopRouting.testmenu)
+                                        navigator.navigate(route = DesktopRouting.login)
                                     }
                                 }
                             }
@@ -111,7 +126,7 @@ fun main() = run {
                         AuthorizationViewModel(
                             output = { output ->
                                 when (output) {
-                                    presentation.authorization.store.Output.BackButtonClicked -> {
+                                    presentation.authorization.auth.store.Output.BackButtonClicked -> {
                                         navigator.popBackStack()
                                     }
                                 }
@@ -129,6 +144,33 @@ fun main() = run {
                             }
                         )
                     }
+                    val trafficLightTestViewModel = viewModel(modelClass = TrafficLightTestViewModel::class) {
+                        TrafficLightTestViewModel(
+                            workbookStorage = workBookStorage,
+                            dataFormats = settings.dataFormats,
+                            localFolderToTable = settings.localFolderToTable,
+                            output = { output ->
+                                when (output) {
+                                    presentation.tests.traffic_light_test.store.Output.BackButtonClicked -> navigator.popBackStack()
+                                }
+                            }
+                        )
+                    }
+                    val loginViewModel = viewModel(modelClass = LoginViewModel::class) {
+                        LoginViewModel(
+                            output = { output ->
+                                when (output) {
+                                    presentation.authorization.login.store.Output.BackButtonClicked -> navigator.popBackStack()
+
+                                    is presentation.authorization.login.store.Output.OpenTestMenu -> {
+                                        trafficLightTestViewModel.onEvent(Event.InitStartData(testDTO = output.testDTO))
+                                        navigator.navigate(route = DesktopRouting.testmenu)
+                                    }
+                                }
+                            }
+                        )
+                    }
+//                    endregion
 
                     NavHost(
                         navigator = navigator,
@@ -136,6 +178,7 @@ fun main() = run {
                         initialRoute = DesktopRouting.home,
                         modifier = Modifier.padding(all = 0.dp)
                     ) {
+//                        region::Home menu
                         scene(route = DesktopRouting.home) {
                             println("Home page rendered")
                             HomePage(homeViewModel::onEvent)
@@ -148,13 +191,27 @@ fun main() = run {
                             println("Authorization page rendered")
                             AuthorizationPage(authorizationViewModel::onEvent)
                         }
-                        scene(route = DesktopRouting.trafficLight) {
-                            println("TrafficLight page rendered")
-                        }
                         scene(route = DesktopRouting.settings) {
                             println("Settings page rendered")
                             SettingsPage(settingsViewModel::onEvent, settingsViewModel.state)
                         }
+                        scene(route = DesktopRouting.login) {
+                            println("Login page rendered")
+                            Login(onEvent = loginViewModel::onEvent, loginViewModel.state.collectAsState())
+                        }
+//                        endregion
+
+//                        region::Tests
+                        scene(route = DesktopRouting.trafficLight) {
+                            println("TrafficLightTest page rendered")
+                            trafficLightTestViewModel.collectActions()
+                            TrafficLightTest(
+                                trafficLightTestViewModel::onEvent,
+                                trafficLightTestViewModel.state,
+                                trafficLightTestViewModel.actions
+                            )
+                        }
+//                        endregion
                     }
                 }
             }

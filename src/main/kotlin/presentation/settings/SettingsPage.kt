@@ -12,9 +12,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.flow.MutableStateFlow
-import presentation.components.BackButton
-import presentation.extension.padding.ExtensionPadding
-import presentation.extension.size.ConstantSize
+import presentation.other.components.BackButton
+import presentation.other.extension.padding.ExtensionPadding
+import presentation.other.extension.size.ConstantSize
 import presentation.settings.store.Event
 import presentation.settings.store.State
 
@@ -103,6 +103,18 @@ fun SettingsPage(onEvent: (Event) -> Unit, _state: MutableStateFlow<State>) {
                                 onEvent(Event.OnCheckboxXlsFormatChanged(isChecked = it))
                             })
                             Text(text = ".XLS", style = MaterialTheme.typography.bodyMedium)
+                        }
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(ExtensionPadding.smallAsymmetricalContentPadding),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = ExtensionPadding.mediumHorizontalArrangement
+                        ) {
+                            Checkbox(checked = state.isXltxFormat, onCheckedChange = {
+                                onEvent(Event.OnCheckboxXltxFormatChanged(isChecked = it))
+                            })
+                            Text(text = ".XLTX", style = MaterialTheme.typography.bodyMedium)
                         }
                     }
                 }

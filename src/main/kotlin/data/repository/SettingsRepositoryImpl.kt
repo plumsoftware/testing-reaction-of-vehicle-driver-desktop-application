@@ -1,7 +1,7 @@
 package data.repository
 
 import data.Constants
-import domain.model.Settings
+import domain.model.regular.Settings
 import domain.repository.SettingsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -19,7 +19,7 @@ class SettingsRepositoryImpl : SettingsRepository {
         val stringBuffer = StringBuffer()
         stringBuffer.append("\t\"dataFormats\" : \n\t{\n")
         settings.dataFormats.forEach { (key, value) ->
-            if (key != Constants.Settings.XLS)
+            if (key != Constants.Settings.XLTX)
                 stringBuffer
                     .append("\t\t\"$key\" : $value,\n")
             else
