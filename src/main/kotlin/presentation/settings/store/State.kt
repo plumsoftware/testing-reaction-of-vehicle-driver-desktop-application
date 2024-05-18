@@ -7,6 +7,7 @@ data class State(
     val isDarkTheme: Boolean = false,
     val isXlsxFormat: Boolean = true,
     val isXlsFormat: Boolean = false,
+    val isXltxFormat: Boolean = false,
 
     val listRoots: List<File> = emptyList(),
 

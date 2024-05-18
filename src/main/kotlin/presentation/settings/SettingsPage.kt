@@ -104,6 +104,18 @@ fun SettingsPage(onEvent: (Event) -> Unit, _state: MutableStateFlow<State>) {
                             })
                             Text(text = ".XLS", style = MaterialTheme.typography.bodyMedium)
                         }
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(ExtensionPadding.smallAsymmetricalContentPadding),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = ExtensionPadding.mediumHorizontalArrangement
+                        ) {
+                            Checkbox(checked = state.isXltxFormat, onCheckedChange = {
+                                onEvent(Event.OnCheckboxXltxFormatChanged(isChecked = it))
+                            })
+                            Text(text = ".XLTX", style = MaterialTheme.typography.bodyMedium)
+                        }
                     }
                 }
             }

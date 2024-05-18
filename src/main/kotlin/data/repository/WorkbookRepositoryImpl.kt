@@ -12,19 +12,25 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbookType
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.text.SimpleDateFormat
+import java.util.*
 
 class WorkbookRepositoryImpl : WorkbookRepository {
     override suspend fun createWorkbookIfNotExists(
         folderPath: String,
-        formats: List<XSSFWorkbookType>
-    ): Boolean {
-        formats.forEach { format ->
+        formats: List<XSSFWorkbookType>,
+        extensions: MutableList<String>
+    ) {
+        extensions.forEachIndexed { index, extension ->
+            val calendar: Calendar = Calendar.getInstance()
+            val dateFormat: String =
+                SimpleDateFormat("dd-MM-yyyy HH-mm-ss", Locale.getDefault()).format(Date(calendar.timeInMillis))
 
-            val path = "$folderPath\\${Constants.Table.FILE_NAME}.${format.toString().lowercase()}"
+            val path = "$folderPath\\${Constants.Table.FILE_NAME} ${dateFormat}${extension.lowercase()}"
 
             var workbook: Workbook? = getWorkbook(path = path)
 
-            return if (workbook == null) {
+            if (workbook == null) {
 //            Folder
                 val folder = File(folderPath)
                 if (!folder.exists()) {
@@ -32,7 +38,7 @@ class WorkbookRepositoryImpl : WorkbookRepository {
                 }
 
 //            Variables
-                workbook = XSSFWorkbook(format)
+                workbook = XSSFWorkbook(formats[index])
 
 //            Create sheet "Данные тестирования"
                 val sheet = workbook.createSheet(Constants.Table.SHEET_NAME)
@@ -237,7 +243,7 @@ class WorkbookRepositoryImpl : WorkbookRepository {
 
                         8 -> {
                             cellItem = row.createCell(i)
-                            cellItem.setCellValue("Тандартное отклонение")
+                            cellItem.setCellValue("Стандартное отклонение")
                             sheet.setColumnWidth(i, 5000)
 
 //                        Cell style
@@ -303,12 +309,9 @@ class WorkbookRepositoryImpl : WorkbookRepository {
                     }
                 }
 //            Save
-                return saveInFile(path, workbook)
-            } else {
-                true
+                saveInFile(path, workbook)
             }
         }
-        return true
     }
 
     private fun saveInFile(path: String, workbook: Workbook): Boolean {

@@ -1,6 +1,5 @@
 package presentation.tests.traffic_light_test.viewmodel
 
-import data.Constants
 import domain.storage.WorkbookStorage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
