@@ -46,7 +46,11 @@ compose.desktop {
         mainClass = "presentation.MainKt"
 
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            targetFormats(
+                TargetFormat.Dmg, TargetFormat.Pkg, //MacOS
+                TargetFormat.Msi, TargetFormat.Exe, //Windows
+                TargetFormat.Deb, TargetFormat.Rpm //Linux
+            )
             packageName = "Тест на реакцию"
             packageVersion = "1.0.0"
 
