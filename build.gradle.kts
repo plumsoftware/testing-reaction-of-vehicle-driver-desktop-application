@@ -56,6 +56,12 @@ compose.desktop {
                 exePackageVersion = "1.0.0"
                 iconFile.set(project.file("main_icon.ico"))
             }
+            macOS {
+                iconFile.set(project.file("main_icon.icns"))
+            }
+            linux {
+                iconFile.set(project.file("main_icon.png"))
+            }
         }
     }
 }
