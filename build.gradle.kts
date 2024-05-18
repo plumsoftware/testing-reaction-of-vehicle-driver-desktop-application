@@ -51,8 +51,13 @@ compose.desktop {
                 TargetFormat.Msi, TargetFormat.Exe, //Windows
                 TargetFormat.Deb, TargetFormat.Rpm //Linux
             )
+
             packageName = "Тест на реакцию"
             packageVersion = "1.0.0"
+            description = "Это программа для тестирования сложной сенсомоторной реакции водителя на зрительный раздражитель. Разработчики: студент СибАДИ Дейч Вячеслав Сергеевич, преподаватель кафедры ЦТ Селезнёва Елена Викторовна, преподаватель кафедры АТ Белякова Александра Владимировна."
+            copyright = "© 2024 Дейч Вячеслав Сергеевич. All rights reserved."
+            vendor = "ФГБОУ ВО «Сибирский государственный автомобильно-дорожный университет»"
+            licenseFile.set(project.file("LICENSE.txt"))
 
             windows {
                 packageVersion = "1.0.0"
