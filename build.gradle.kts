@@ -57,9 +57,11 @@ compose.desktop {
                 iconFile.set(project.file("main_icon.ico"))
             }
             macOS {
+                packageVersion = "1.0.0"
                 iconFile.set(project.file("main_icon.icns"))
             }
             linux {
+                packageVersion = "1.0.0"
                 iconFile.set(project.file("main_icon.png"))
             }
         }
