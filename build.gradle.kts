@@ -1,5 +1,21 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
+val macExtraPlistKeys: String
+    get() = """
+      <key>CFBundleURLTypes</key>
+      <array>
+        <dict>
+          <key>CFBundleURLName</key>
+          <string>Example deep link</string>
+          <key>CFBundleURLSchemes</key>
+          <array>
+            <string>compose</string>
+          </array>
+        </dict>
+      </array>
+    """
+
+
 plugins {
     kotlin("jvm")
     id("org.jetbrains.compose")
@@ -73,6 +89,11 @@ compose.desktop {
                 dmgPackageBuildVersion = "1.0.0"
                 pkgPackageBuildVersion = "1.0.0"
                 iconFile.set(project.file("main_icon.icns"))
+
+                bundleID = "ru.plumsoftware.reactiontest"
+                infoPlist {
+                    extraKeysRawXml = macExtraPlistKeys
+                }
             }
             linux {
                 packageVersion = "1.0.0"
