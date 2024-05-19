@@ -6,6 +6,7 @@ object DesktopRouting {
     const val auth = "/auth"
     const val settings = "/settings"
     const val login = "/login"
+    const val privacyPolicy = "/privacyPolicy"
 
 //    region::Tests
     const val trafficLight = "/trafficLight"
