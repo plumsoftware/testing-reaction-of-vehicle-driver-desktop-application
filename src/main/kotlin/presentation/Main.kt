@@ -177,6 +177,8 @@ fun main() = run {
                                         trafficLightTestViewModel.onEvent(Event.InitStartData(testDTO = output.testDTO))
                                         navigator.navigate(route = DesktopRouting.testmenu)
                                     }
+
+                                    presentation.authorization.login.store.Output.OpenPrivacyPolicy -> navigator.navigate(route = DesktopRouting.privacyPolicy)
                                 }
                             }
                         )

@@ -33,6 +33,8 @@ object ExtensionPadding {
     val smallAsymmetricalContentPadding = PaddingValues(horizontal = smallHorPadding, vertical = smallVerPadding)
     val smallVerticalContentPadding = PaddingValues(vertical = smallVerPadding)
 
+    val smallHorizontalArrangementCenter =
+        Arrangement.spacedBy(space = smallItemSpacing, alignment = Alignment.CenterHorizontally)
     val mediumHorizontalArrangement =
         Arrangement.spacedBy(space = mediumItemSpacing, alignment = Alignment.Start)
     val mediumHorizontalArrangementCenter =

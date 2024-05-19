@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 import presentation.other.components.BackButton
 import presentation.other.extension.padding.ExtensionPadding
 import presentation.privacy.store.Event
-import utils.PRIVACY_POLICY_FULL_TEXT
 import utils.stringFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,7 +35,7 @@ fun PrivacyPolicy(onEvent: (Event) -> Unit) {
         ) {
             item {
                 Text(
-                    text = stringFormatter(originalText = PRIVACY_POLICY_FULL_TEXT),
+                    stringFormatter(),
                     style = MaterialTheme.typography.bodyMedium
                 )
             }

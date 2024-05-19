@@ -16,6 +16,7 @@ import presentation.other.components.BackButton
 import presentation.other.components.DefaultButton
 import presentation.other.extension.padding.ExtensionPadding
 import presentation.other.extension.padding.ExtensionPadding.mediumHorizontalArrangementCenter
+import presentation.other.extension.padding.ExtensionPadding.smallHorizontalArrangementCenter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,7 +33,9 @@ fun Login(
         floatingActionButton = {
             DefaultButton(
                 onClick = { onEvent(Event.StartTest) },
-                content = { Text(text = "Перейти в меню с тестами", style = MaterialTheme.typography.headlineMedium) })
+                content = { Text(text = "Перейти в меню с тестами", style = MaterialTheme.typography.headlineMedium) },
+                enabled = state.value.isEnableStartTest
+            )
         },
         floatingActionButtonPosition = FabPosition.End,
         modifier = Modifier.fillMaxSize()
@@ -40,7 +43,8 @@ fun Login(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(ExtensionPadding.mediumAsymmetricalContentPadding),
+                .padding(ExtensionPadding.mediumAsymmetricalContentPadding)
+                .padding(paddingValues = it),
             verticalArrangement = ExtensionPadding.mediumVerticalArrangement,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -112,6 +116,42 @@ fun Login(
                 list = Constants.Test.intervals.toList(),
                 modifier = Modifier.wrapContentWidth().wrapContentHeight().align(Alignment.Start)
             )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = smallHorizontalArrangementCenter,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .align(Alignment.BottomCenter)
+                ) {
+                    Text(
+                        text = "Ознакомьтесь и подтвердите",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    TextButton(
+                        shape = MaterialTheme.shapes.medium,
+                        onClick = {
+                            onEvent(Event.OpenPrivacyPolicy)
+                        }
+                    ) {
+                        Text(
+                            text = "политика конфиденциальности",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                    Checkbox(
+                        checked = state.value.isEnableStartTest,
+                        onCheckedChange = {
+                            onEvent(Event.OnEnableStartTestChanged(enabled = it))
+                        }
+                    )
+                }
+            }
         }
     }
 }

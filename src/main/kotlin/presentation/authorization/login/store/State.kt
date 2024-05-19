@@ -18,5 +18,9 @@ data class State (
     val isIntervalError: Boolean = false,
 
     val intervals: List<Interval> = emptyList(),
-    val selectedInterval: Interval = Interval()
+    val selectedInterval: Interval = Interval(),
+
+//    region::Privacy policy
+    val isEnableStartTest: Boolean = false,
+//    endregion
 )

@@ -13,7 +13,12 @@ import presentation.other.extension.padding.ExtensionPadding
 import presentation.other.extension.size.ConstantSize
 
 @Composable
-fun DefaultButton(content: @Composable() (RowScope.() -> Unit), onClick: () -> Unit, colors: ButtonColors = ButtonDefaults.buttonColors()) {
+fun DefaultButton(
+    content: @Composable() (RowScope.() -> Unit),
+    onClick: () -> Unit,
+    colors: ButtonColors = ButtonDefaults.buttonColors(),
+    enabled: Boolean = true
+) {
     Button(
         onClick = onClick,
         modifier = Modifier
@@ -21,6 +26,7 @@ fun DefaultButton(content: @Composable() (RowScope.() -> Unit), onClick: () -> U
             .wrapContentHeight(),
         shape = MaterialTheme.shapes.medium, contentPadding = ExtensionPadding.mediumAsymmetricalContentPadding,
         colors = colors,
-        content = content
+        content = content,
+        enabled = enabled
     )
 }

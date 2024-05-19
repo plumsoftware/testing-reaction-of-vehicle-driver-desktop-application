@@ -116,6 +116,17 @@ class LoginViewModel(
                     )
                 }
             }
+
+            is Event.OnEnableStartTestChanged -> {
+                state.update {
+                    it.copy(
+                        isEnableStartTest = event.enabled
+                    )
+                }
+            }
+            Event.OpenPrivacyPolicy -> {
+                onOutput(Output.OpenPrivacyPolicy)
+            }
         }
     }
 
