@@ -22,11 +22,11 @@ class WorkbookRepositoryImpl : WorkbookRepository {
         extensions: MutableList<String>
     ) {
         extensions.forEachIndexed { index, extension ->
-            val calendar: Calendar = Calendar.getInstance()
-            val dateFormat: String =
-                SimpleDateFormat("dd-MM-yyyy HH-mm-ss", Locale.getDefault()).format(Date(calendar.timeInMillis))
+//            val calendar: Calendar = Calendar.getInstance()
+//            val dateFormat: String =
+//                SimpleDateFormat("dd-MM-yyyy HH-mm-ss", Locale.getDefault()).format(Date(calendar.timeInMillis))
 
-            val path = "$folderPath\\${Constants.Table.FILE_NAME} ${dateFormat}${extension.lowercase()}"
+            val path = "$folderPath\\${Constants.Table.FILE_NAME}${extension.lowercase()}"
 
             var workbook: Workbook? = getWorkbook(path = path)
 
