@@ -21,7 +21,7 @@ import presentation.other.extension.padding.ExtensionPadding.mediumHorizontalArr
 @Composable
 fun Login(
     onEvent: (Event) -> Unit,
-    state: androidx.compose.runtime.State<State>,
+    state: androidx.compose.runtime.State<State>
 ) {
     Scaffold(
         topBar = {

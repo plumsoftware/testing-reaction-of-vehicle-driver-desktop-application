@@ -1,11 +1,18 @@
 package domain.usecase.workbook
 
 import data.Constants
+import domain.model.dto.TestDTO
 import domain.repository.WorkbookRepository
 import org.apache.poi.xssf.usermodel.XSSFWorkbookType
 
-class CreateWorkbookIfNotExistsUseCase(private val workbookRepository: WorkbookRepository) {
-    suspend fun execute(folderPath: String, dataFormats: Map<String, Boolean>) {
+class WriteDataToWorkbookUseCase(
+    private val workbookRepository: WorkbookRepository
+) {
+    suspend fun execute(
+        testDTO: TestDTO,
+        folderPath: String,
+        dataFormats: Map<String, Boolean>,
+    ) {
 
         val formats = mutableListOf<XSSFWorkbookType>()
         val extensions = mutableListOf<String>()
@@ -18,10 +25,11 @@ class CreateWorkbookIfNotExistsUseCase(private val workbookRepository: WorkbookR
             }
         }
 
-        workbookRepository.createWorkbookIfNotExists(
+        workbookRepository.writeDataInWorkbook(
+            testDTO = testDTO,
             folderPath = folderPath,
-            formats = formats,
-            extensions = extensions
+            formats = formats.toList(),
+            extensions = extensions,
         )
     }
 }

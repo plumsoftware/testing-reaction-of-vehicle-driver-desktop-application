@@ -5,9 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,7 +30,7 @@ fun TrafficLightTest(
 
     val state = trafficLightTestState.collectAsState().value
 
-    LaunchedEffect(null) {
+    LaunchedEffect(trafficLightTestAction) {
         trafficLightTestAction.emit(Action.StartTimer)
     }
 
@@ -58,7 +56,7 @@ fun TrafficLightTest(
                 )
             else
                 Text(
-                    text = if (state.startTimerTime != 0) "Начало через ${state.startTimerTime}" else "Тест начался",
+                    text = if (state.startTimerTime >= 0) "Начало через ${state.startTimerTime}" else "Тест начался",
                     style = MaterialTheme.typography.headlineMedium
                 )
             Box {

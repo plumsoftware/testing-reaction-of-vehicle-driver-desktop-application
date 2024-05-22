@@ -21,6 +21,7 @@ import domain.storage.WorkbookStorage
 import domain.usecase.settings.GetUserSettingsUseCase
 import domain.usecase.settings.SaveUserSettingsUseCase
 import domain.usecase.workbook.CreateWorkbookIfNotExistsUseCase
+import domain.usecase.workbook.WriteDataToWorkbookUseCase
 import kotlinx.coroutines.*
 import moe.tlaster.precompose.PreComposeApp
 import moe.tlaster.precompose.navigation.NavHost
@@ -63,7 +64,8 @@ fun main() = run {
         )
         val workbookRepository = WorkbookRepositoryImpl()
         val workBookStorage = WorkbookStorage(
-            createWorkbookIfNotExistsUseCase = CreateWorkbookIfNotExistsUseCase(workbookRepository)
+            createWorkbookIfNotExistsUseCase = CreateWorkbookIfNotExistsUseCase(workbookRepository),
+            writeDataToWorkbookUseCase = WriteDataToWorkbookUseCase(workbookRepository)
         )
 //        endregion
 
@@ -88,7 +90,11 @@ fun main() = run {
 
 //                    region::View models
                     val navigator = rememberNavigator()
-                    val homeViewModel = viewModel(modelClass = HomeViewModel::class) {
+                    val testMenuViewModel: TestMenuViewModel
+                    var trafficLightTestViewModel: TrafficLightTestViewModel? = null
+
+
+                    val homeViewModel: HomeViewModel = viewModel(modelClass = HomeViewModel::class) {
                         HomeViewModel(
                             output = { output ->
                                 when (output) {
@@ -107,11 +113,12 @@ fun main() = run {
                             }
                         )
                     }
-                    val testMenuViewModel = viewModel(modelClass = TestMenuViewModel::class) {
+                    testMenuViewModel = viewModel(modelClass = TestMenuViewModel::class) {
                         TestMenuViewModel(
                             output = { output ->
                                 when (output) {
                                     is presentation.testmenu.store.Output.TestClicked -> {
+                                        trafficLightTestViewModel?.onEvent(Event.InitTestMode(testMode = output.testMode))
                                         navigator.navigate(route = output.route)
                                     }
 
@@ -122,7 +129,7 @@ fun main() = run {
                             }
                         )
                     }
-                    val authorizationViewModel = viewModel(modelClass = AuthorizationViewModel::class) {
+                    val authorizationViewModel: AuthorizationViewModel = viewModel(modelClass = AuthorizationViewModel::class) {
                         AuthorizationViewModel(
                             output = { output ->
                                 when (output) {
@@ -133,7 +140,7 @@ fun main() = run {
                             }
                         )
                     }
-                    val settingsViewModel = viewModel(modelClass = SettingsViewModel::class) {
+                    val settingsViewModel: SettingsViewModel = viewModel(modelClass = SettingsViewModel::class) {
                         SettingsViewModel(
                             settingsStorage = settingsStorage,
                             coroutineContextIO = coroutineContextIO,
@@ -144,7 +151,21 @@ fun main() = run {
                             }
                         )
                     }
-                    val trafficLightTestViewModel = viewModel(modelClass = TrafficLightTestViewModel::class) {
+                    val loginViewModel: LoginViewModel = viewModel(modelClass = LoginViewModel::class) {
+                        LoginViewModel(
+                            output = { output ->
+                                when (output) {
+                                    presentation.authorization.login.store.Output.BackButtonClicked -> navigator.popBackStack()
+
+                                    is presentation.authorization.login.store.Output.OpenTestMenu -> {
+                                        trafficLightTestViewModel?.onEvent(Event.InitStartData(testDTO = output.testDTO))
+                                        navigator.navigate(route = DesktopRouting.testmenu)
+                                    }
+                                }
+                            }
+                        )
+                    }
+                    trafficLightTestViewModel = viewModel(modelClass = TrafficLightTestViewModel::class) {
                         TrafficLightTestViewModel(
                             workbookStorage = workBookStorage,
                             dataFormats = settings.dataFormats,
@@ -152,20 +173,6 @@ fun main() = run {
                             output = { output ->
                                 when (output) {
                                     presentation.tests.traffic_light_test.store.Output.BackButtonClicked -> navigator.popBackStack()
-                                }
-                            }
-                        )
-                    }
-                    val loginViewModel = viewModel(modelClass = LoginViewModel::class) {
-                        LoginViewModel(
-                            output = { output ->
-                                when (output) {
-                                    presentation.authorization.login.store.Output.BackButtonClicked -> navigator.popBackStack()
-
-                                    is presentation.authorization.login.store.Output.OpenTestMenu -> {
-                                        trafficLightTestViewModel.onEvent(Event.InitStartData(testDTO = output.testDTO))
-                                        navigator.navigate(route = DesktopRouting.testmenu)
-                                    }
                                 }
                             }
                         )

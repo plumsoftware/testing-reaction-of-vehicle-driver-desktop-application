@@ -1,10 +1,7 @@
 package presentation.authorization.login.viewmodel
 
 import domain.model.dto.TestDTO
-import domain.model.regular.DrivingLicenseCategory
-import domain.model.regular.Gender
-import domain.model.regular.Interval
-import domain.model.regular.User
+import domain.model.regular.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import moe.tlaster.precompose.viewmodel.ViewModel
@@ -79,7 +76,7 @@ class LoginViewModel(
                     val testDto = TestDTO(
                         user = user,
                         count = state.value.count,
-                        interval = state.value.selectedInterval
+                        interval = state.value.selectedInterval,
                     )
                     onOutput(Output.OpenTestMenu(testDTO = testDto))
                 }

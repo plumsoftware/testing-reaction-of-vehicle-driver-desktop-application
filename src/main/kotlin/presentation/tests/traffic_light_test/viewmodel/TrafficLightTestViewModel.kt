@@ -1,5 +1,6 @@
 package presentation.tests.traffic_light_test.viewmodel
 
+import domain.model.dto.TestDTO
 import domain.storage.WorkbookStorage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,9 +36,10 @@ class TrafficLightTestViewModel(
                     Action.StartTimer -> {
                         while (state.value.startTimerTime > 0) {
                             delay(1000)
+                            val temp = state.value.startTimerTime - 1
                             state.update {
                                 it.copy(
-                                    startTimerTime = state.value.startTimerTime - 1
+                                    startTimerTime = temp
                                 )
                             }
                         }
@@ -49,6 +51,12 @@ class TrafficLightTestViewModel(
 
                     Action.GenerateRandomSignal -> {
                         generateRandomSignal()
+                    }
+
+                    is Action.IniStartData -> {
+                        state.update {
+                            it.copy(testDTO = action.testDTO)
+                        }
                     }
                 }
             }
@@ -71,6 +79,7 @@ class TrafficLightTestViewModel(
                 else {
                     stopTest()
                     viewModelScope.launch {
+                        preRegisterDataDatabaseCompile()
                         registerDataInDatabase()
                     }
                     println("Test is finished")
@@ -78,11 +87,21 @@ class TrafficLightTestViewModel(
             }
 
             is Event.InitStartData -> state.update {
-                with(event.testDTO) {
+                with(event.testDTO.copy(testMode = state.value.testMode)) {
                     it.copy(
                         user = this.user,
                         count = this.count,
-                        signalInterval = this.interval
+                        signalInterval = this.interval,
+                        testMode = this.testMode,
+                        testDTO = this
+                    )
+                }
+            }
+
+            is Event.InitTestMode -> {
+                state.update {
+                    it.copy(
+                        testMode = event.testMode
                     )
                 }
             }
@@ -173,8 +192,24 @@ class TrafficLightTestViewModel(
         )
     }
 
+    private suspend fun preRegisterDataDatabaseCompile() {
+        workbookStorage.createWorkbookIfNotExists(
+            folderPath = localFolderToTable,
+            dataFormats = dataFormats
+        )
+    }
+
     private suspend fun registerDataInDatabase() {
-        workbookStorage.createWorkbookIfNotExistsUseCase(
+        val testDTO = TestDTO(
+            user = state.value.user,
+            count = state.value.count,
+            interval = state.value.signalInterval,
+            testMode = state.value.testMode,
+            intervals = state.value.intervals.toList(),
+            errorsCount = state.value.errors
+        )
+        workbookStorage.writeDataToWorkbook(
+            testDTO = testDTO,
             folderPath = localFolderToTable,
             dataFormats = dataFormats
         )

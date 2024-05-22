@@ -1,19 +1,19 @@
 package data.repository
 
 import data.Constants
+import domain.model.dto.TestDTO
 import domain.repository.WorkbookRepository
 import org.apache.poi.ss.usermodel.BorderStyle
 import org.apache.poi.ss.usermodel.FillPatternType
 import org.apache.poi.ss.usermodel.IndexedColors
 import org.apache.poi.ss.usermodel.Workbook
+import org.apache.poi.xssf.usermodel.XSSFCell
 import org.apache.poi.xssf.usermodel.XSSFFont
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.apache.poi.xssf.usermodel.XSSFWorkbookType
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.text.SimpleDateFormat
-import java.util.*
 
 class WorkbookRepositoryImpl : WorkbookRepository {
     override suspend fun createWorkbookIfNotExists(
@@ -63,7 +63,7 @@ class WorkbookRepositoryImpl : WorkbookRepository {
                 val row = sheet.createRow(0)
 
                 for (i in 0..10) {
-                    var cellItem = row.createCell(i)
+                    var cellItem: XSSFCell
                     when (i) {
                         0 -> {
                             cellItem = row.createCell(i)
@@ -312,6 +312,15 @@ class WorkbookRepositoryImpl : WorkbookRepository {
                 saveInFile(path, workbook)
             }
         }
+    }
+
+    override suspend fun writeDataInWorkbook(
+        testDTO: TestDTO,
+        folderPath: String,
+        formats: List<XSSFWorkbookType>,
+        extensions: MutableList<String>,
+    ) {
+        println(testDTO.toString())
     }
 
     private fun saveInFile(path: String, workbook: Workbook): Boolean {
