@@ -45,6 +45,7 @@ fun Login(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             AuthTextField(
+                text = state.value.login,
                 labelHint = "Логин",
                 onValueChange = {
                     onEvent(Event.OnLoginChanged(login = it))
@@ -53,6 +54,7 @@ fun Login(
             )
 
             AuthTextField(
+                text = state.value.password,
                 labelHint = "Пароль",
                 onValueChange = {
                     onEvent(Event.OnPasswordChanged(password = it))
@@ -66,6 +68,7 @@ fun Login(
                 modifier = Modifier.fillMaxWidth().wrapContentHeight()
             ) {
                 AuthTextField(
+                    text = if (state.value.experience == 0) "" else state.value.experience.toString(),
                     labelHint = "Стаж вождения",
                     onValueChange = {
                         onEvent(
@@ -82,6 +85,7 @@ fun Login(
                     modifier = Modifier.fillMaxWidth().weight(1.0f)
                 )
                 AuthSpinnerField(
+                    text = if (state.value.drivingLicenseCategory == DrivingLicenseCategory.Empty) "" else state.value.drivingLicenseCategory.toString(),
                     labelHint = "Категория прав",
                     onValueChange = {
                         it as DrivingLicenseCategory
@@ -92,6 +96,7 @@ fun Login(
                     modifier = Modifier.fillMaxWidth().weight(1.0f)
                 )
                 AuthSpinnerField(
+                    text = if (state.value.count == 0) "" else state.value.count.toString(),
                     labelHint = "Количество попыток",
                     onValueChange = {
                         it as Int
@@ -104,6 +109,7 @@ fun Login(
             }
 
             AuthSpinnerField(
+                text = if (state.value.selectedInterval == Interval()) "" else state.value.selectedInterval.toString(),
                 labelHint = "Интервал сигнала в секундах",
                 onValueChange = {
                     onEvent(Event.OnIntervalChanged(it as Interval))

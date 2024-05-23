@@ -48,16 +48,7 @@ class LoginViewModel(
                     state.value.experience < 0 ||
                     state.value.selectedInterval == Interval()
                 ) {
-                    state.update {
-                        it.copy(
-                            isLoginError = state.value.login.isEmpty(),
-                            isPasswordError = state.value.password.isEmpty(),
-                            isCountError = state.value.count == 0,
-                            isDrivingLicenseCategoryError = state.value.drivingLicenseCategory == DrivingLicenseCategory.Empty,
-                            isExperienceError = state.value.experience < 0,
-                            isIntervalError = state.value.selectedInterval == Interval()
-                        )
-                    }
+                    isErrorsStatus()
                 } else {
                     /**
                     Go to the database with users and get a user data
@@ -65,6 +56,7 @@ class LoginViewModel(
                     MOCK DATA
                     MOCK DATA
                      **/
+                    isErrorsStatus()
                     val user = User(
                         id = 0,
                         name = "Slava",
@@ -119,5 +111,18 @@ class LoginViewModel(
 
     private fun onOutput(out: Output) {
         output(out)
+    }
+
+    private fun isErrorsStatus() {
+        state.update {
+            it.copy(
+                isLoginError = state.value.login.isEmpty(),
+                isPasswordError = state.value.password.isEmpty(),
+                isCountError = state.value.count == 0,
+                isDrivingLicenseCategoryError = state.value.drivingLicenseCategory == DrivingLicenseCategory.Empty,
+                isExperienceError = state.value.experience < 0,
+                isIntervalError = state.value.selectedInterval == Interval()
+            )
+        }
     }
 }

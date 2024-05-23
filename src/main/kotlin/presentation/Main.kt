@@ -123,7 +123,7 @@ fun main() = run {
                                     }
 
                                     presentation.testmenu.store.Output.BackButtonClicked -> {
-                                        navigator.popBackStack()
+                                        navigator.goBack()
                                     }
                                 }
                             }
@@ -135,7 +135,7 @@ fun main() = run {
                                 output = { output ->
                                     when (output) {
                                         presentation.authorization.auth.store.Output.BackButtonClicked -> {
-                                            navigator.popBackStack()
+                                            navigator.goBack()
                                         }
                                     }
                                 }
@@ -147,7 +147,7 @@ fun main() = run {
                             coroutineContextIO = coroutineContextIO,
                             output = { output ->
                                 when (output) {
-                                    presentation.settings.store.Output.BackClicked -> navigator.popBackStack()
+                                    presentation.settings.store.Output.BackClicked -> navigator.goBack()
                                 }
                             }
                         )
@@ -156,7 +156,7 @@ fun main() = run {
                         LoginViewModel(
                             output = { output ->
                                 when (output) {
-                                    presentation.authorization.login.store.Output.BackButtonClicked -> navigator.popBackStack()
+                                    presentation.authorization.login.store.Output.BackButtonClicked -> navigator.goBack()
 
                                     is presentation.authorization.login.store.Output.OpenTestMenu -> {
                                         trafficLightTestViewModel?.onEvent(Event.InitStartData(testDTO = output.testDTO))
@@ -173,7 +173,9 @@ fun main() = run {
                             localFolderToTable = settings.localFolderToTable,
                             output = { output ->
                                 when (output) {
-                                    presentation.tests.traffic_light_test.store.Output.BackButtonClicked -> navigator.popBackStack()
+                                    presentation.tests.traffic_light_test.store.Output.BackButtonClicked -> {
+                                        navigator.navigate(route = DesktopRouting.home)
+                                    }
                                 }
                             }
                         )
@@ -205,7 +207,10 @@ fun main() = run {
                         }
                         scene(route = DesktopRouting.login) {
                             println("Login page rendered")
-                            Login(onEvent = loginViewModel::onEvent, loginViewModel.state.collectAsState())
+                            Login(
+                                onEvent = loginViewModel::onEvent,
+                                state = loginViewModel.state.collectAsState(),
+                            )
                         }
 //                        endregion
 

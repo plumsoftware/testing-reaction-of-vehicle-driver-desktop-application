@@ -35,6 +35,11 @@ class TrafficLightTestViewModel(
             actions.collect { action ->
                 when (action) {
                     Action.StartTimer -> {
+                        state.update {
+                            it.copy(
+                                startTimerTime = 10,
+                                userClicked = 0)
+                        }
                         while (state.value.startTimerTime > 0) {
                             delay(1000)
                             val temp = state.value.startTimerTime - 1
@@ -229,7 +234,7 @@ class TrafficLightTestViewModel(
         return average / 1000
     }
 
-    internal fun getStdDeviation() : Double {
+    internal fun getStdDeviation(): Double {
         val average = state.value.intervals.average()
         val variance = state.value.intervals.map { (it - average) * (it - average) }.average()
         return sqrt(variance)

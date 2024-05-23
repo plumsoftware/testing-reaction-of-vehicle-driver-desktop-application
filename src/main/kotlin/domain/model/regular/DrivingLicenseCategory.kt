@@ -3,7 +3,7 @@ package domain.model.regular
 enum class DrivingLicenseCategory {
     Empty {
         override fun toString(): String {
-            return "Пусто"
+            return ""
         }
     },
 

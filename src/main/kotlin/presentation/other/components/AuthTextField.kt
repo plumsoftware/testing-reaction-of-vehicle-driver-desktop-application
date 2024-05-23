@@ -11,14 +11,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 
 @Composable
-fun AuthTextField(labelHint: String, onValueChange: (String) -> Unit, isError: Boolean = false, modifier: Modifier = Modifier.fillMaxWidth()) {
-    var value by remember { mutableStateOf("") }
+fun AuthTextField(
+    text: String = "",
+    labelHint: String,
+    onValueChange: (String) -> Unit,
+    isError: Boolean = false,
+    modifier: Modifier = Modifier.fillMaxWidth()
+) {
+    var value by remember { mutableStateOf(text) }
 
     OutlinedTextField(
         value = value,
         colors = TextFieldDefaults.outlinedTextFieldColors(
             containerColor = Color.Transparent,
-
         ),
         onValueChange = {
             value = it

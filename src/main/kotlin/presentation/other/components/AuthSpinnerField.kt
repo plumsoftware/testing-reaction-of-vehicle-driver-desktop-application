@@ -15,13 +15,14 @@ import domain.model.regular.Interval
 
 @Composable
 fun AuthSpinnerField(
+    text: String = "",
     labelHint: String,
     onValueChange: (Any) -> Unit,
     isError: Boolean = false,
     list: List<Any>,
     modifier: Modifier = Modifier.fillMaxWidth()
 ) {
-    var value by remember { mutableStateOf("") }
+    var value by remember { mutableStateOf(text) }
     var isExpanded by remember { mutableStateOf(false) }
 
     OutlinedTextField(
