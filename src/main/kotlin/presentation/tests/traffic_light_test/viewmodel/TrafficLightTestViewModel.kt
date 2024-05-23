@@ -36,11 +36,7 @@ class TrafficLightTestViewModel(
             actions.collect { action ->
                 when (action) {
                     Action.StartTimer -> {
-                        state.update {
-                            it.copy(
-                                startTimerTime = 10,
-                                userClicked = 0)
-                        }
+                        clearStartData()
                         while (state.value.startTimerTime > 0) {
                             delay(1000)
                             val temp = state.value.startTimerTime - 1
@@ -241,5 +237,17 @@ class TrafficLightTestViewModel(
         val average = state.value.intervals.average()
         val variance = state.value.intervals.map { (it - average) * (it - average) }.average()
         return sqrt(variance)
+    }
+
+    private fun clearStartData() {
+        state.update {
+            it.copy(
+                currentLampIndex = -1,
+                intervals = mutableListOf(),
+                startTimerTime = 10,
+                userClicked = 0,
+                errors = 0
+            )
+        }
     }
 }

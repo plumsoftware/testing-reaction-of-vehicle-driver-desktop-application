@@ -12,7 +12,6 @@ import presentation.other.extension.padding.ExtensionPadding
 import presentation.other.extension.size.ConstantSize
 import presentation.tests.traffic_light_test.components.TestFinishedComponent
 import presentation.tests.traffic_light_test.components.TestProccessComponent
-import presentation.tests.traffic_light_test.store.Action
 import presentation.tests.traffic_light_test.store.Event
 import presentation.tests.traffic_light_test.store.State
 
@@ -21,15 +20,15 @@ import presentation.tests.traffic_light_test.store.State
 fun TrafficLightTest(
     onEvent: (Event) -> Unit,
     trafficLightTestState: MutableStateFlow<State>,
-    trafficLightTestAction: MutableStateFlow<Action?>,
     getAverage: () -> Double,
-    getStdDeviation: () -> Double
+    getStdDeviation: () -> Double,
+    startAction: (presentation.main.Event) -> Unit
 ) {
 
     val state = trafficLightTestState.collectAsState().value
 
-    LaunchedEffect(trafficLightTestAction) {
-        trafficLightTestAction.emit(Action.StartTimer)
+    LaunchedEffect(Unit) {
+        startAction(presentation.main.Event.StartTrafficLightAction)
     }
 
     Scaffold(

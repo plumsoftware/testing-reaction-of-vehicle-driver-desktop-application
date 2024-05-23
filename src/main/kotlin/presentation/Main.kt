@@ -223,13 +223,12 @@ fun main() = run {
                         scene(route = DesktopRouting.trafficLight) {
                             println("TrafficLightTest page rendered")
 //                            trafficLightTestViewModel.collectActions()
-                            mainViewModel.onEvent(presentation.main.Event.StartTrafficLightAction)
                             TrafficLightTest(
                                 trafficLightTestViewModel::onEvent,
                                 trafficLightTestViewModel.state,
-                                mainViewModel.trafficLightActions,
                                 getAverage = trafficLightTestViewModel::getAverage,
-                                getStdDeviation = trafficLightTestViewModel::getStdDeviation
+                                getStdDeviation = trafficLightTestViewModel::getStdDeviation,
+                                mainViewModel::onEvent
                             )
                         }
 //                        endregion
