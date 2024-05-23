@@ -21,7 +21,7 @@ import presentation.tests.traffic_light_test.store.State
 fun TrafficLightTest(
     onEvent: (Event) -> Unit,
     trafficLightTestState: MutableStateFlow<State>,
-    trafficLightTestAction: MutableStateFlow<Action>,
+    trafficLightTestAction: MutableStateFlow<Action?>,
     getAverage: () -> Double,
     getStdDeviation: () -> Double
 ) {

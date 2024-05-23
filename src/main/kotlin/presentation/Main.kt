@@ -35,6 +35,7 @@ import presentation.authorization.login.viewmodel.LoginViewModel
 import presentation.home.HomePage
 import presentation.home.store.Output
 import presentation.home.viewmodel.HomeViewModel
+import presentation.main.MainViewModel
 import presentation.other.extension.route.DesktopRouting
 import presentation.settings.SettingsPage
 import presentation.settings.viewmodel.SettingsViewModel
@@ -94,6 +95,9 @@ fun main() = run {
                     var trafficLightTestViewModel: TrafficLightTestViewModel? = null
 
 
+                    val mainViewModel: MainViewModel = viewModel(modelClass = MainViewModel::class) {
+                        MainViewModel()
+                    }
                     val homeViewModel: HomeViewModel = viewModel(modelClass = HomeViewModel::class) {
                         HomeViewModel(
                             output = { output ->
@@ -177,7 +181,8 @@ fun main() = run {
                                         navigator.navigate(route = DesktopRouting.home)
                                     }
                                 }
-                            }
+                            },
+                            actions = mainViewModel.trafficLightActions
                         )
                     }
 //                    endregion
@@ -217,11 +222,12 @@ fun main() = run {
 //                        region::Tests
                         scene(route = DesktopRouting.trafficLight) {
                             println("TrafficLightTest page rendered")
-                            trafficLightTestViewModel.collectActions()
+//                            trafficLightTestViewModel.collectActions()
+                            mainViewModel.onEvent(presentation.main.Event.StartTrafficLightAction)
                             TrafficLightTest(
                                 trafficLightTestViewModel::onEvent,
                                 trafficLightTestViewModel.state,
-                                trafficLightTestViewModel.actions,
+                                mainViewModel.trafficLightActions,
                                 getAverage = trafficLightTestViewModel::getAverage,
                                 getStdDeviation = trafficLightTestViewModel::getStdDeviation
                             )

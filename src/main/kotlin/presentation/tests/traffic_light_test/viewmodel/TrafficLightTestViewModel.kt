@@ -20,17 +20,18 @@ class TrafficLightTestViewModel(
     private val output: (Output) -> Unit,
     private val workbookStorage: WorkbookStorage,
     private val dataFormats: Map<String, Boolean>,
-    private val localFolderToTable: String
+    private val localFolderToTable: String,
+    private val actions: MutableStateFlow<Action?>
 ) : ViewModel() {
 
     val state = MutableStateFlow(State())
-    val actions = MutableStateFlow<Action>(Action.StartTimer)
 
     init {
         println("Traffic light Test ViewModel created")
+        collectActions()
     }
 
-    fun collectActions() {
+    private fun collectActions() {
         viewModelScope.launch {
             actions.collect { action ->
                 when (action) {
@@ -64,6 +65,8 @@ class TrafficLightTestViewModel(
                             it.copy(testDTO = action.testDTO)
                         }
                     }
+
+                    null -> {}
                 }
             }
         }
