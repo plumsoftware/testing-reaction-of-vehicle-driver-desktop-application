@@ -129,17 +129,18 @@ fun main() = run {
                             }
                         )
                     }
-                    val authorizationViewModel: AuthorizationViewModel = viewModel(modelClass = AuthorizationViewModel::class) {
-                        AuthorizationViewModel(
-                            output = { output ->
-                                when (output) {
-                                    presentation.authorization.auth.store.Output.BackButtonClicked -> {
-                                        navigator.popBackStack()
+                    val authorizationViewModel: AuthorizationViewModel =
+                        viewModel(modelClass = AuthorizationViewModel::class) {
+                            AuthorizationViewModel(
+                                output = { output ->
+                                    when (output) {
+                                        presentation.authorization.auth.store.Output.BackButtonClicked -> {
+                                            navigator.popBackStack()
+                                        }
                                     }
                                 }
-                            }
-                        )
-                    }
+                            )
+                        }
                     val settingsViewModel: SettingsViewModel = viewModel(modelClass = SettingsViewModel::class) {
                         SettingsViewModel(
                             settingsStorage = settingsStorage,
@@ -215,7 +216,9 @@ fun main() = run {
                             TrafficLightTest(
                                 trafficLightTestViewModel::onEvent,
                                 trafficLightTestViewModel.state,
-                                trafficLightTestViewModel.actions
+                                trafficLightTestViewModel.actions,
+                                getAverage = trafficLightTestViewModel::getAverage,
+                                getStdDeviation = trafficLightTestViewModel::getStdDeviation
                             )
                         }
 //                        endregion

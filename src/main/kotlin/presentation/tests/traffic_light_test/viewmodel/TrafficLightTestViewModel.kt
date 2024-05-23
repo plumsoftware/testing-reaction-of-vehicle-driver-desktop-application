@@ -13,6 +13,7 @@ import presentation.tests.traffic_light_test.store.Event
 import presentation.tests.traffic_light_test.store.Output
 import presentation.tests.traffic_light_test.store.State
 import java.util.Calendar
+import kotlin.math.sqrt
 import kotlin.random.Random
 
 class TrafficLightTestViewModel(
@@ -221,5 +222,16 @@ class TrafficLightTestViewModel(
                 currentLampIndex = -1
             )
         }
+    }
+
+    internal fun getAverage(): Double {
+        val average = state.value.intervals.average()
+        return average / 1000
+    }
+
+    internal fun getStdDeviation() : Double {
+        val average = state.value.intervals.average()
+        val variance = state.value.intervals.map { (it - average) * (it - average) }.average()
+        return sqrt(variance)
     }
 }

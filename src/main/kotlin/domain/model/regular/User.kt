@@ -1,6 +1,7 @@
 package domain.model.regular
 
 data class User(
+    var id: Int,
     var name: String,
     var surname: String,
     var patronymic: String = "",
@@ -8,11 +9,12 @@ data class User(
     var gender: Gender,
     var drivingLicenseCategory: DrivingLicenseCategory
 ) {
-    constructor(name: String, surname: String, age: Int, gender: Gender, drivingLicenseCategory: DrivingLicenseCategory) :
-            this(name, surname, "", age, gender, drivingLicenseCategory)
+    constructor(id: Int, name: String, surname: String, age: Int, gender: Gender, drivingLicenseCategory: DrivingLicenseCategory) :
+            this(id, name, surname, "", age, gender, drivingLicenseCategory)
 
     companion object {
         fun empty () = User(
+            id = -1,
             name = "",
             surname = "",
             patronymic = "",

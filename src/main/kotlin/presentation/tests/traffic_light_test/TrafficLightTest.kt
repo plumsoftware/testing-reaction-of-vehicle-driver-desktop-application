@@ -1,21 +1,17 @@
 package presentation.tests.traffic_light_test
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.MutableStateFlow
 import presentation.other.components.BackButton
 import presentation.other.extension.padding.ExtensionPadding
 import presentation.other.extension.size.ConstantSize
+import presentation.tests.traffic_light_test.components.TestFinishedComponent
+import presentation.tests.traffic_light_test.components.TestProccessComponent
 import presentation.tests.traffic_light_test.store.Action
 import presentation.tests.traffic_light_test.store.Event
 import presentation.tests.traffic_light_test.store.State
@@ -25,7 +21,9 @@ import presentation.tests.traffic_light_test.store.State
 fun TrafficLightTest(
     onEvent: (Event) -> Unit,
     trafficLightTestState: MutableStateFlow<State>,
-    trafficLightTestAction: MutableStateFlow<Action>
+    trafficLightTestAction: MutableStateFlow<Action>,
+    getAverage: () -> Double,
+    getStdDeviation: () -> Double
 ) {
 
     val state = trafficLightTestState.collectAsState().value
@@ -50,47 +48,26 @@ fun TrafficLightTest(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (state.userClicked == state.count)
-                Text(
-                    text = "Тестирование окончено",
-                    style = MaterialTheme.typography.headlineMedium
-                )
+                with(state) {
+                    TestFinishedComponent(
+                        getAverage = getAverage,
+                        getStdDeviation = getStdDeviation,
+                        count = count,
+                        errors = errors,
+                        id = user.id
+                    )
+                }
             else
                 Text(
-                    text = if (state.startTimerTime >= 0) "Начало через ${state.startTimerTime}" else "Тест начался",
+                    text = if (state.startTimerTime > 0) "Начало через ${state.startTimerTime}" else "Тест начался",
                     style = MaterialTheme.typography.headlineMedium
                 )
-            Box {
-                if (state.userClicked != state.count) {
-                    Image(painter = painterResource("traffic_light.png"), contentDescription = "Изображение светофора")
-//                region::Lamps
-                    Box(
-                        modifier = Modifier
-                            .padding(top = 53.dp)
-                            .clip(shape = RoundedCornerShape(200.dp))
-                            .align(Alignment.TopCenter)
-                            .background(if (state.currentLampIndex == 0) Color.Red else Color.Gray)
-                            .size(ConstantSize.trafficLightLampSize)
-                    )
-
-                    Box(
-                        modifier = Modifier
-                            .padding(bottom = 60.dp)
-                            .clip(shape = RoundedCornerShape(200.dp))
-                            .align(Alignment.Center)
-                            .background(if (state.currentLampIndex == 1) Color.Yellow else Color.Gray)
-                            .size(ConstantSize.trafficLightLampSize)
-                    )
-
-                    Box(
-                        modifier = Modifier
-                            .padding(bottom = 110.dp)
-                            .clip(shape = RoundedCornerShape(200.dp))
-                            .align(Alignment.BottomCenter)
-                            .background(if (state.currentLampIndex == 2) Color.Green else Color.Gray)
-                            .size(ConstantSize.trafficLightLampSize)
-                    )
-//                endregion
-                }
+            with(state) {
+                TestProccessComponent(
+                    userClicked = userClicked,
+                    count = count,
+                    currentLampIndex = currentLampIndex
+                )
             }
             if (state.userClicked != state.count) {
 //            region::Buttons

@@ -66,6 +66,7 @@ class LoginViewModel(
                     MOCK DATA
                      **/
                     val user = User(
+                        id = 0,
                         name = "Slava",
                         surname = "Deych",
                         patronymic = "Sergeevich",
