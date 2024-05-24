@@ -5,15 +5,19 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import domain.model.ReactionTest
-import presentation.components.BackButton
-import presentation.extension.padding.ExtensionPadding
-import presentation.extension.size.ConstantSize
+import domain.model.regular.ReactionTest
+import domain.model.regular.TestMode
+import presentation.other.components.BackButton
+import presentation.other.extension.padding.ExtensionPadding
+import presentation.other.extension.size.ConstantSize
 import presentation.testmenu.store.Event
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TestMenu(onEvent: (Event) -> Unit, reactionTests: List<ReactionTest>) {
+fun TestMenu(
+    onEvent: (Event) -> Unit,
+    reactionTests: List<ReactionTest>
+) {
     Scaffold(
         topBar = {
             BackButton(
@@ -31,7 +35,14 @@ fun TestMenu(onEvent: (Event) -> Unit, reactionTests: List<ReactionTest>) {
         ) {
             for (i in reactionTests) {
                 Button(
-                    onClick = { onEvent(Event.TestClicked(route = i.route)) },
+                    onClick = {
+                        onEvent(
+                            Event.TestClicked(
+                                route = i.route,
+                                testMode = TestMode(name = i.name, id = i.id)
+                            )
+                        )
+                    },
                     modifier = Modifier
                         .defaultMinSize(minWidth = ConstantSize.homeButtonWidth)
                         .wrapContentHeight(),

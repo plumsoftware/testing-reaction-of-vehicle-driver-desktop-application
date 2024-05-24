@@ -8,6 +8,7 @@ sealed class Event {
     data class OnCheckboxThemeChanged(val isChecked: Boolean) : Event()
     data class OnCheckboxXlsxFormatChanged(val isChecked: Boolean) : Event()
     data class OnCheckboxXlsFormatChanged(val isChecked: Boolean) : Event()
+    data class OnCheckboxXltxFormatChanged(val isChecked: Boolean) : Event()
 
     data object ExpandDropDownMenuNetworkDrive : Event()
 
@@ -18,4 +19,6 @@ sealed class Event {
 
     data object CollapseDropDownMenuLocalDrive : Event()
     data class SelectDropDownMenuLocalDriveItem(val item: File) : Event()
+
+    data object SelectLocalFolderToTable : Event()
 }

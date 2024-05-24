@@ -1,7 +1,7 @@
 package presentation.settings.viewmodel
 
 import data.Constants
-import domain.model.Settings
+import domain.model.regular.Settings
 import domain.storage.SettingsStorage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
@@ -11,6 +11,7 @@ import moe.tlaster.precompose.viewmodel.viewModelScope
 import presentation.settings.store.Event
 import presentation.settings.store.Output
 import presentation.settings.store.State
+import utils.showFilePicker
 import java.io.File
 import kotlin.coroutines.CoroutineContext
 
@@ -38,11 +39,14 @@ class SettingsViewModel(
                     isDarkTheme = settings.isDarkTheme,
                     isXlsFormat = settings.dataFormats[Constants.Settings.XLS]!!,
                     isXlsxFormat = settings.dataFormats[Constants.Settings.XLSX]!!,
+                    isXltxFormat = settings.dataFormats[Constants.Settings.XLTX]!!,
                     settings = settings,
 
                     listRoots = listRoots,
-                    selectedNetworkDrive = if(settings.networkDrive.isNotEmpty()) File(settings.networkDrive) else listRoots[0],
-                    selectedLocalDrive = if(settings.localDrive.isNotEmpty()) File(settings.localDrive) else listRoots[0],
+                    selectedNetworkDrive = if (settings.networkDrive.isNotEmpty()) File(settings.networkDrive) else listRoots[0],
+                    selectedLocalDrive = if (settings.localDrive.isNotEmpty()) File(settings.localDrive) else listRoots[0],
+
+                    selectedLocalFolderToTable = File(settings.localFolderToTable)
                 )
             }
         }
@@ -81,6 +85,15 @@ class SettingsViewModel(
                 }
                 save(state = state)
             }
+
+            is Event.OnCheckboxXltxFormatChanged -> {
+                state.update {
+                    it.copy(
+                        isXltxFormat = event.isChecked
+                    )
+                }
+                save(state = state)
+            }
 //            endregion
 
 //            region::Network drive
@@ -91,6 +104,7 @@ class SettingsViewModel(
                     )
                 }
             }
+
             Event.ExpandDropDownMenuNetworkDrive -> {
                 state.update {
                     it.copy(
@@ -98,6 +112,7 @@ class SettingsViewModel(
                     )
                 }
             }
+
             is Event.SelectDropDownMenuNetworkDriveItem -> {
                 state.update {
                     it.copy(
@@ -116,6 +131,7 @@ class SettingsViewModel(
                     )
                 }
             }
+
             Event.ExpandDropDownMenuLocalDrive -> {
                 state.update {
                     it.copy(
@@ -123,10 +139,24 @@ class SettingsViewModel(
                     )
                 }
             }
+
             is Event.SelectDropDownMenuLocalDriveItem -> {
                 state.update {
                     it.copy(
                         selectedLocalDrive = event.item
+                    )
+                }
+                save(state = state)
+            }
+//            endregion
+
+//            region::Local folder
+            Event.SelectLocalFolderToTable -> {
+                val selectedLocalFolderToTable: File = showFilePicker()
+
+                state.update {
+                    it.copy(
+                        selectedLocalFolderToTable = selectedLocalFolderToTable
                     )
                 }
                 save(state = state)
@@ -142,10 +172,12 @@ class SettingsViewModel(
                     isDarkTheme = state.value.isDarkTheme,
                     dataFormats = mapOf(
                         Constants.Settings.XLSX to state.value.isXlsxFormat,
-                        Constants.Settings.XLS to state.value.isXlsFormat
+                        Constants.Settings.XLS to state.value.isXlsFormat,
+                        Constants.Settings.XLTX to state.value.isXltxFormat,
                     ),
                     networkDrive = "${state.value.selectedNetworkDrive.absolutePath}\\",
-                    localDrive = "${state.value.selectedLocalDrive.absolutePath}\\"
+                    localDrive = "${state.value.selectedLocalDrive.absolutePath}\\",
+                    localFolderToTable = state.value.selectedLocalFolderToTable.path
                 )
             )
         }
