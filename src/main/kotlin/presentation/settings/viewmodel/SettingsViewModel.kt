@@ -159,9 +159,6 @@ class SettingsViewModel(
                         selectedLocalFolderToTable = selectedLocalFolderToTable
                     )
                 }
-            }
-
-            Event.SaveSelectedLocalFolderToTable -> {
                 save(state = state)
             }
 //            endregion

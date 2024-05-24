@@ -21,5 +21,4 @@ sealed class Event {
     data class SelectDropDownMenuLocalDriveItem(val item: File) : Event()
 
     data object SelectLocalFolderToTable : Event()
-    data object SaveSelectedLocalFolderToTable : Event()
 }

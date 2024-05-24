@@ -242,14 +242,6 @@ fun SettingsPage(onEvent: (Event) -> Unit, _state: MutableStateFlow<State>) {
                                         style = MaterialTheme.typography.bodyMedium
                                     )
                                 }
-                                Button(onClick = {
-                                    onEvent(Event.SaveSelectedLocalFolderToTable)
-                                }) {
-                                    Text(
-                                        text = "Сохранить",
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
-                                }
                             }
                         }
                     }
