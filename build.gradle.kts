@@ -1,4 +1,6 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+//import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformSourceSetConventionsImpl.dependencies
+//import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformSourceSetConventionsImpl.nativeMain
 
 val macExtraPlistKeys: String
     get() = """
@@ -20,6 +22,7 @@ plugins {
     kotlin("jvm")
     id("org.jetbrains.compose")
     kotlin("plugin.serialization") version "1.9.22"
+    id("app.cash.sqldelight") version "2.0.2"
 }
 
 group = "ru.plumsoftware"
@@ -31,12 +34,23 @@ repositories {
     google()
 }
 
+sqldelight {
+    databases {
+        create("Database") {
+            packageName.set("data.sqldelight")
+            schemaOutputDirectory = file("src/main/kotlin/data/sqldelight/databases")
+            verifyMigrations = true
+        }
+    }
+}
+
+val sqlLightVersion = "2.0.2"
+
 dependencies {
     val apachi_poi = "5.2.3"
     val material3 = "1.2.1"
     val precompose_version = "1.6.0"
     val kotlinx_serialization_json = "1.6.0"
-
 
     implementation(compose.desktop.currentOs)
 
@@ -55,7 +69,18 @@ dependencies {
     api("moe.tlaster:precompose-viewmodel:$precompose_version") // For ViewModel intergration
 
 // api("moe.tlaster:precompose-koin:$precompose_version") // For Koin intergration
+
+//    Database
+    implementation("app.cash.sqldelight:runtime:$sqlLightVersion")
+    implementation("app.cash.sqldelight:sqlite-driver:$sqlLightVersion")
+    implementation("app.cash.sqldelight:coroutines-extensions:$sqlLightVersion")
 }
+
+//kotlin {
+//    sourceSets.nativeMain.dependencies {
+//        implementation("app.cash.sqldelight:native-driver:$sqlLightVersion")
+//    }
+//}
 
 compose.desktop {
     application {
@@ -70,7 +95,8 @@ compose.desktop {
 
             packageName = "Тест на реакцию"
             packageVersion = "1.0.0"
-            description = "Это программа для тестирования сложной сенсомоторной реакции водителя на зрительный раздражитель. Разработчики: студент СибАДИ Дейч Вячеслав Сергеевич, преподаватель кафедры ЦТ Селезнёва Елена Викторовна, преподаватель кафедры АТ Белякова Александра Владимировна."
+            description =
+                "Это программа для тестирования сложной сенсомоторной реакции водителя на зрительный раздражитель. Разработчики: студент СибАДИ Дейч Вячеслав Сергеевич, преподаватель кафедры ЦТ Селезнёва Елена Викторовна, преподаватель кафедры АТ Белякова Александра Владимировна."
             copyright = "© 2024 Дейч Вячеслав Сергеевич. All rights reserved."
             vendor = "ФГБОУ ВО «Сибирский государственный автомобильно-дорожный университет»"
             licenseFile.set(project.file("LICENSE.txt"))

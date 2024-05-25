@@ -11,6 +11,9 @@ object Constants {
         val PATH_TO_SETTINGS_FOLDER = "C:\\Users\\${USER_NAME}\\AppData\\Local\\${FOLDER_NAME}"
         val PATH_TO_SETTINGS_FILE = "C:\\Users\\${USER_NAME}\\AppData\\Local\\${FOLDER_NAME}\\settings.json"
 
+        val PATH_TO_SQL_TABLE_FOLDER = "C:\\Users\\${USER_NAME}\\AppData\\Local\\${FOLDER_NAME}"
+        val PATH_TO_SQL_TABLE_FILE = "C:\\Users\\${USER_NAME}\\AppData\\Local\\${FOLDER_NAME}\\database.json"
+
         val PATH_TO_SHARED_FOLDER = "C:\\Users\\${USER_NAME}\\AppData\\Roaming\\${FOLDER_NAME}"
         val PATH_TO_SHARED_FILE = "C:\\Users\\${USER_NAME}\\AppData\\Roaming\\${FOLDER_NAME}\\shared.json"
 
