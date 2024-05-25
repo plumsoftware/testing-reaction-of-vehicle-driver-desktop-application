@@ -1,0 +1,14 @@
+CREATE TABLE Sessions (
+    session_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    test_id INTEGER,
+    test_year INTEGER,
+    test_month INTEGER,
+    test_day INTEGER,
+    test_hour_of_day_24h INTEGER,
+    test_minute_of_hour INTEGER,
+    average_value REAL,
+    standart_deviation REAL,
+    count INTEGER,
+    errors INTEGER
+);
