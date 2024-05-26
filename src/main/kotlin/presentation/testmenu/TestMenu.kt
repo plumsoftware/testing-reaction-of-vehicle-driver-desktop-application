@@ -39,7 +39,7 @@ fun TestMenu(
                         onEvent(
                             Event.TestClicked(
                                 route = i.route,
-                                testMode = TestMode(name = i.name, id = i.id)
+                                testMode = TestMode(name = i.name, id = i.id.toLong())
                             )
                         )
                     },

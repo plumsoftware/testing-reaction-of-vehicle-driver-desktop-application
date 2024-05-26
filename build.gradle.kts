@@ -1,6 +1,4 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-//import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformSourceSetConventionsImpl.dependencies
-//import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformSourceSetConventionsImpl.nativeMain
 
 val macExtraPlistKeys: String
     get() = """
@@ -34,6 +32,8 @@ repositories {
     google()
 }
 
+val sqlLightVersion = "2.0.2"
+
 sqldelight {
     databases {
         create("Database") {
@@ -44,8 +44,6 @@ sqldelight {
         }
     }
 }
-
-val sqlLightVersion = "2.0.2"
 
 dependencies {
     val apachi_poi = "5.2.3"
@@ -72,16 +70,8 @@ dependencies {
 // api("moe.tlaster:precompose-koin:$precompose_version") // For Koin intergration
 
 //    Database
-    implementation("app.cash.sqldelight:runtime:$sqlLightVersion")
     implementation("app.cash.sqldelight:sqlite-driver:$sqlLightVersion")
-    implementation("app.cash.sqldelight:coroutines-extensions:$sqlLightVersion")
 }
-
-//kotlin {
-//    sourceSets.nativeMain.dependencies {
-//        implementation("app.cash.sqldelight:native-driver:$sqlLightVersion")
-//    }
-//}
 
 compose.desktop {
     application {
@@ -93,6 +83,7 @@ compose.desktop {
                 TargetFormat.Msi, TargetFormat.Exe, //Windows
                 TargetFormat.Deb, TargetFormat.Rpm //Linux
             )
+            modules("java.sql")
 
             packageName = "Тест на реакцию"
             packageVersion = "1.0.0"

@@ -1,5 +1,6 @@
+create:
 CREATE TABLE IF NOT EXISTS Sessions (
-    session_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     user_id INTEGER NOT NULL,
     test_id INTEGER NOT NULL,
     test_year INTEGER NOT NULL,
@@ -13,24 +14,33 @@ CREATE TABLE IF NOT EXISTS Sessions (
     errors INTEGER NOT NULL
 );
 
-selectAllSessions:
+selectAllSessions{
 SELECT * FROM Sessions;
+}
 
 insertOrAbortNewSession{
-BEGIN TRANSACTION;
-INSERT OR ABORT INTO Sessions VALUES (
-    session_id = ?,
-    user_id = ?,
-    test_id = ?,
-    test_year = ?,
-    test_month = ?,
-    test_day = ?,
-    test_hour_of_day_24h = ?,
-    test_minute_of_hour = ?,
-    average_value = ?,
-    standard_deviation = ?,
-    count = ?,
-    errors = ?
-);
-COMMIT TRANSACTION;
+INSERT OR ABORT INTO Sessions (
+    user_id,
+    test_id,
+    test_year,
+    test_month,
+    test_day,
+    test_hour_of_day_24h,
+    test_minute_of_hour,
+    average_value,
+    standard_deviation,
+    count,
+    errors)
+VALUES (
+?,
+?,
+?,
+?,
+?,
+?,
+?,
+?,
+?,
+?,
+?);
 }

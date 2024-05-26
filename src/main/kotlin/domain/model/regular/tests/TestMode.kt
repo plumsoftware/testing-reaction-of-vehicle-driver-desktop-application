@@ -2,7 +2,7 @@ package domain.model.regular.tests
 
 data class TestMode(
     val name: String?,
-    val id: Int?
+    val id: Long?
 ) {
     companion object {
         fun empty(): TestMode {

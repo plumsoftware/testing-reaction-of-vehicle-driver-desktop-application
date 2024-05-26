@@ -9,6 +9,12 @@ import ru.plumsoftware.sessions.Sessions
 class SessionRepositoryImpl(
     private val driver: SqlDriver
 ) : SessionRepository {
+
+    init {
+        val database = Database(driver = driver)
+        database.sqldelight_schemeQueries.create()
+    }
+
     override suspend fun getAllSessionDtoFromDatabase(): List<SessionDTO> {
         val database = Database(driver = driver)
         val executeAsList: List<Sessions> = database.sqldelight_schemeQueries.selectAllSessions().executeAsList()
@@ -38,20 +44,21 @@ class SessionRepositoryImpl(
     override suspend fun insertOrAbortNewSession(sessionDTO: SessionDTO) {
         val database = Database(driver = driver)
         with(sessionDTO) {
-            database.sqldelight_schemeQueries.insertOrAbortNewSession(
-                sessionId,
-                userId,
-                testId,
-                testYear.toLong(),
-                testMonth.toLong(),
-                testDay.toLong(),
-                testHourOfDay24h.toLong(),
-                testMinuteOfHour.toLong(),
-                averageValue,
-                standardDeviation,
-                count.toLong(),
-                errors.toLong()
-            )
+            database.sqldelight_schemeQueries.transaction {
+                database.sqldelight_schemeQueries.insertOrAbortNewSession(
+                    userId,
+                    testId,
+                    testYear.toLong(),
+                    testMonth.toLong(),
+                    testDay.toLong(),
+                    testHourOfDay24h.toLong(),
+                    testMinuteOfHour.toLong(),
+                    averageValue,
+                    standardDeviation,
+                    count.toLong(),
+                    errors.toLong()
+                )
+            }
         }
     }
 }

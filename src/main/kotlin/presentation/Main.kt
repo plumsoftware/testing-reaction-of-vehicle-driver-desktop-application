@@ -195,7 +195,8 @@ fun main() = run {
                                     }
                                 }
                             },
-                            actions = mainViewModel.trafficLightActions
+                            actions = mainViewModel.trafficLightActions,
+                            sessionStorage = sessionStorage
                         )
                     }
 //                    endregion
