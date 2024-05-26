@@ -12,3 +12,6 @@ CREATE TABLE Sessions (
     count INTEGER,
     errors INTEGER
 );
+
+selectAllSessions:
+SELECT * FROM Sessions;
