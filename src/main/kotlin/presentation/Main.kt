@@ -11,9 +11,6 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import app.cash.sqldelight.db.SqlDriver
-import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
-import data.Constants
 import data.repository.SessionRepositoryImpl
 import data.repository.SettingsRepositoryImpl
 import data.repository.WorkbookRepositoryImpl
