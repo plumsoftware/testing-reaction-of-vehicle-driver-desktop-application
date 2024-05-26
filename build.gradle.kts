@@ -37,9 +37,10 @@ repositories {
 sqldelight {
     databases {
         create("Database") {
-            packageName.set("data.sqldelight")
+            packageName.set("ru.plumsoftware.sessions")
             schemaOutputDirectory = file("src/main/kotlin/data/sqldelight/databases")
             verifyMigrations = true
+            deriveSchemaFromMigrations = true
         }
     }
 }

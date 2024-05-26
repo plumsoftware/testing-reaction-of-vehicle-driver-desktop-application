@@ -58,4 +58,8 @@ object Constants {
             Interval(start = 2000, finish = 10000),
         )
     }
+
+    object Database {
+        const val JDBC_DRIVER_NAME = "jdbc:sqlite:database.db"
+    }
 }

@@ -1,9 +1,9 @@
-package domain.model.dto
+package domain.model.dto.database
 
 data class SessionDTO(
-    val sessionId: Int,
-    val userId: Int,
-    val testId: Int,
+    val sessionId: Long,
+    val userId: Long,
+    val testId: Long,
     val testYear: Int,
     val testMonth: Int,
     val testDay: Int,
@@ -12,5 +12,5 @@ data class SessionDTO(
     val averageValue: Double,
     val standardDeviation: Double,
     val count: Int,
-    val error: Int
+    val errors: Int
 )
