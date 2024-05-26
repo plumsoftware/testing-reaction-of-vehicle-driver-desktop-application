@@ -67,6 +67,10 @@ dependencies {
     api("moe.tlaster:precompose-molecule:$precompose_version") // For Molecule intergration
     api("moe.tlaster:precompose-viewmodel:$precompose_version") // For ViewModel intergration
 
+//    Log
+    implementation("org.slf4j:slf4j-simple:1.7.36")
+    implementation("org.apache.logging.log4j:log4j-to-slf4j:2.8.2")
+
 // api("moe.tlaster:precompose-koin:$precompose_version") // For Koin intergration
 
 //    Database
