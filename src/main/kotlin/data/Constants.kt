@@ -4,21 +4,17 @@ import domain.model.regular.user.Interval
 import org.apache.poi.xssf.usermodel.XSSFWorkbookType
 
 object Constants {
-    object General {
-        private val USER_NAME: String = System.getProperty("user.name")
-        private const val FOLDER_NAME = "Reaction test"
+    private val USER_NAME: String = System.getProperty("user.name")
+    private const val FOLDER_NAME = "Reaction test"
 
+    object General {
         val PATH_TO_SETTINGS_FOLDER = "C:\\Users\\${USER_NAME}\\AppData\\Local\\${FOLDER_NAME}"
         val PATH_TO_SETTINGS_FILE = "C:\\Users\\${USER_NAME}\\AppData\\Local\\${FOLDER_NAME}\\settings.json"
-
-        val PATH_TO_SQL_TABLE_FOLDER = "C:\\Users\\${USER_NAME}\\AppData\\Local\\${FOLDER_NAME}"
-        val PATH_TO_SQL_TABLE_FILE = "C:\\Users\\${USER_NAME}\\AppData\\Local\\${FOLDER_NAME}\\database.json"
 
         val PATH_TO_SHARED_FOLDER = "C:\\Users\\${USER_NAME}\\AppData\\Roaming\\${FOLDER_NAME}"
         val PATH_TO_SHARED_FILE = "C:\\Users\\${USER_NAME}\\AppData\\Roaming\\${FOLDER_NAME}\\shared.json"
 
-        val PATH_TO_SQL_FOLDER = "C:\\Users\\${USER_NAME}\\AppData\\LocalLow\\${FOLDER_NAME}"
-        val PATH_TO_SQL_FILE = "C:\\Users\\${USER_NAME}\\AppData\\Roaming\\${FOLDER_NAME}\\base.sql"
+        val PATH_TO_SQL_FOLDER = "C:\\Users\\${USER_NAME}\\AppData\\Local\\${FOLDER_NAME}"
     }
 
     object Table {
@@ -60,6 +56,7 @@ object Constants {
     }
 
     object Database {
-        const val JDBC_DRIVER_NAME = "jdbc:sqlite:database.db"
+        private const val DATABASE_NAME = "database.db"
+        val JDBC_DRIVER_NAME = "jdbc:sqlite:C:\\Users\\${USER_NAME}\\AppData\\Local\\${FOLDER_NAME}\\${DATABASE_NAME}"
     }
 }

@@ -1,16 +1,20 @@
 package data.repository
 
 import app.cash.sqldelight.db.SqlDriver
+import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
+import data.Constants
 import domain.model.dto.database.SessionDTO
 import domain.repository.SessionRepository
 import ru.plumsoftware.sessions.Database
 import ru.plumsoftware.sessions.Sessions
+import utils.createFolderIfNotExists
 
-class SessionRepositoryImpl(
-    private val driver: SqlDriver
-) : SessionRepository {
+class SessionRepositoryImpl : SessionRepository {
+
+    private val driver: SqlDriver = JdbcSqliteDriver(Constants.Database.JDBC_DRIVER_NAME)
 
     init {
+        createFolderIfNotExists(folderPath = Constants.General.PATH_TO_SQL_FOLDER)
         val database = Database(driver = driver)
         database.sqldelight_schemeQueries.create()
     }
