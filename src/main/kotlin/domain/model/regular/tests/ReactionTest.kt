@@ -1,4 +1,4 @@
-package domain.model.regular
+package domain.model.regular.tests
 
 interface ReactionTest {
     val id: Int

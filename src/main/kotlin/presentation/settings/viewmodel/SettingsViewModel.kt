@@ -1,7 +1,7 @@
 package presentation.settings.viewmodel
 
 import data.Constants
-import domain.model.regular.Settings
+import domain.model.regular.settings.Settings
 import domain.storage.SettingsStorage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update

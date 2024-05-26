@@ -1,7 +1,7 @@
 package presentation.authorization.login.store
 
-import domain.model.regular.DrivingLicenseCategory
-import domain.model.regular.Interval
+import domain.model.regular.user.DrivingLicenseCategory
+import domain.model.regular.user.Interval
 
 data class State (
     val login: String = "",

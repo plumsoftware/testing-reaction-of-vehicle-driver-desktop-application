@@ -8,7 +8,7 @@ CREATE TABLE Sessions (
     test_hour_of_day_24h INTEGER,
     test_minute_of_hour INTEGER,
     average_value REAL,
-    standart_deviation REAL,
+    standard_deviation REAL,
     count INTEGER,
     errors INTEGER
 );

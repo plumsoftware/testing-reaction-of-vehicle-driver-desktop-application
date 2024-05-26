@@ -13,9 +13,9 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import data.repository.SettingsRepositoryImpl
 import data.repository.WorkbookRepositoryImpl
-import data.tests.TrafficLight
-import domain.model.regular.ReactionTest
-import domain.model.regular.Settings
+import domain.model.regular.tests.TrafficLight
+import domain.model.regular.tests.ReactionTest
+import domain.model.regular.settings.Settings
 import domain.storage.SettingsStorage
 import domain.storage.WorkbookStorage
 import domain.usecase.settings.GetUserSettingsUseCase

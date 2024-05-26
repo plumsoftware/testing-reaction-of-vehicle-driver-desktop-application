@@ -1,4 +1,4 @@
-package domain.model.regular
+package domain.model.regular.settings
 
 import data.Constants
 import kotlinx.serialization.SerialName

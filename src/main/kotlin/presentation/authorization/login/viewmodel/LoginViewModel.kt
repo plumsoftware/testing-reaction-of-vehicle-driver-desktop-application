@@ -1,7 +1,10 @@
 package presentation.authorization.login.viewmodel
 
 import domain.model.dto.TestDTO
-import domain.model.regular.*
+import domain.model.regular.user.DrivingLicenseCategory
+import domain.model.regular.user.Gender
+import domain.model.regular.user.Interval
+import domain.model.regular.user.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import moe.tlaster.precompose.viewmodel.ViewModel

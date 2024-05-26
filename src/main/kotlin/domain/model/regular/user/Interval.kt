@@ -1,4 +1,4 @@
-package domain.model.regular
+package domain.model.regular.user
 
 import java.util.Calendar
 

@@ -1,7 +1,7 @@
 package data.repository
 
 import data.Constants
-import domain.model.regular.Settings
+import domain.model.regular.settings.Settings
 import domain.repository.SettingsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

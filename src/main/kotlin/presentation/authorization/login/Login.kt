@@ -6,8 +6,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import data.Constants
-import domain.model.regular.DrivingLicenseCategory
-import domain.model.regular.Interval
+import domain.model.regular.user.DrivingLicenseCategory
+import domain.model.regular.user.Interval
 import presentation.authorization.login.store.Event
 import presentation.authorization.login.store.State
 import presentation.other.components.AuthSpinnerField

@@ -1,6 +1,6 @@
 package domain.repository
 
-import domain.model.regular.Settings
+import domain.model.regular.settings.Settings
 
 interface SettingsRepository {
     suspend fun saveData(settings: Settings)

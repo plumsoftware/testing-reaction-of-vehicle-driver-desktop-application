@@ -1,6 +1,6 @@
 package domain.usecase.settings
 
-import domain.model.regular.Settings
+import domain.model.regular.settings.Settings
 import domain.repository.SettingsRepository
 
 class SaveUserSettingsUseCase(private val settingsRepository: SettingsRepository) {

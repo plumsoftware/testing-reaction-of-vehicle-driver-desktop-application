@@ -1,6 +1,6 @@
 package data
 
-import domain.model.regular.Interval
+import domain.model.regular.user.Interval
 import org.apache.poi.xssf.usermodel.XSSFWorkbookType
 
 object Constants {

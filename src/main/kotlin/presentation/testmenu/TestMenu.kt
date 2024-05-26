@@ -5,8 +5,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import domain.model.regular.ReactionTest
-import domain.model.regular.TestMode
+import domain.model.regular.tests.ReactionTest
+import domain.model.regular.tests.TestMode
 import presentation.other.components.BackButton
 import presentation.other.extension.padding.ExtensionPadding
 import presentation.other.extension.size.ConstantSize

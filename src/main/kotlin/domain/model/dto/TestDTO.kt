@@ -1,8 +1,8 @@
 package domain.model.dto
 
-import domain.model.regular.Interval
-import domain.model.regular.TestMode
-import domain.model.regular.User
+import domain.model.regular.user.Interval
+import domain.model.regular.tests.TestMode
+import domain.model.regular.user.User
 
 data class TestDTO(
     val user: User = User.empty(),

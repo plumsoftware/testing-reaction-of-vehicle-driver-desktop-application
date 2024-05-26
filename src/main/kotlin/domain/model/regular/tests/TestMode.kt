@@ -1,4 +1,4 @@
-package domain.model.regular
+package domain.model.regular.tests
 
 data class TestMode(
     val name: String?,
