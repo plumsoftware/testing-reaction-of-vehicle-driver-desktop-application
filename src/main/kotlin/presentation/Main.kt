@@ -75,8 +75,7 @@ fun main() = run {
             createWorkbookIfNotExistsUseCase = CreateWorkbookIfNotExistsUseCase(workbookRepository),
             writeDataToWorkbookUseCase = WriteDataToWorkbookUseCase(workbookRepository)
         )
-        val driver: SqlDriver = JdbcSqliteDriver(Constants.Database.JDBC_DRIVER_NAME)
-        val sessionRepository = SessionRepositoryImpl(driver = driver)
+        val sessionRepository = SessionRepositoryImpl()
         val sessionStorage = SessionStorage(
             getAllSessionsDtoFromDatabaseUseCase = GetAllSessionsDtoFromDatabaseUseCase(sessionRepository),
             insertOrAbortNewSessionUseCase = InsertOrAbortNewSessionUseCase(sessionRepository)
