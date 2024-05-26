@@ -56,7 +56,7 @@ fun main() = run {
     println("App started!")
 
     application {
-        val windowState = rememberWindowState(placement = WindowPlacement.Fullscreen)
+        val windowState = rememberWindowState(placement = WindowPlacement.Maximized)
         val reactionTests: List<ReactionTest> = listOf(
             TrafficLight()
         )
