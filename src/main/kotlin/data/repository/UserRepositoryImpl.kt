@@ -10,9 +10,6 @@ import ru.plumsoftware.users.Users
 
 class UserRepositoryImpl(netDriver: String) : UserRepository {
     private var driver: SqlDriver = JdbcSqliteDriver(Constants.Database.collapseNetDriver(netDriver = netDriver))
-    init {
-        println(Constants.Database.collapseNetDriver(netDriver = netDriver))
-    }
 
     override suspend fun getUserByLoginAndPassword(
         login: String,

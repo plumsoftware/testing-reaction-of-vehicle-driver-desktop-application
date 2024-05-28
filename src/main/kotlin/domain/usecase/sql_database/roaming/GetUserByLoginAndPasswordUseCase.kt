@@ -25,7 +25,7 @@ class GetUserByLoginAndPasswordUseCase(private val userRepository: UserRepositor
                             patronymic = it.user_patronymic ?: "",
                             age = it.age.toInt(),
                             gender = Gender.fromString(it.gender),
-                            drivingLicenseCategory = DrivingLicenseCategory.fromString(it.driving_license_category),
+                            drivingLicenseCategory = DrivingLicenseCategory.Empty,
                             experience = it.experience.toInt()
                         )
                     }
