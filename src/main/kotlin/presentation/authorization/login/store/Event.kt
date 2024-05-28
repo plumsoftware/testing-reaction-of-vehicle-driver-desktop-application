@@ -14,4 +14,6 @@ sealed class Event {
     data class OnCountChanged(val count: Int) : Event()
     data class OnDrivingLicenseCategoryChanged(val drivingLicenseCategory: DrivingLicenseCategory) : Event()
     data class OnIntervalChanged(val interval: Interval) : Event()
+
+    data class OnAgeChanged(val age: Int) : Event()
 }

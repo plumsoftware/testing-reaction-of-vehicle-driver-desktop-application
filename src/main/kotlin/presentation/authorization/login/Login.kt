@@ -84,6 +84,23 @@ fun Login(
                     isError = state.value.isExperienceError,
                     modifier = Modifier.fillMaxWidth().weight(1.0f)
                 )
+                AuthTextField(
+                    text = if (state.value.age < 0) "" else state.value.age.toString(),
+                    labelHint = "Возраст",
+                    onValueChange = {
+                        onEvent(
+                            Event.OnAgeChanged(
+                                age = try {
+                                    it.toInt()
+                                } catch (e: Exception) {
+                                    -1
+                                }
+                            )
+                        )
+                    },
+                    isError = state.value.isAgeError,
+                    modifier = Modifier.fillMaxWidth().weight(1.0f)
+                )
                 AuthSpinnerField(
                     text = if (state.value.drivingLicenseCategory == DrivingLicenseCategory.Empty) "" else state.value.drivingLicenseCategory.toString(),
                     labelHint = "Категория прав",

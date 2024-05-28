@@ -9,6 +9,7 @@ data class State (
     val experience: Int = 0,
     val count: Int = 0,
     val drivingLicenseCategory: DrivingLicenseCategory = DrivingLicenseCategory.Empty,
+    val age: Int = -1,
 
     val isPasswordError: Boolean = false,
     val isLoginError: Boolean = false,
@@ -16,6 +17,7 @@ data class State (
     val isCountError: Boolean = false,
     val isDrivingLicenseCategoryError: Boolean = false,
     val isIntervalError: Boolean = false,
+    val isAgeError: Boolean = false,
 
     val intervals: List<Interval> = emptyList(),
     val selectedInterval: Interval = Interval()

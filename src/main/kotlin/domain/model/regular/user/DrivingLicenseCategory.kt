@@ -9,7 +9,7 @@ enum class DrivingLicenseCategory {
 
     NoDrivingLicense {
         override fun toString(): String {
-            return "Нет водительских плав"
+            return "Нет водительских прав"
         }
     },
 
@@ -112,6 +112,12 @@ enum class DrivingLicenseCategory {
     T {
         override fun toString(): String {
             return "T"
+        }
+    };
+
+    companion object {
+        fun fromString(value: String): DrivingLicenseCategory {
+            return entries.find { it.toString() == value } ?: Empty
         }
     }
 }

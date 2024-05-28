@@ -14,7 +14,8 @@ object Constants {
         val PATH_TO_SHARED_FOLDER = "C:\\Users\\${USER_NAME}\\AppData\\Roaming\\${FOLDER_NAME}"
         val PATH_TO_SHARED_FILE = "C:\\Users\\${USER_NAME}\\AppData\\Roaming\\${FOLDER_NAME}\\shared.json"
 
-        val PATH_TO_SQL_FOLDER = "C:\\Users\\${USER_NAME}\\AppData\\Local\\${FOLDER_NAME}"
+        val PATH_TO_LOCAL_SQL_FOLDER = "C:\\Users\\${USER_NAME}\\AppData\\Local\\${FOLDER_NAME}"
+        val PATH_TO_ROAMING_SQL_FOLDER = "C:\\Users\\${USER_NAME}\\AppData\\Roaming\\${FOLDER_NAME}"
     }
 
     object Table {
@@ -56,7 +57,10 @@ object Constants {
     }
 
     object Database {
-        private const val DATABASE_NAME = "database.db"
-        val JDBC_DRIVER_NAME = "jdbc:sqlite:C:\\Users\\${USER_NAME}\\AppData\\Local\\${FOLDER_NAME}\\${DATABASE_NAME}"
+        private const val LOCAL_DATABASE_NAME = "database.db"
+        val LOCAL_JDBC_DRIVER_NAME = "jdbc:sqlite:C:\\Users\\${USER_NAME}\\AppData\\Local\\${FOLDER_NAME}\\${LOCAL_DATABASE_NAME}"
+
+        private const val ROAMING_DATABASE_NAME = "user_database.db"
+        val ROAMING_JDBC_DRIVER_NAME = "jdbc:sqlite:C:\\Users\\${USER_NAME}\\AppData\\Roaming\\${FOLDER_NAME}\\${ROAMING_DATABASE_NAME}"
     }
 }

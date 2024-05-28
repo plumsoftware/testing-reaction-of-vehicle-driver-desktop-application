@@ -2,18 +2,21 @@ package presentation.authorization.login.viewmodel
 
 import domain.model.dto.TestDTO
 import domain.model.regular.user.DrivingLicenseCategory
-import domain.model.regular.user.Gender
 import domain.model.regular.user.Interval
 import domain.model.regular.user.User
+import domain.storage.UserStorage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import moe.tlaster.precompose.viewmodel.ViewModel
+import moe.tlaster.precompose.viewmodel.viewModelScope
 import presentation.authorization.login.store.Event
 import presentation.authorization.login.store.Output
 import presentation.authorization.login.store.State
 
 class LoginViewModel(
-    private val output: (Output) -> Unit
+    private val output: (Output) -> Unit,
+    private val userStorage: UserStorage
 ) : ViewModel() {
 
     val state = MutableStateFlow(State())
@@ -53,29 +56,27 @@ class LoginViewModel(
                 ) {
                     isErrorsStatus()
                 } else {
-                    /**
-                    Go to the database with users and get a user data
-                    MOCK DATA
-                    MOCK DATA
-                    MOCK DATA
-                     **/
-                    isErrorsStatus()
-                    val user = User(
-                        id = 0,
-                        name = "Slava",
-                        surname = "Deych",
-                        patronymic = "Sergeevich",
-                        age = 20,
-                        gender = Gender.MALE,
-                        drivingLicenseCategory = state.value.drivingLicenseCategory,
-                        experience = state.value.experience
-                    )
-                    val testDto = TestDTO(
-                        user = user,
-                        count = state.value.count,
-                        interval = state.value.selectedInterval,
-                    )
-                    onOutput(Output.OpenTestMenu(testDTO = testDto))
+
+                    val login: String = state.value.login
+                    val password: String = state.value.password
+
+                    viewModelScope.launch {
+                        isErrorsStatus()
+                        val user: User = userStorage
+                            .getUserByLoginAndPassword(login = login, password = password)
+                            .copy(
+                                age = state.value.age,
+                                drivingLicenseCategory = state.value.drivingLicenseCategory,
+                                experience = state.value.experience
+                            )
+                        println("User to test $user")
+                        val testDto = TestDTO(
+                            user = user,
+                            count = state.value.count,
+                            interval = state.value.selectedInterval,
+                        )
+//                        onOutput(Output.OpenTestMenu(testDTO = testDto))
+                    }
                 }
             }
 
@@ -110,6 +111,14 @@ class LoginViewModel(
                     )
                 }
             }
+
+            is Event.OnAgeChanged -> {
+                state.update {
+                    it.copy(
+                        age = event.age
+                    )
+                }
+            }
         }
     }
 
@@ -125,7 +134,8 @@ class LoginViewModel(
                 isCountError = state.value.count == 0,
                 isDrivingLicenseCategoryError = state.value.drivingLicenseCategory == DrivingLicenseCategory.Empty,
                 isExperienceError = state.value.experience < 0,
-                isIntervalError = state.value.selectedInterval == Interval()
+                isIntervalError = state.value.selectedInterval == Interval(),
+                isAgeError = state.value.age < 0
             )
         }
     }

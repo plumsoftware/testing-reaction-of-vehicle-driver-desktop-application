@@ -13,10 +13,10 @@ import utils.createFolderIfNotExists
 
 class SessionRepositoryImpl : SessionRepository {
 
-    private val driver: SqlDriver = JdbcSqliteDriver(Constants.Database.JDBC_DRIVER_NAME)
+    private val driver: SqlDriver = JdbcSqliteDriver(Constants.Database.LOCAL_JDBC_DRIVER_NAME)
 
     init {
-        createFolderIfNotExists(folderPath = Constants.General.PATH_TO_SQL_FOLDER)
+        createFolderIfNotExists(folderPath = Constants.General.PATH_TO_LOCAL_SQL_FOLDER)
         val database = Database(driver = driver)
         database.sqldelight_schemeQueries.create()
     }

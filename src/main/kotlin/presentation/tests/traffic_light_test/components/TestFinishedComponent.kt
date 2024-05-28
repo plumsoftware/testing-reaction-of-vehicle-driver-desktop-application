@@ -10,7 +10,7 @@ fun TestFinishedComponent(
     getStdDeviation: () -> Double,
     count: Int,
     errors: Int,
-    id: Int
+    id: Long
 ) {
     Text(
         text = "Тестирование окончено",
