@@ -172,45 +172,6 @@ fun SettingsPage(onEvent: (Event) -> Unit, _state: MutableStateFlow<State>) {
                             Text(text = "Выберите сетевой диск", style = MaterialTheme.typography.bodyMedium)
                         }
 
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(ExtensionPadding.smallAsymmetricalContentPadding),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = ExtensionPadding.mediumHorizontalArrangement
-                        ) {
-                            DropdownMenu(
-                                expanded = state.dropdownMenuLocalDriveExpanded,
-                                onDismissRequest = { onEvent(Event.CollapseDropDownMenuLocalDrive) },
-                                modifier = Modifier.background(color = MaterialTheme.colorScheme.background)
-                            ) {
-                                state.listRoots.forEachIndexed { _, file ->
-                                    DropdownMenuItem(
-                                        onClick = {
-                                            onEvent(Event.SelectDropDownMenuLocalDriveItem(item = file))
-                                            onEvent(Event.CollapseDropDownMenuLocalDrive)
-                                        },
-                                    ) {
-                                        Text(
-                                            text = file.absolutePath,
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onBackground
-                                        )
-                                    }
-                                }
-                            }
-                            Button(onClick = { onEvent(Event.ExpandDropDownMenuLocalDrive) }) {
-                                Text(
-                                    text = state.selectedLocalDrive.absolutePath,
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                            }
-                            Text(
-                                text = "Выберите диск для локального сохранения",
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        }
-
                         Column(
                             modifier = Modifier
                                 .wrapContentSize()

@@ -14,9 +14,6 @@ data class State(
     val selectedNetworkDrive: File = File("C:\\"),
     val dropdownMenuNetworkDriveExpanded: Boolean = false,
 
-    val selectedLocalDrive: File = File("C:\\"),
-    val dropdownMenuLocalDriveExpanded: Boolean = false,
-
     val selectedLocalFolderToTable: File = File("C:\\Users\\Default"),
 
     val settings: Settings = Settings()

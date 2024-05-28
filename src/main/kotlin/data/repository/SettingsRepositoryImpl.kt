@@ -34,8 +34,6 @@ class SettingsRepositoryImpl : SettingsRepository {
         stringBuffer
             .append("\t\"networkDrive\" : \"${settings.networkDrive}\"")
             .append(",\n")
-            .append("\t\"localDrive\" : \"${settings.localDrive}\"")
-            .append(",\n")
 
 //        Local folder to table
         stringBuffer

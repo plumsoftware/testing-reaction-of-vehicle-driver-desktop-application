@@ -15,10 +15,6 @@ sealed class Event {
     data object CollapseDropDownMenuNetworkDrive : Event()
     data class SelectDropDownMenuNetworkDriveItem(val item: File) : Event()
 
-    data object ExpandDropDownMenuLocalDrive : Event()
-
-    data object CollapseDropDownMenuLocalDrive : Event()
-    data class SelectDropDownMenuLocalDriveItem(val item: File) : Event()
 
     data object SelectLocalFolderToTable : Event()
 }

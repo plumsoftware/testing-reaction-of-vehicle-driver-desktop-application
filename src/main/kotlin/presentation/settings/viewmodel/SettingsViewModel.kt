@@ -45,7 +45,6 @@ class SettingsViewModel(
 
                     listRoots = listRoots,
                     selectedNetworkDrive = if (settings.networkDrive.isNotEmpty()) File(settings.networkDrive) else listRoots[0],
-                    selectedLocalDrive = if (settings.localDrive.isNotEmpty()) File(settings.localDrive) else listRoots[0],
 
                     selectedLocalFolderToTable = File(settings.localFolderToTable)
                 )
@@ -124,33 +123,6 @@ class SettingsViewModel(
             }
 //            endregion
 
-//            region::Local drive
-            Event.CollapseDropDownMenuLocalDrive -> {
-                state.update {
-                    it.copy(
-                        dropdownMenuLocalDriveExpanded = false
-                    )
-                }
-            }
-
-            Event.ExpandDropDownMenuLocalDrive -> {
-                state.update {
-                    it.copy(
-                        dropdownMenuLocalDriveExpanded = true
-                    )
-                }
-            }
-
-            is Event.SelectDropDownMenuLocalDriveItem -> {
-                state.update {
-                    it.copy(
-                        selectedLocalDrive = event.item
-                    )
-                }
-                save(state = state)
-            }
-//            endregion
-
 //            region::Local folder
             Event.SelectLocalFolderToTable -> {
                 val selectedLocalFolderToTable: File = showFilePicker()
@@ -177,7 +149,6 @@ class SettingsViewModel(
                         Constants.Settings.XLTX to state.value.isXltxFormat,
                     ),
                     networkDrive = "${state.value.selectedNetworkDrive.absolutePath}\\",
-                    localDrive = "${state.value.selectedLocalDrive.absolutePath}\\",
                     localFolderToTable = state.value.selectedLocalFolderToTable.path
                 )
             )
