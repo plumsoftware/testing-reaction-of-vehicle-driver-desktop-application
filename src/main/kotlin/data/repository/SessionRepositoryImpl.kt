@@ -4,6 +4,8 @@ import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import data.Constants
 import domain.model.dto.database.SessionDTO
+import domain.model.regular.user.DrivingLicenseCategory
+import domain.model.regular.user.Interval
 import domain.repository.SessionRepository
 import ru.plumsoftware.sessions.Database
 import ru.plumsoftware.sessions.Sessions
@@ -37,7 +39,10 @@ class SessionRepositoryImpl : SessionRepository {
                     averageValue = average_value,
                     standardDeviation = standard_deviation,
                     count = count.toInt(),
-                    errors = errors.toInt()
+                    errors = errors.toInt(),
+                    experience = experience.toInt(),
+                    drivingLicenseCategory = DrivingLicenseCategory.valueOf(driving_license_category),
+                    signalInterval = Interval.fromString(signal_interval)
                 )
             }
         }
@@ -60,7 +65,10 @@ class SessionRepositoryImpl : SessionRepository {
                     averageValue,
                     standardDeviation,
                     count.toLong(),
-                    errors.toLong()
+                    errors.toLong(),
+                    experience.toLong(),
+                    drivingLicenseCategory.toString(),
+                    signalInterval.toString()
                 )
             }
         }

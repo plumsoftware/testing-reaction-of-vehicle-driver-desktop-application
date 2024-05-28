@@ -67,7 +67,8 @@ class LoginViewModel(
                         patronymic = "Sergeevich",
                         age = 20,
                         gender = Gender.MALE,
-                        drivingLicenseCategory = DrivingLicenseCategory.NoDrivingLicense
+                        drivingLicenseCategory = state.value.drivingLicenseCategory,
+                        experience = state.value.experience
                     )
                     val testDto = TestDTO(
                         user = user,

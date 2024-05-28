@@ -7,10 +7,11 @@ data class User(
     var patronymic: String = "",
     var age: Int,
     var gender: Gender,
-    var drivingLicenseCategory: DrivingLicenseCategory
+    var drivingLicenseCategory: DrivingLicenseCategory,
+    var experience: Int
 ) {
-    constructor(id: Int, name: String, surname: String, age: Int, gender: Gender, drivingLicenseCategory: DrivingLicenseCategory) :
-            this(id, name, surname, "", age, gender, drivingLicenseCategory)
+    constructor(id: Int, name: String, surname: String, age: Int, gender: Gender, drivingLicenseCategory: DrivingLicenseCategory, experience: Int) :
+            this(id, name, surname, "", age, gender, drivingLicenseCategory, experience)
 
     companion object {
         fun empty () = User(
@@ -20,7 +21,8 @@ data class User(
             patronymic = "",
             age = 0,
             gender = Gender.MALE,
-            DrivingLicenseCategory.NoDrivingLicense
+            drivingLicenseCategory = DrivingLicenseCategory.NoDrivingLicense,
+            experience = 0
         )
     }
 }

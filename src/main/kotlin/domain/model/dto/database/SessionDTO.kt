@@ -1,5 +1,8 @@
 package domain.model.dto.database
 
+import domain.model.regular.user.DrivingLicenseCategory
+import domain.model.regular.user.Interval
+
 data class SessionDTO(
     val sessionId: Long,
     val userId: Long,
@@ -12,5 +15,8 @@ data class SessionDTO(
     val averageValue: Double,
     val standardDeviation: Double,
     val count: Int,
-    val errors: Int
+    val errors: Int,
+    val experience: Int,
+    val drivingLicenseCategory: DrivingLicenseCategory,
+    val signalInterval: Interval
 )

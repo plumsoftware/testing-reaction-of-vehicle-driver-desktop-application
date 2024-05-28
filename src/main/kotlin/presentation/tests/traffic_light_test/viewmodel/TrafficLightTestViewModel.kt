@@ -229,7 +229,10 @@ class TrafficLightTestViewModel(
             averageValue = getAverage(),
             standardDeviation = getStdDeviation(),
             count = testDTO.count,
-            errors = testDTO.errorsCount!!
+            errors = testDTO.errorsCount!!,
+            experience = testDTO.user.experience,
+            drivingLicenseCategory = testDTO.user.drivingLicenseCategory,
+            signalInterval = testDTO.interval
         )
         workbookStorage.writeDataToWorkbook(
             testDTO = testDTO,
