@@ -3,6 +3,7 @@ package presentation.settings.viewmodel
 import data.Constants
 import domain.model.regular.settings.Settings
 import domain.storage.SettingsStorage
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -27,7 +28,7 @@ class SettingsViewModel(
     init {
         println("Settings ViewModel created")
         viewModelScope.launch(coroutineContextIO) {
-            val settings: Settings = settingsStorage.get()
+            val settings: Settings = settingsStorage.get(CoroutineScope(coroutineContextIO))
 
             state.update {
 

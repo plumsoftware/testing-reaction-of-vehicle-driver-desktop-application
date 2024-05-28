@@ -8,8 +8,11 @@ import domain.repository.UserRepository
 import ru.plumsoftware.sessions.Database
 import ru.plumsoftware.users.Users
 
-class UserRepositoryImpl : UserRepository {
-    private val driver: SqlDriver = JdbcSqliteDriver(Constants.Database.ROAMING_JDBC_DRIVER_NAME)
+class UserRepositoryImpl(netDriver: String) : UserRepository {
+    private var driver: SqlDriver = JdbcSqliteDriver(Constants.Database.collapseNetDriver(netDriver = netDriver))
+    init {
+        println(Constants.Database.collapseNetDriver(netDriver = netDriver))
+    }
 
     override suspend fun getUserByLoginAndPassword(
         login: String,

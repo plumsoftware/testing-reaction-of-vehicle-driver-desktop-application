@@ -17,7 +17,6 @@ import data.repository.UserRepositoryImpl
 import data.repository.WorkbookRepositoryImpl
 import domain.model.regular.tests.TrafficLight
 import domain.model.regular.tests.ReactionTest
-import domain.model.regular.settings.Settings
 import domain.storage.SessionStorage
 import domain.storage.SettingsStorage
 import domain.storage.UserStorage
@@ -80,20 +79,20 @@ fun main() = run {
             getAllSessionsDtoFromDatabaseUseCase = GetAllSessionsDtoFromDatabaseUseCase(sessionRepository),
             insertOrAbortNewSessionUseCase = InsertOrAbortNewSessionUseCase(sessionRepository)
         )
-        val userRepository = UserRepositoryImpl()
-        val userStorage = UserStorage(
-            getUserByLoginAndPasswordUseCase = GetUserByLoginAndPasswordUseCase(userRepository)
-        )
 //        endregion
 
 //        region::Actions
         val supervisorJob = SupervisorJob()
         val coroutineContextIO: CoroutineContext = Dispatchers.IO + supervisorJob
 
-        var settings = Settings()
-        CoroutineScope(coroutineContextIO).launch {
-            settings = settingsStorage.get()
-        }
+        val settings = settingsStorage.get(scope = CoroutineScope(coroutineContextIO))
+//        endregion
+
+//        region::Storage
+        val userRepository = UserRepositoryImpl(netDriver = settings.networkDrive)
+        val userStorage = UserStorage(
+            getUserByLoginAndPasswordUseCase = GetUserByLoginAndPasswordUseCase(userRepository)
+        )
 //        endregion
 
         Window(

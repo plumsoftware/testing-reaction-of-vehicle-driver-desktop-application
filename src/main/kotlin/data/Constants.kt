@@ -61,6 +61,10 @@ object Constants {
         val LOCAL_JDBC_DRIVER_NAME = "jdbc:sqlite:C:\\Users\\${USER_NAME}\\AppData\\Local\\${FOLDER_NAME}\\${LOCAL_DATABASE_NAME}"
 
         private const val ROAMING_DATABASE_NAME = "user_database.db"
-        val ROAMING_JDBC_DRIVER_NAME = "jdbc:sqlite:C:\\Users\\${USER_NAME}\\AppData\\Roaming\\${FOLDER_NAME}\\${ROAMING_DATABASE_NAME}"
+
+        fun collapseNetDriver(netDriver: String) : String {
+            val driver = "${netDriver.split(":")[0]}:\\"
+            return "jdbc:sqlite:${driver}\\AppData\\Roaming\\${FOLDER_NAME}\\${ROAMING_DATABASE_NAME}"
+        }
     }
 }

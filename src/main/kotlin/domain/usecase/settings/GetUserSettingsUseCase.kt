@@ -1,8 +1,9 @@
 package domain.usecase.settings
 
 import domain.repository.SettingsRepository
+import kotlinx.coroutines.CoroutineScope
 
 class GetUserSettingsUseCase(private val settingsRepository: SettingsRepository) {
-    suspend fun execute() = settingsRepository.loadSettings()
+    fun execute(scope: CoroutineScope) = settingsRepository.loadSettings(scope = scope)
 
 }

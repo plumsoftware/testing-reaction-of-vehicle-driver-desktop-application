@@ -1,9 +1,10 @@
 package domain.repository
 
 import domain.model.regular.settings.Settings
+import kotlinx.coroutines.CoroutineScope
 
 interface SettingsRepository {
-    suspend fun saveData(settings: Settings)
+    fun saveData(settings: Settings)
 
-    suspend fun loadSettings(): Settings
+    fun loadSettings(scope: CoroutineScope): Settings
 }
