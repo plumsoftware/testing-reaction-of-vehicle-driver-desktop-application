@@ -20,5 +20,7 @@ data class State (
     val isAgeError: Boolean = false,
 
     val intervals: List<Interval> = emptyList(),
-    val selectedInterval: Interval = Interval()
+    val selectedInterval: Interval = Interval(),
+
+    val roamingErrorMessage: String = ""
 )

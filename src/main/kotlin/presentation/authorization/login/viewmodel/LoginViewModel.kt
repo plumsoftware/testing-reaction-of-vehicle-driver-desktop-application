@@ -1,6 +1,7 @@
 package presentation.authorization.login.viewmodel
 
 import domain.model.dto.TestDTO
+import domain.model.either.RoamingEither
 import domain.model.regular.user.DrivingLicenseCategory
 import domain.model.regular.user.Interval
 import domain.model.regular.user.User
@@ -62,20 +63,39 @@ class LoginViewModel(
 
                     viewModelScope.launch {
                         isErrorsStatus()
-                        val user: User = userStorage
+                        val roamingEither: RoamingEither<Exception, User> = userStorage
                             .getUserByLoginAndPassword(login = login, password = password)
-                            .copy(
-                                age = state.value.age,
-                                drivingLicenseCategory = state.value.drivingLicenseCategory,
-                                experience = state.value.experience
-                            )
-                        println("User to test $user")
-                        val testDto = TestDTO(
-                            user = user,
-                            count = state.value.count,
-                            interval = state.value.selectedInterval,
-                        )
-//                        onOutput(Output.OpenTestMenu(testDTO = testDto))
+                        when (roamingEither) {
+                            is RoamingEither.Data -> {
+                                val user: User = roamingEither
+                                    .b
+                                    .copy(
+                                        age = state.value.age,
+                                        drivingLicenseCategory = state.value.drivingLicenseCategory,
+                                        experience = state.value.experience
+                                    )
+                                println("User to test is $user")
+                                val testDto = TestDTO(
+                                    user = user,
+                                    count = state.value.count,
+                                    interval = state.value.selectedInterval,
+                                )
+                                state.update {
+                                    it.copy(
+                                        roamingErrorMessage = ""
+                                    )
+                                }
+                                onOutput(Output.OpenTestMenu(testDTO = testDto))
+                            }
+
+                            is RoamingEither.Exception -> {
+                                state.update {
+                                    it.copy(
+                                        roamingErrorMessage = roamingEither.a.message ?: "Ошибка"
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }

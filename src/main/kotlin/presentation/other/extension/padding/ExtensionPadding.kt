@@ -17,6 +17,8 @@ object ExtensionPadding {
 
     val scaffoldTopPadding = 80.dp
 
+    val smallPadding = 16.dp
+
     val mediumVerticalArrangement =
         Arrangement.spacedBy(space = mediumItemSpacing, alignment = Alignment.CenterVertically)
 

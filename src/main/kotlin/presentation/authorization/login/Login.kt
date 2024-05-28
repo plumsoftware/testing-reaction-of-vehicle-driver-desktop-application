@@ -1,5 +1,8 @@
 package presentation.authorization.login
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -135,6 +138,29 @@ fun Login(
                 list = Constants.Test.intervals.toList(),
                 modifier = Modifier.wrapContentWidth().wrapContentHeight().align(Alignment.Start)
             )
+
+            //Карточка с ошибкой
+            AnimatedVisibility(
+                visible = state.value.roamingErrorMessage.isNotEmpty(),
+                enter = slideInVertically(initialOffsetY = { it }),
+                exit = slideOutVertically(targetOffsetY = { it }),
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            ) {
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer,
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer
+                    ),
+                    modifier = Modifier
+                        .wrapContentWidth()
+                ) {
+                    Text(
+                        text = state.value.roamingErrorMessage,
+                        modifier = Modifier.padding(ExtensionPadding.smallPadding),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+            }
         }
     }
 }
