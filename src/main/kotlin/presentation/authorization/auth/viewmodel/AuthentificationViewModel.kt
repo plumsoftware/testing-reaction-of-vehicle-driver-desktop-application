@@ -1,6 +1,6 @@
 package presentation.authorization.auth.viewmodel
 
-import domain.model.regular.User
+import domain.model.regular.user.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import moe.tlaster.precompose.viewmodel.ViewModel

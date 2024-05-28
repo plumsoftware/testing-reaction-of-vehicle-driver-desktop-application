@@ -1,13 +1,16 @@
 package presentation.authorization.login
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import data.Constants
-import domain.model.regular.DrivingLicenseCategory
-import domain.model.regular.Interval
+import domain.model.regular.user.DrivingLicenseCategory
+import domain.model.regular.user.Interval
 import presentation.authorization.login.store.Event
 import presentation.authorization.login.store.State
 import presentation.other.components.AuthSpinnerField
@@ -84,6 +87,23 @@ fun Login(
                     isError = state.value.isExperienceError,
                     modifier = Modifier.fillMaxWidth().weight(1.0f)
                 )
+                AuthTextField(
+                    text = if (state.value.age < 0) "" else state.value.age.toString(),
+                    labelHint = "Возраст",
+                    onValueChange = {
+                        onEvent(
+                            Event.OnAgeChanged(
+                                age = try {
+                                    it.toInt()
+                                } catch (e: Exception) {
+                                    -1
+                                }
+                            )
+                        )
+                    },
+                    isError = state.value.isAgeError,
+                    modifier = Modifier.fillMaxWidth().weight(1.0f)
+                )
                 AuthSpinnerField(
                     text = if (state.value.drivingLicenseCategory == DrivingLicenseCategory.Empty) "" else state.value.drivingLicenseCategory.toString(),
                     labelHint = "Категория прав",
@@ -118,6 +138,29 @@ fun Login(
                 list = Constants.Test.intervals.toList(),
                 modifier = Modifier.wrapContentWidth().wrapContentHeight().align(Alignment.Start)
             )
+
+            //Карточка с ошибкой
+            AnimatedVisibility(
+                visible = state.value.roamingErrorMessage.isNotEmpty(),
+                enter = slideInVertically(initialOffsetY = { it }),
+                exit = slideOutVertically(targetOffsetY = { it }),
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            ) {
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer,
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer
+                    ),
+                    modifier = Modifier
+                        .wrapContentWidth()
+                ) {
+                    Text(
+                        text = state.value.roamingErrorMessage,
+                        modifier = Modifier.padding(ExtensionPadding.smallPadding),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+            }
         }
     }
 }

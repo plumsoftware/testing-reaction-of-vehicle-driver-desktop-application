@@ -1,4 +1,4 @@
-package domain.model.regular
+package domain.model.regular.settings
 
 import data.Constants
 import kotlinx.serialization.SerialName
@@ -14,7 +14,6 @@ data class Settings(
         Constants.Settings.XLTX to false,
     ),
     @SerialName("networkDrive") val networkDrive: String = Constants.Settings.NETWORK_DRIVE,
-    @SerialName("localDrive") val localDrive: String = Constants.Settings.LOCAL_DRIVE,
 
     @SerialName("localFolderToTable") val localFolderToTable: String = Constants.Settings.LOCAL_FOLDER_TO_TABLE
 )

@@ -19,7 +19,8 @@ val macExtraPlistKeys: String
 plugins {
     kotlin("jvm")
     id("org.jetbrains.compose")
-    kotlin("plugin.serialization") version "1.9.22"
+    kotlin("plugin.serialization") version "1.9.24"
+    id("app.cash.sqldelight") version "2.0.2"
 }
 
 group = "ru.plumsoftware"
@@ -31,12 +32,24 @@ repositories {
     google()
 }
 
+val sqlLightVersion = "2.0.2"
+
+sqldelight {
+    databases {
+        create("Database") {
+            packageName.set("ru.plumsoftware.sessions")
+            schemaOutputDirectory = file("src/main/kotlin/data/sqldelight/databases")
+            verifyMigrations = true
+            deriveSchemaFromMigrations = true
+        }
+    }
+}
+
 dependencies {
     val apachi_poi = "5.2.3"
     val material3 = "1.2.1"
     val precompose_version = "1.6.0"
     val kotlinx_serialization_json = "1.6.0"
-
 
     implementation(compose.desktop.currentOs)
 
@@ -59,6 +72,9 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-to-slf4j:2.8.2")
 
 // api("moe.tlaster:precompose-koin:$precompose_version") // For Koin intergration
+
+//    Database
+    implementation("app.cash.sqldelight:sqlite-driver:$sqlLightVersion")
 }
 
 compose.desktop {
@@ -71,10 +87,12 @@ compose.desktop {
                 TargetFormat.Msi, TargetFormat.Exe, //Windows
                 TargetFormat.Deb, TargetFormat.Rpm //Linux
             )
+            modules("java.sql")
 
             packageName = "Тест на реакцию"
             packageVersion = "1.0.0"
-            description = "Это программа для тестирования сложной сенсомоторной реакции водителя на зрительный раздражитель. Разработчики: студент СибАДИ Дейч Вячеслав Сергеевич, преподаватель кафедры ЦТ Селезнёва Елена Викторовна, преподаватель кафедры АТ Белякова Александра Владимировна."
+            description =
+                "Это программа для тестирования сложной сенсомоторной реакции водителя на зрительный раздражитель. Разработчики: студент СибАДИ Дейч Вячеслав Сергеевич, преподаватель кафедры ЦТ Селезнёва Елена Викторовна, преподаватель кафедры АТ Белякова Александра Владимировна."
             copyright = "© 2024 Дейч Вячеслав Сергеевич. All rights reserved."
             vendor = "ФГБОУ ВО «Сибирский государственный автомобильно-дорожный университет»"
             licenseFile.set(project.file("LICENSE.txt"))

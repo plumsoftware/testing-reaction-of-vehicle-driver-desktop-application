@@ -1,16 +1,18 @@
 package data.repository
 
 import data.Constants
-import domain.model.regular.Settings
+import domain.model.regular.settings.Settings
 import domain.repository.SettingsRepository
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.io.FileNotFoundException
 
 class SettingsRepositoryImpl : SettingsRepository {
-    override suspend fun saveData(settings: Settings) {
+    override fun saveData(settings: Settings) {
         println("SettingsRepositoryImpl: User settings to save is: $settings")
 //        val jsonString = Json.encodeToString("""{$settings}""".trimIndent())
 
@@ -32,8 +34,6 @@ class SettingsRepositoryImpl : SettingsRepository {
         stringBuffer
             .append("\t\"networkDrive\" : \"${settings.networkDrive}\"")
             .append(",\n")
-            .append("\t\"localDrive\" : \"${settings.localDrive}\"")
-            .append(",\n")
 
 //        Local folder to table
         stringBuffer
@@ -49,13 +49,15 @@ class SettingsRepositoryImpl : SettingsRepository {
         println("SettingsRepositoryImpl: json to save: $jsonString")
     }
 
-    override suspend fun loadSettings(): Settings {
+    override fun loadSettings(scope: CoroutineScope): Settings {
         try {
             val settingsFile = File(Constants.General.PATH_TO_SETTINGS_FILE)
             settingsFile.readText()
         } catch (e: FileNotFoundException) {
             println("SettingsRepositoryImpl: Ошибка в settingsViewModel: " + e.message)
-            createFolderAndFileIfNotExists()
+            scope.launch {
+                createFolderAndFileIfNotExists()
+            }
         }
 
 //        var settingsFile: File = createFolderIfNotExists()

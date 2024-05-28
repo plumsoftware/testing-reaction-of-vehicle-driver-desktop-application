@@ -1,18 +1,21 @@
 package data
 
-import domain.model.regular.Interval
+import domain.model.regular.user.Interval
 import org.apache.poi.xssf.usermodel.XSSFWorkbookType
 
 object Constants {
-    object General {
-        private val USER_NAME: String = System.getProperty("user.name")
-        private const val FOLDER_NAME = "Reaction test"
+    private val USER_NAME: String = System.getProperty("user.name")
+    private const val FOLDER_NAME = "Reaction test"
 
+    object General {
         val PATH_TO_SETTINGS_FOLDER = "C:\\Users\\${USER_NAME}\\AppData\\Local\\${FOLDER_NAME}"
         val PATH_TO_SETTINGS_FILE = "C:\\Users\\${USER_NAME}\\AppData\\Local\\${FOLDER_NAME}\\settings.json"
 
         val PATH_TO_SHARED_FOLDER = "C:\\Users\\${USER_NAME}\\AppData\\Roaming\\${FOLDER_NAME}"
         val PATH_TO_SHARED_FILE = "C:\\Users\\${USER_NAME}\\AppData\\Roaming\\${FOLDER_NAME}\\shared.json"
+
+        val PATH_TO_LOCAL_SQL_FOLDER = "C:\\Users\\${USER_NAME}\\AppData\\Local\\${FOLDER_NAME}"
+        val PATH_TO_ROAMING_SQL_FOLDER = "C:\\Users\\${USER_NAME}\\AppData\\Roaming\\${FOLDER_NAME}"
     }
 
     object Table {
@@ -51,5 +54,17 @@ object Constants {
             Interval(start = 2000, finish = 5000),
             Interval(start = 2000, finish = 10000),
         )
+    }
+
+    object Database {
+        private const val LOCAL_DATABASE_NAME = "database.db"
+        val LOCAL_JDBC_DRIVER_NAME = "jdbc:sqlite:C:\\Users\\${USER_NAME}\\AppData\\Local\\${FOLDER_NAME}\\${LOCAL_DATABASE_NAME}"
+
+        private const val ROAMING_DATABASE_NAME = "user_database.db"
+
+        fun collapseNetDriver(netDriver: String) : String {
+            val driver = "${netDriver.split(":")[0]}:\\"
+            return "jdbc:sqlite:${driver}\\AppData\\Roaming\\${FOLDER_NAME}\\${ROAMING_DATABASE_NAME}"
+        }
     }
 }

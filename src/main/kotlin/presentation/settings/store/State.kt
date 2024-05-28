@@ -1,6 +1,6 @@
 package presentation.settings.store
 
-import domain.model.regular.Settings
+import domain.model.regular.settings.Settings
 import java.io.File
 
 data class State(
@@ -13,9 +13,6 @@ data class State(
 
     val selectedNetworkDrive: File = File("C:\\"),
     val dropdownMenuNetworkDriveExpanded: Boolean = false,
-
-    val selectedLocalDrive: File = File("C:\\"),
-    val dropdownMenuLocalDriveExpanded: Boolean = false,
 
     val selectedLocalFolderToTable: File = File("C:\\Users\\Default"),
 

@@ -11,15 +11,21 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import data.repository.SessionRepositoryImpl
 import data.repository.SettingsRepositoryImpl
+import data.repository.UserRepositoryImpl
 import data.repository.WorkbookRepositoryImpl
-import data.tests.TrafficLight
-import domain.model.regular.ReactionTest
-import domain.model.regular.Settings
+import domain.model.regular.tests.TrafficLight
+import domain.model.regular.tests.ReactionTest
+import domain.storage.SessionStorage
 import domain.storage.SettingsStorage
+import domain.storage.UserStorage
 import domain.storage.WorkbookStorage
 import domain.usecase.settings.GetUserSettingsUseCase
 import domain.usecase.settings.SaveUserSettingsUseCase
+import domain.usecase.sql_database.GetAllSessionsDtoFromDatabaseUseCase
+import domain.usecase.sql_database.InsertOrAbortNewSessionUseCase
+import domain.usecase.sql_database.roaming.GetUserByLoginAndPasswordUseCase
 import domain.usecase.workbook.CreateWorkbookIfNotExistsUseCase
 import domain.usecase.workbook.WriteDataToWorkbookUseCase
 import kotlinx.coroutines.*
@@ -52,7 +58,7 @@ fun main() = run {
     println("App started!")
 
     application {
-        val windowState = rememberWindowState(placement = WindowPlacement.Fullscreen)
+        val windowState = rememberWindowState(placement = WindowPlacement.Maximized)
         val reactionTests: List<ReactionTest> = listOf(
             TrafficLight()
         )
@@ -68,16 +74,25 @@ fun main() = run {
             createWorkbookIfNotExistsUseCase = CreateWorkbookIfNotExistsUseCase(workbookRepository),
             writeDataToWorkbookUseCase = WriteDataToWorkbookUseCase(workbookRepository)
         )
+        val sessionRepository = SessionRepositoryImpl()
+        val sessionStorage = SessionStorage(
+            getAllSessionsDtoFromDatabaseUseCase = GetAllSessionsDtoFromDatabaseUseCase(sessionRepository),
+            insertOrAbortNewSessionUseCase = InsertOrAbortNewSessionUseCase(sessionRepository)
+        )
 //        endregion
 
 //        region::Actions
         val supervisorJob = SupervisorJob()
         val coroutineContextIO: CoroutineContext = Dispatchers.IO + supervisorJob
 
-        var settings = Settings()
-        CoroutineScope(coroutineContextIO).launch {
-            settings = settingsStorage.get()
-        }
+        val settings = settingsStorage.get(scope = CoroutineScope(coroutineContextIO))
+//        endregion
+
+//        region::Storage
+        val userRepository = UserRepositoryImpl(netDriver = settings.networkDrive)
+        val userStorage = UserStorage(
+            getUserByLoginAndPasswordUseCase = GetUserByLoginAndPasswordUseCase(userRepository)
+        )
 //        endregion
 
         Window(
@@ -167,7 +182,8 @@ fun main() = run {
                                         navigator.navigate(route = DesktopRouting.testmenu)
                                     }
                                 }
-                            }
+                            },
+                            userStorage = userStorage
                         )
                     }
                     trafficLightTestViewModel = viewModel(modelClass = TrafficLightTestViewModel::class) {
@@ -182,7 +198,8 @@ fun main() = run {
                                     }
                                 }
                             },
-                            actions = mainViewModel.trafficLightActions
+                            actions = mainViewModel.trafficLightActions,
+                            sessionStorage = sessionStorage
                         )
                     }
 //                    endregion

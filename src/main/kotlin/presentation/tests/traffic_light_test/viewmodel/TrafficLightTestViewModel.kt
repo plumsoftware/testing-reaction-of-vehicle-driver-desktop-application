@@ -1,6 +1,8 @@
 package presentation.tests.traffic_light_test.viewmodel
 
 import domain.model.dto.TestDTO
+import domain.model.dto.database.SessionDTO
+import domain.storage.SessionStorage
 import domain.storage.WorkbookStorage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +23,8 @@ class TrafficLightTestViewModel(
     private val workbookStorage: WorkbookStorage,
     private val dataFormats: Map<String, Boolean>,
     private val localFolderToTable: String,
-    private val actions: MutableStateFlow<Action?>
+    private val actions: MutableStateFlow<Action?>,
+    private val sessionStorage: SessionStorage
 ) : ViewModel() {
 
     val state = MutableStateFlow(State())
@@ -205,6 +208,7 @@ class TrafficLightTestViewModel(
     }
 
     private suspend fun registerDataInDatabase() {
+        val calendarForGetDate = Calendar.getInstance()
         val testDTO = TestDTO(
             user = state.value.user,
             count = state.value.count,
@@ -213,10 +217,30 @@ class TrafficLightTestViewModel(
             intervals = state.value.intervals.toList(),
             errorsCount = state.value.errors
         )
+        val sessionDTO = SessionDTO(
+            sessionId = 0,
+            userId = testDTO.user.id.toLong(),
+            testId = testDTO.testMode?.id!!,
+            testYear = calendarForGetDate.get(Calendar.YEAR),
+            testMonth = calendarForGetDate.get(Calendar.MONTH),
+            testDay = calendarForGetDate.get(Calendar.DAY_OF_MONTH),
+            testHourOfDay24h = calendarForGetDate.get(Calendar.HOUR_OF_DAY),
+            testMinuteOfHour = calendarForGetDate.get(Calendar.MINUTE),
+            averageValue = getAverage(),
+            standardDeviation = getStdDeviation(),
+            count = testDTO.count,
+            errors = testDTO.errorsCount!!,
+            experience = testDTO.user.experience,
+            drivingLicenseCategory = testDTO.user.drivingLicenseCategory,
+            signalInterval = testDTO.interval
+        )
         workbookStorage.writeDataToWorkbook(
             testDTO = testDTO,
             folderPath = localFolderToTable,
             dataFormats = dataFormats
+        )
+        sessionStorage.insertOrAbort(
+            sessionDTO = sessionDTO
         )
     }
 
