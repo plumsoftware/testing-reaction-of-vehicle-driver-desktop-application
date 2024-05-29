@@ -215,7 +215,10 @@ class TrafficLightTestViewModel(
             interval = state.value.signalInterval,
             testMode = state.value.testMode,
             intervals = state.value.intervals.toList(),
-            errorsCount = state.value.errors
+            errorsCount = state.value.errors,
+            sessionId = sessionStorage.getLastSessionIdUseCase(),
+            averageValue = getAverage(),
+            stdDeviationValue = getStdDeviation()
         )
         val sessionDTO = SessionDTO(
             sessionId = 0,

@@ -8,6 +8,7 @@ import domain.model.regular.user.DrivingLicenseCategory
 import domain.model.regular.user.Interval
 import domain.repository.SessionRepository
 import ru.plumsoftware.sessions.Database
+import ru.plumsoftware.sessions.GetLastSessionId
 import ru.plumsoftware.sessions.Sessions
 import utils.createFolderIfNotExists
 
@@ -72,5 +73,11 @@ class SessionRepositoryImpl : SessionRepository {
                 )
             }
         }
+    }
+
+    override suspend fun getLastSessionId(): Long {
+        val database = Database(driver = driver)
+        val executeAsList: List<GetLastSessionId> = database.sqldelight_schemeQueries.getLastSessionId().executeAsList()
+        return executeAsList[0].MAX ?: 0L
     }
 }

@@ -12,4 +12,7 @@ data class TestDTO(
     val testMode: TestMode? = null,
     val intervals: List<Long> = listOf(),
     val errorsCount: Int? = null,
+    val sessionId: Long = 0L,
+    val averageValue: Double = 0.0,
+    val stdDeviationValue: Double = 0.0
 )

@@ -53,3 +53,6 @@ VALUES (
 ?,
 ?);
 }
+
+getLastSessionId:
+SELECT MAX(session_id) FROM Sessions;

@@ -23,8 +23,9 @@ import domain.storage.UserStorage
 import domain.storage.WorkbookStorage
 import domain.usecase.settings.GetUserSettingsUseCase
 import domain.usecase.settings.SaveUserSettingsUseCase
-import domain.usecase.sql_database.GetAllSessionsDtoFromDatabaseUseCase
-import domain.usecase.sql_database.InsertOrAbortNewSessionUseCase
+import domain.usecase.sql_database.local.GetAllSessionsDtoFromDatabaseUseCase
+import domain.usecase.sql_database.local.GetLastSessionIdUseCase
+import domain.usecase.sql_database.local.InsertOrAbortNewSessionUseCase
 import domain.usecase.sql_database.roaming.GetUserByLoginAndPasswordUseCase
 import domain.usecase.workbook.CreateWorkbookIfNotExistsUseCase
 import domain.usecase.workbook.WriteDataToWorkbookUseCase
@@ -77,7 +78,8 @@ fun main() = run {
         val sessionRepository = SessionRepositoryImpl()
         val sessionStorage = SessionStorage(
             getAllSessionsDtoFromDatabaseUseCase = GetAllSessionsDtoFromDatabaseUseCase(sessionRepository),
-            insertOrAbortNewSessionUseCase = InsertOrAbortNewSessionUseCase(sessionRepository)
+            insertOrAbortNewSessionUseCase = InsertOrAbortNewSessionUseCase(sessionRepository),
+            getLastSessionIdUseCase = GetLastSessionIdUseCase(sessionRepository)
         )
 //        endregion
 

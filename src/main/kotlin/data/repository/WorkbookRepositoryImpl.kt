@@ -3,10 +3,7 @@ package data.repository
 import data.Constants
 import domain.model.dto.TestDTO
 import domain.repository.WorkbookRepository
-import org.apache.poi.ss.usermodel.BorderStyle
-import org.apache.poi.ss.usermodel.FillPatternType
-import org.apache.poi.ss.usermodel.IndexedColors
-import org.apache.poi.ss.usermodel.Workbook
+import org.apache.poi.ss.usermodel.*
 import org.apache.poi.xssf.usermodel.XSSFCell
 import org.apache.poi.xssf.usermodel.XSSFFont
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
@@ -14,6 +11,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbookType
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.text.SimpleDateFormat
+import java.util.*
 
 class WorkbookRepositoryImpl : WorkbookRepository {
     override suspend fun createWorkbookIfNotExists(
@@ -22,9 +21,6 @@ class WorkbookRepositoryImpl : WorkbookRepository {
         extensions: MutableList<String>
     ) {
         extensions.forEachIndexed { index, extension ->
-//            val calendar: Calendar = Calendar.getInstance()
-//            val dateFormat: String =
-//                SimpleDateFormat("dd-MM-yyyy HH-mm-ss", Locale.getDefault()).format(Date(calendar.timeInMillis))
 
             val path = "$folderPath\\${Constants.Table.FILE_NAME}${extension.lowercase()}"
 
@@ -67,8 +63,8 @@ class WorkbookRepositoryImpl : WorkbookRepository {
                     when (i) {
                         0 -> {
                             cellItem = row.createCell(i)
-                            cellItem.setCellValue("Фамилия")
-                            sheet.setColumnWidth(i, 5000)
+                            cellItem.setCellValue("Униклаьный ID сессии")
+                            sheet.setColumnWidth(i, 25000)
 
 //                        Cell style
                             cellStyle = workbook.createCellStyle()
@@ -89,8 +85,8 @@ class WorkbookRepositoryImpl : WorkbookRepository {
 
                         1 -> {
                             cellItem = row.createCell(i)
-                            cellItem.setCellValue("Имя")
-                            sheet.setColumnWidth(i, 5000)
+                            cellItem.setCellValue("Униклаьный ID пользователя")
+                            sheet.setColumnWidth(i, 25000)
 
 //                        Cell style
                             cellStyle = workbook.createCellStyle()
@@ -111,8 +107,8 @@ class WorkbookRepositoryImpl : WorkbookRepository {
 
                         2 -> {
                             cellItem = row.createCell(i)
-                            cellItem.setCellValue("Отчество")
-                            sheet.setColumnWidth(i, 5000)
+                            cellItem.setCellValue("ID теста")
+                            sheet.setColumnWidth(i, 10000)
 
 //                        Cell style
                             cellStyle = workbook.createCellStyle()
@@ -133,8 +129,8 @@ class WorkbookRepositoryImpl : WorkbookRepository {
 
                         3 -> {
                             cellItem = row.createCell(i)
-                            cellItem.setCellValue("Пол")
-                            sheet.setColumnWidth(i, 5000)
+                            cellItem.setCellValue("Дата")
+                            sheet.setColumnWidth(i, 15000)
 
 //                        Cell style
                             cellStyle = workbook.createCellStyle()
@@ -155,8 +151,8 @@ class WorkbookRepositoryImpl : WorkbookRepository {
 
                         4 -> {
                             cellItem = row.createCell(i)
-                            cellItem.setCellValue("Возраст")
-                            sheet.setColumnWidth(i, 10000)
+                            cellItem.setCellValue("Категоория вод. удостоверения")
+                            sheet.setColumnWidth(i, 25000)
 
 //                        Cell style
                             cellStyle = workbook.createCellStyle()
@@ -177,7 +173,7 @@ class WorkbookRepositoryImpl : WorkbookRepository {
 
                         5 -> {
                             cellItem = row.createCell(i)
-                            cellItem.setCellValue("Интервал сигнала в миллисекундах")
+                            cellItem.setCellValue("Интервал сигнала в секундах")
                             sheet.setColumnWidth(i, 10000)
 
 //                        Cell style
@@ -191,7 +187,7 @@ class WorkbookRepositoryImpl : WorkbookRepository {
                             cellStyle.borderLeft = BorderStyle.THIN
                             cellStyle.leftBorderColor = IndexedColors.BLACK.getIndex()
                             cellStyle.wrapText = true
-                            cellStyle.fillForegroundColor = IndexedColors.LIGHT_TURQUOISE.getIndex()
+                            cellStyle.fillForegroundColor = IndexedColors.LIGHT_YELLOW.getIndex()
                             cellStyle.fillPattern = FillPatternType.SOLID_FOREGROUND
                             cellStyle.setFont(font)
                             cellItem.cellStyle = cellStyle
@@ -199,7 +195,7 @@ class WorkbookRepositoryImpl : WorkbookRepository {
 
                         6 -> {
                             cellItem = row.createCell(i)
-                            cellItem.setCellValue("Режим тестирования")
+                            cellItem.setCellValue("Стаж воздения")
                             sheet.setColumnWidth(i, 10000)
 
 //                        Cell style
@@ -213,7 +209,7 @@ class WorkbookRepositoryImpl : WorkbookRepository {
                             cellStyle.borderLeft = BorderStyle.THIN
                             cellStyle.leftBorderColor = IndexedColors.BLACK.getIndex()
                             cellStyle.wrapText = true
-                            cellStyle.fillForegroundColor = IndexedColors.LIGHT_TURQUOISE.getIndex()
+                            cellStyle.fillForegroundColor = IndexedColors.LIGHT_YELLOW.getIndex()
                             cellStyle.fillPattern = FillPatternType.SOLID_FOREGROUND
                             cellStyle.setFont(font)
                             cellItem.cellStyle = cellStyle
@@ -221,8 +217,8 @@ class WorkbookRepositoryImpl : WorkbookRepository {
 
                         7 -> {
                             cellItem = row.createCell(i)
-                            cellItem.setCellValue("Интервал сигнала (в миллисекундах)")
-                            sheet.setColumnWidth(i, 10000)
+                            cellItem.setCellValue("Количество ошибок")
+                            sheet.setColumnWidth(i, 15000)
 
 //                        Cell style
                             cellStyle = workbook.createCellStyle()
@@ -235,7 +231,7 @@ class WorkbookRepositoryImpl : WorkbookRepository {
                             cellStyle.borderLeft = BorderStyle.THIN
                             cellStyle.leftBorderColor = IndexedColors.BLACK.getIndex()
                             cellStyle.wrapText = true
-                            cellStyle.fillForegroundColor = IndexedColors.LIGHT_TURQUOISE.getIndex()
+                            cellStyle.fillForegroundColor = IndexedColors.LIGHT_YELLOW.getIndex()
                             cellStyle.fillPattern = FillPatternType.SOLID_FOREGROUND
                             cellStyle.setFont(font)
                             cellItem.cellStyle = cellStyle
@@ -243,8 +239,8 @@ class WorkbookRepositoryImpl : WorkbookRepository {
 
                         8 -> {
                             cellItem = row.createCell(i)
-                            cellItem.setCellValue("Стандартное отклонение")
-                            sheet.setColumnWidth(i, 5000)
+                            cellItem.setCellValue("Количестыо попыток")
+                            sheet.setColumnWidth(i, 15000)
 
 //                        Cell style
                             cellStyle = workbook.createCellStyle()
@@ -257,7 +253,7 @@ class WorkbookRepositoryImpl : WorkbookRepository {
                             cellStyle.borderLeft = BorderStyle.THIN
                             cellStyle.leftBorderColor = IndexedColors.BLACK.getIndex()
                             cellStyle.wrapText = true
-                            cellStyle.fillForegroundColor = IndexedColors.LIGHT_TURQUOISE.getIndex()
+                            cellStyle.fillForegroundColor = IndexedColors.LIGHT_YELLOW.getIndex()
                             cellStyle.fillPattern = FillPatternType.SOLID_FOREGROUND
                             cellStyle.setFont(font)
                             cellItem.cellStyle = cellStyle
@@ -265,8 +261,8 @@ class WorkbookRepositoryImpl : WorkbookRepository {
 
                         9 -> {
                             cellItem = row.createCell(i)
-                            cellItem.setCellValue("Количество ошибок")
-                            sheet.setColumnWidth(i, 5000)
+                            cellItem.setCellValue("Среднее значение в секундах")
+                            sheet.setColumnWidth(i, 25000)
 
 //                        Cell style
                             cellStyle = workbook.createCellStyle()
@@ -287,8 +283,8 @@ class WorkbookRepositoryImpl : WorkbookRepository {
 
                         10 -> {
                             cellItem = row.createCell(i)
-                            cellItem.setCellValue("Количество попыток")
-                            sheet.setColumnWidth(i, 5000)
+                            cellItem.setCellValue("Стандартное отклонение")
+                            sheet.setColumnWidth(i, 25000)
 
 //                        Cell style
                             cellStyle = workbook.createCellStyle()
@@ -320,6 +316,72 @@ class WorkbookRepositoryImpl : WorkbookRepository {
         formats: List<XSSFWorkbookType>,
         extensions: MutableList<String>,
     ) {
+        extensions.forEachIndexed { index, extension ->
+            val path = "$folderPath\\${Constants.Table.FILE_NAME}${extension.lowercase()}"
+            var rowIndex = 0
+            var cellIndex = 0
+
+            val workbook: Workbook? = getWorkbook(path = path)
+
+            if (workbook != null) {
+                val sheet = workbook.getSheetAt(0)
+
+//                Cell style
+                val cellStyle = workbook.createCellStyle()
+                cellStyle.wrapText = true
+
+
+//                Get last indexes
+                for (rowItem in sheet) {
+                    rowIndex++
+                    for (cellItem in rowItem) {
+                        cellIndex++
+                    }
+                }
+
+//                Write user data
+                val rowItem = sheet.createRow(rowIndex)
+
+                val calendar: Calendar = Calendar.getInstance()
+                val dateFormat: String =
+                    SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault()).format(Date(calendar.timeInMillis))
+
+                val sessionIdCellItem: Cell = rowItem.createCell(0)
+                sessionIdCellItem.setCellValue(testDTO.sessionId.toString())
+
+                val userIdCellItem: Cell = rowItem.createCell(1)
+                userIdCellItem.setCellValue(testDTO.user.id.toString())
+
+                val testIdCellItem: Cell = rowItem.createCell(2)
+                testIdCellItem.setCellValue(testDTO.testMode?.id.toString())
+
+                val dateCellItem: Cell = rowItem.createCell(3)
+                dateCellItem.setCellValue(dateFormat)
+
+                val DLCellItem: Cell = rowItem.createCell(4)
+                DLCellItem.setCellValue(testDTO.user.drivingLicenseCategory.toString())
+
+                val signalIntervalCellItem: Cell = rowItem.createCell(5)
+                signalIntervalCellItem.setCellValue(testDTO.interval.toString())
+
+                val experienceCellItem: Cell = rowItem.createCell(6)
+                experienceCellItem.setCellValue(testDTO.user.experience.toString())
+
+                val errorsCellItem: Cell = rowItem.createCell(7)
+                errorsCellItem.setCellValue(testDTO.errorsCount.toString())
+
+                val countCellItem: Cell = rowItem.createCell(8)
+                countCellItem.setCellValue(testDTO.count.toString())
+
+                val averageCellItem: Cell = rowItem.createCell(9)
+                averageCellItem.setCellValue(testDTO.averageValue.toString())
+
+                val stdDeviationCellItem: Cell = rowItem.createCell(10)
+                stdDeviationCellItem.setCellValue(testDTO.stdDeviationValue.toString())
+
+                saveInFile(path, workbook)
+            }
+        }
         println(testDTO.toString())
     }
 
