@@ -111,7 +111,6 @@ fun main() = run {
                     val testMenuViewModel: TestMenuViewModel
                     var trafficLightTestViewModel: TrafficLightTestViewModel? = null
 
-
                     val mainViewModel: MainViewModel = viewModel(modelClass = MainViewModel::class) {
                         MainViewModel()
                     }
@@ -180,6 +179,7 @@ fun main() = run {
                                     presentation.authorization.login.store.Output.BackButtonClicked -> navigator.goBack()
 
                                     is presentation.authorization.login.store.Output.OpenTestMenu -> {
+                                        testMenuViewModel.onEvent(presentation.testmenu.store.Event.ChangeUser(user = output.testDTO.user))
                                         trafficLightTestViewModel?.onEvent(Event.InitStartData(testDTO = output.testDTO))
                                         navigator.navigate(route = DesktopRouting.testmenu)
                                     }
@@ -219,7 +219,7 @@ fun main() = run {
                         }
                         scene(route = DesktopRouting.testmenu) {
                             println("Test menu page rendered")
-                            TestMenu(testMenuViewModel::onEvent, reactionTests)
+                            TestMenu(testMenuViewModel::onEvent, reactionTests, testMenuViewModel)
                         }
                         scene(route = DesktopRouting.auth) {
                             println("Authorization page rendered")
