@@ -1,0 +1,15 @@
+create:
+CREATE TABLE IF NOT EXISTS Users (
+    user_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    user_login TEXT NOT NULL,
+    user_password TEXT NOT NULL UNIQUE,
+    user_name TEXT NOT NULL,
+    user_surname TEXT NOT NULL,
+    user_patronymic TEXT DEFAULT "",
+    age INTEGER NOT NULL,
+    gender TEXT NOT NULL,
+    experience INTEGER NOT NULL DEFAULT 0
+);
+
+getUserByLoginAndPassword:
+SELECT * FROM Users WHERE user_login = ? AND user_password = ?;
