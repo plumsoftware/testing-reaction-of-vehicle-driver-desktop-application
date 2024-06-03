@@ -3,10 +3,7 @@ package data.repository
 import data.Constants
 import domain.model.regular.settings.Settings
 import domain.repository.SettingsRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.io.FileNotFoundException
@@ -35,12 +32,11 @@ class SettingsRepositoryImpl : SettingsRepository {
             settingsFile.readText()
         } catch (e: FileNotFoundException) {
             println("SettingsRepositoryImpl: Ошибка в settingsViewModel: " + e.message)
-            scope.launch {
+            runBlocking {
                 createFolderAndFileIfNotExists()
             }
         }
 
-//        var settingsFile: File = createFolderIfNotExists()
         var settingsFile = File(Constants.General.PATH_TO_SETTINGS_FILE)
         var jsonString = settingsFile.readText()
 
