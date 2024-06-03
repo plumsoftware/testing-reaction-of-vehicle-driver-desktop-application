@@ -1,6 +1,8 @@
 package presentation.users
 
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -11,6 +13,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import presentation.other.components.BackButton
+import presentation.other.components.SearchField
 import presentation.other.components.UserButton
 import presentation.other.extension.padding.ExtensionPadding
 import presentation.users.store.Event
@@ -24,9 +27,18 @@ fun UsersPage(onEvent: (Event) -> Unit, usersViewModel: UsersViewModel) {
 
     Scaffold(
         topBar = {
-            BackButton(
-                onClick = { onEvent(Event.BackClicked) }
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(paddingValues = ExtensionPadding.mediumAsymmetricalContentPadding),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = ExtensionPadding.mediumHorizontalArrangement
+            ) {
+                BackButton(
+                    onClick = { onEvent(Event.BackClicked) }
+                )
+                SearchField(onSearchClick = {})
+            }
         },
         modifier = Modifier.fillMaxSize()
     ) {
