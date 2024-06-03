@@ -5,14 +5,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import presentation.other.components.BackButton
+import presentation.other.components.UserButton
 import presentation.other.extension.padding.ExtensionPadding
 import presentation.users.store.Event
 import presentation.users.viewmodel.UsersViewModel
@@ -40,7 +39,7 @@ fun UsersPage(onEvent: (Event) -> Unit, usersViewModel: UsersViewModel) {
             horizontalAlignment = Alignment.Start
         ) {
             itemsIndexed(state.value.list) { index, item ->
-                Text(text = item.name, style = MaterialTheme.typography.bodyMedium)
+                UserButton(onClick = {}, text = "${item.surname} ${item.name} ${item.patronymic}")
             }
         }
     }
