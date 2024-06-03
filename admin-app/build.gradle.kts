@@ -36,7 +36,7 @@ val sqlLightVersion = "2.0.2"
 sqldelight {
     databases {
         create("Database") {
-            packageName.set("ru.plumsoftware.users")
+            packageName.set("ru.plumsoftware")
             schemaOutputDirectory = file("src/main/kotlin/data/sqldelight/databases")
             verifyMigrations = true
             deriveSchemaFromMigrations = true

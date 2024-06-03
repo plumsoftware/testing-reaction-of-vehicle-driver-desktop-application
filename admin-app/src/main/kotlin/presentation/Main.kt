@@ -10,12 +10,15 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import data.repository.SQLDeLightRepositoryImpl
 import data.repository.SettingsRepositoryImpl
 import domain.model.regular.tests.ReactionTest
 import domain.model.regular.tests.TrafficLight
+import domain.storage.SQLDeLightStorage
 import domain.storage.SettingsStorage
 import domain.usecase.settings.GetUserSettingsUseCase
 import domain.usecase.settings.SaveUserSettingsUseCase
+import domain.usecase.sqldelight.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -29,6 +32,8 @@ import presentation.home.store.Output
 import presentation.home.viewmodel.HomeViewModel
 import presentation.other.extension.route.DesktopRouting
 import presentation.theme.AppTheme
+import presentation.users.UsersPage
+import presentation.users.viewmodel.UsersViewModel
 import kotlin.coroutines.CoroutineContext
 
 
@@ -48,6 +53,14 @@ fun main() = run {
         val settingsStorage = SettingsStorage(
             getUserSettingsUseCase = GetUserSettingsUseCase(settingsRepository),
             saveUserSettingsUseCase = SaveUserSettingsUseCase(settingsRepository)
+        )
+        val sqlDeLightRepository = SQLDeLightRepositoryImpl()
+        val sqlDeLightStorage = SQLDeLightStorage(
+            getAllUsersUseCase = GetAllUsersUseCase(sqlDeLightRepository),
+            getSessionsWithUserIdUseCase = GetSessionsWithUserIdUseCase(sqlDeLightRepository),
+            insertNewUserUseCase = InsertNewUserUseCase(sqlDeLightRepository),
+            updateUserUseCase = UpdateUserUseCase(sqlDeLightRepository),
+            deleteUserUseCase = DeleteUserUseCase(sqlDeLightRepository)
         )
 //        endregion
 
@@ -92,6 +105,19 @@ fun main() = run {
                             }
                         )
                     }
+                    val usersViewModel: UsersViewModel = viewModel(modelClass = UsersViewModel::class) {
+                        UsersViewModel(
+                            output = { output ->
+                                when (output) {
+                                    presentation.users.store.Output.BackButtonClicked -> {
+                                        navigator.popBackStack()
+                                    }
+                                }
+                            },
+                            sqlDeLightStorage = sqlDeLightStorage,
+                            coroutineContextIO = coroutineContextIO
+                        )
+                    }
 //                    endregion
 
                     NavHost(
@@ -104,6 +130,10 @@ fun main() = run {
                         scene(route = DesktopRouting.home) {
                             println("Home page rendered")
                             HomePage(homeViewModel::onEvent)
+                        }
+                        scene(route = DesktopRouting.users) {
+                            println("Users page rendered")
+                            UsersPage(onEvent = usersViewModel::onEvent, usersViewModel)
                         }
 //                    endregion
                     }

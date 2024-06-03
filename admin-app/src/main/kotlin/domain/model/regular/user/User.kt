@@ -11,6 +11,9 @@ data class User(
     var experience: Int
 ) {
 
+    constructor(id: Long, name: String, surname: String, patronymic: String, gender: Gender) :
+            this(id, name, surname, patronymic, 0, gender, DrivingLicenseCategory.Empty, 0)
+
     companion object {
         fun empty () = User(
             id = -1L,

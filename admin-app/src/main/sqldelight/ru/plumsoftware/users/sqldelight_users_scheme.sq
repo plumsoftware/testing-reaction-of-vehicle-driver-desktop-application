@@ -1,0 +1,39 @@
+create:
+CREATE TABLE IF NOT EXISTS Users (
+    user_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    user_login TEXT NOT NULL,
+    user_password TEXT NOT NULL UNIQUE,
+    user_name TEXT NOT NULL,
+    user_surname TEXT NOT NULL,
+    user_patronymic TEXT DEFAULT "",
+    gender TEXT NOT NULL
+);
+
+getUserByLoginAndPassword:
+SELECT * FROM Users WHERE user_login = ? AND user_password = ?;
+
+getAllUsers:
+SELECT * FROM Users;
+
+insertNewUser:
+INSERT OR ABORT INTO Users (
+    user_login,
+    user_password,
+    user_name,
+    user_surname,
+    user_patronymic,
+    gender
+) VALUES (
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?
+);
+
+updateUser:
+UPDATE Users SET user_login = ?, user_password = ?, user_name = ?, user_surname = ?, user_patronymic = ?, gender = ? WHERE user_id = ?;
+
+deleteUser:
+DELETE FROM Users WHERE user_id = ?;
