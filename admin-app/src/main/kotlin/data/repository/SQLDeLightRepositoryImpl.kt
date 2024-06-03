@@ -11,14 +11,18 @@ import ru.plumsoftware.sessions.Sessions
 import ru.plumsoftware.users.Users
 import utils.createFolderIfNotExists
 
-class SQLDeLightRepositoryImpl : SQLDeLightRepository {
-
-    private val path = Constants.Database.collapseNetDriver(netDriver = "D:\\")
+class SQLDeLightRepositoryImpl(networkDrive: String) : SQLDeLightRepository {
+    private val path = Constants.Database.collapseNetDriver(netDriver = networkDrive)
 
     private val driver: SqlDriver = JdbcSqliteDriver(path)
 
     init {
-        createFolderIfNotExists(folderPath = path)
+
+        val driverStr = "${networkDrive.split(":")[0]}:"
+        createFolderIfNotExists(folderPath = "${driverStr}\\AppData")
+        createFolderIfNotExists(folderPath = "${driverStr}\\AppData\\Roaming")
+        createFolderIfNotExists(folderPath = "${driverStr}\\AppData\\Roaming\\Reaction test")
+
         val database = Database(driver = driver)
         database.sqldelight_users_schemeQueries.create()
     }

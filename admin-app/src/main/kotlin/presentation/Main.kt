@@ -56,7 +56,15 @@ fun main() = run {
             getUserSettingsUseCase = GetUserSettingsUseCase(settingsRepository),
             saveUserSettingsUseCase = SaveUserSettingsUseCase(settingsRepository)
         )
-        val sqlDeLightRepository = SQLDeLightRepositoryImpl()
+
+//        region::Actions
+        val supervisorJob = SupervisorJob()
+        val coroutineContextIO: CoroutineContext = Dispatchers.IO + supervisorJob
+
+        val settings = settingsStorage.get(scope = CoroutineScope(coroutineContextIO))
+//        endregion
+
+        val sqlDeLightRepository = SQLDeLightRepositoryImpl(networkDrive = settings.networkDrive)
         val sqlDeLightStorage = SQLDeLightStorage(
             getAllUsersUseCase = GetAllUsersUseCase(sqlDeLightRepository),
             getSessionsWithUserIdUseCase = GetSessionsWithUserIdUseCase(sqlDeLightRepository),
@@ -64,13 +72,6 @@ fun main() = run {
             updateUserUseCase = UpdateUserUseCase(sqlDeLightRepository),
             deleteUserUseCase = DeleteUserUseCase(sqlDeLightRepository)
         )
-//        endregion
-
-//        region::Actions
-        val supervisorJob = SupervisorJob()
-        val coroutineContextIO: CoroutineContext = Dispatchers.IO + supervisorJob
-
-        val settings = settingsStorage.get(scope = CoroutineScope(coroutineContextIO))
 //        endregion
 
         Window(
@@ -152,7 +153,10 @@ fun main() = run {
                         }
                         scene(route = DesktopRouting.settings) {
                             println("Settings page rendered")
-                            SettingsPage(onEvent = settingsViewModel::onEvent, settingsViewModel = settingsViewModel)
+                            SettingsPage(
+                                onEvent = settingsViewModel::onEvent,
+                                settingsViewModel = settingsViewModel
+                            )
                         }
 //                    endregion
                     }
