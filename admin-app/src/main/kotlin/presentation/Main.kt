@@ -31,6 +31,8 @@ import presentation.home.HomePage
 import presentation.home.store.Output
 import presentation.home.viewmodel.HomeViewModel
 import presentation.other.extension.route.DesktopRouting
+import presentation.settings.SettingsPage
+import presentation.settings.viewmodel.SettingsViewModel
 import presentation.theme.AppTheme
 import presentation.users.UsersPage
 import presentation.users.viewmodel.UsersViewModel
@@ -118,6 +120,19 @@ fun main() = run {
                             coroutineContextIO = coroutineContextIO
                         )
                     }
+                    val settingsViewModel: SettingsViewModel = viewModel(modelClass = SettingsViewModel::class) {
+                        SettingsViewModel(
+                            settingsStorage = settingsStorage,
+                            coroutineContextIO = coroutineContextIO,
+                            output = { output ->
+                                when (output) {
+                                    presentation.settings.store.Output.BackClicked -> {
+                                        navigator.popBackStack()
+                                    }
+                                }
+                            }
+                        )
+                    }
 //                    endregion
 
                     NavHost(
@@ -134,6 +149,10 @@ fun main() = run {
                         scene(route = DesktopRouting.users) {
                             println("Users page rendered")
                             UsersPage(onEvent = usersViewModel::onEvent, usersViewModel)
+                        }
+                        scene(route = DesktopRouting.settings) {
+                            println("Settings page rendered")
+                            SettingsPage(onEvent = settingsViewModel::onEvent, settingsViewModel = settingsViewModel)
                         }
 //                    endregion
                     }
