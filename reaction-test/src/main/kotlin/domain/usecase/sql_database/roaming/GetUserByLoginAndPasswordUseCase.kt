@@ -23,10 +23,10 @@ class GetUserByLoginAndPasswordUseCase(private val userRepository: UserRepositor
                             name = it.user_name,
                             surname = it.user_surname,
                             patronymic = it.user_patronymic ?: "",
-                            age = it.age.toInt(),
+                            age = 0,
                             gender = Gender.fromString(it.gender),
                             drivingLicenseCategory = DrivingLicenseCategory.Empty,
-                            experience = it.experience.toInt()
+                            experience = 0
                         )
                     }
                     return RoamingEither.Data(b = users[0])

@@ -6,6 +6,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbookType
 object Constants {
     private val USER_NAME: String = System.getProperty("user.name")
     private const val FOLDER_NAME = "Reaction test"
+    private const val ROAMING_FOLDER_NAME = "Admin - Reaction test"
 
     object General {
         val PATH_TO_SETTINGS_FOLDER = "C:\\Users\\${USER_NAME}\\AppData\\Local\\${FOLDER_NAME}"
@@ -64,7 +65,7 @@ object Constants {
 
         fun collapseNetDriver(netDriver: String) : String {
             val driver = "${netDriver.split(":")[0]}:\\"
-            return "jdbc:sqlite:${driver}\\AppData\\Roaming\\${FOLDER_NAME}\\${ROAMING_DATABASE_NAME}"
+            return "jdbc:sqlite:${driver}\\AppData\\Roaming\\${ROAMING_FOLDER_NAME}\\${ROAMING_DATABASE_NAME}"
         }
     }
 }
