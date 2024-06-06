@@ -11,7 +11,10 @@ interface SQLDeLightRepository {
 
     suspend fun getSessionsWithUserId(id: Long): List<Sessions>
 
+    @Throws(Exception::class)
     suspend fun insertNewUser(user: User, login: String, password: String)
+
+    suspend fun getAllPasswords() : List<String>
 
     suspend fun updateUser(user: User, login: String, password: String)
 

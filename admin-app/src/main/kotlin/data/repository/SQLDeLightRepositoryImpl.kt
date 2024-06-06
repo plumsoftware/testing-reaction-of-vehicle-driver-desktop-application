@@ -53,20 +53,32 @@ class SQLDeLightRepositoryImpl(private val networkDrive: String) : SQLDeLightRep
         }
     }
 
+    @Throws(Exception::class)
     override suspend fun insertNewUser(user: User, login: String, password: String) {
         if (networkDrive.isNotEmpty()) {
             val database = Database(driver = getDriver(networkDrive))
             with(user) {
-                database.sqldelight_users_schemeQueries.insertNewUser(
-                    user_login = login,
-                    user_password = password,
-                    user_name = name,
-                    user_surname = surname,
-                    user_patronymic = patronymic,
-                    gender = gender.toString(),
-                )
+                database.sqldelight_users_schemeQueries.transaction {
+                    database.sqldelight_users_schemeQueries.insertNewUser(
+                        user_login = login,
+                        user_password = password,
+                        user_name = name,
+                        user_surname = surname,
+                        user_patronymic = patronymic,
+                        gender = gender.toString(),
+                    )
+                }
             }
         }
+    }
+
+    override suspend fun getAllPasswords(): List<String> {
+        return if (networkDrive.isNotEmpty()) {
+            val database = Database(driver = getDriver(networkDrive))
+            val selectAllPasswords = database.sqldelight_users_schemeQueries.selectAllPasswords().executeAsList()
+            selectAllPasswords
+        } else
+            emptyList()
     }
 
     override suspend fun updateUser(user: User, login: String, password: String) {

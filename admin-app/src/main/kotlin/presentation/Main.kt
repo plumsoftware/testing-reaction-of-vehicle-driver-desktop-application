@@ -30,6 +30,8 @@ import moe.tlaster.precompose.viewmodel.viewModel
 import presentation.home.HomePage
 import presentation.home.store.Output
 import presentation.home.viewmodel.HomeViewModel
+import presentation.newuser.NewUserPage
+import presentation.newuser.viewmodel.NewUserViewModel
 import presentation.other.extension.route.DesktopRouting
 import presentation.settings.SettingsPage
 import presentation.settings.viewmodel.SettingsViewModel
@@ -70,7 +72,8 @@ fun main() = run {
             getSessionsWithUserIdUseCase = GetSessionsWithUserIdUseCase(sqlDeLightRepository),
             insertNewUserUseCase = InsertNewUserUseCase(sqlDeLightRepository),
             updateUserUseCase = UpdateUserUseCase(sqlDeLightRepository),
-            deleteUserUseCase = DeleteUserUseCase(sqlDeLightRepository)
+            deleteUserUseCase = DeleteUserUseCase(sqlDeLightRepository),
+            isPasswordUniqueUseCase = IsPasswordUniqueUseCase(sqlDeLightRepository)
         )
 //        endregion
 
@@ -134,6 +137,19 @@ fun main() = run {
                             }
                         )
                     }
+                    val newUserViewModel: NewUserViewModel = viewModel(modelClass = NewUserViewModel::class) {
+                        NewUserViewModel(
+                            sqlDeLightStorage = sqlDeLightStorage,
+                            coroutineContextIO = coroutineContextIO,
+                            output = { output ->
+                                when (output) {
+                                    presentation.newuser.store.Output.BackButtonClicked -> {
+                                        navigator.popBackStack()
+                                    }
+                                }
+                            }
+                        )
+                    }
 //                    endregion
 
                     NavHost(
@@ -156,6 +172,13 @@ fun main() = run {
                             SettingsPage(
                                 onEvent = settingsViewModel::onEvent,
                                 settingsViewModel = settingsViewModel
+                            )
+                        }
+                        scene(route = DesktopRouting.addnewuser) {
+                            println("New user page rendered")
+                            NewUserPage(
+                                onEvent = newUserViewModel::onEvent,
+                                newUserViewModel = newUserViewModel
                             )
                         }
 //                    endregion

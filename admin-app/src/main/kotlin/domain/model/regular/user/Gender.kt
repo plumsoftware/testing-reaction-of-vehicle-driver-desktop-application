@@ -1,6 +1,11 @@
 package domain.model.regular.user
 
 enum class Gender {
+    EMPTY{
+        override fun toString(): String {
+            return ""
+        }
+    },
     MALE {
         override fun toString(): String {
             return "Мужчина"

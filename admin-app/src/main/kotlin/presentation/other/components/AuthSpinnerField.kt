@@ -10,8 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import domain.model.regular.user.DrivingLicenseCategory
-import domain.model.regular.user.Interval
+import domain.model.regular.user.Gender
 
 @Composable
 fun AuthSpinnerField(
@@ -54,10 +53,9 @@ fun AuthSpinnerField(
                     list.forEachIndexed { _, any ->
 
                         val item = when (any) {
-                            is DrivingLicenseCategory -> any
+                            is Gender -> any
                             is Int -> any
-                            is Interval -> any
-                            else -> DrivingLicenseCategory.Empty
+                            else -> Gender.EMPTY
                         }
 
                         DropdownMenuItem(

@@ -37,3 +37,6 @@ UPDATE Users SET user_login = ?, user_password = ?, user_name = ?, user_surname 
 
 deleteUser:
 DELETE FROM Users WHERE user_id = ?;
+
+selectAllPasswords:
+SELECT user_password FROM Users;
