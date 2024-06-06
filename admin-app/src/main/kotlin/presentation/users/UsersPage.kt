@@ -51,7 +51,12 @@ fun UsersPage(onEvent: (Event) -> Unit, usersViewModel: UsersViewModel) {
             horizontalAlignment = Alignment.Start
         ) {
             itemsIndexed(state.value.list) { index, item ->
-                UserButton(onClick = {}, text = "${item.surname} ${item.name} ${item.patronymic}")
+                UserButton(
+                    onClick = {
+                        onEvent(Event.OnUserClick)
+                    },
+                    text = "${item.surname} ${item.name} ${item.patronymic}"
+                )
             }
         }
     }

@@ -7,7 +7,6 @@ import ru.plumsoftware.users.Users
 
 interface SQLDeLightRepository {
     suspend fun getAllUsers(): List<Users>
-    suspend fun getAllSessions(): List<SessionDTO>
 
     suspend fun getSessionsWithUserId(id: Long): List<Sessions>
 

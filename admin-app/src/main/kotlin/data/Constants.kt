@@ -26,10 +26,16 @@ object Constants {
 
     object Database {
         private const val LOCAL_DATABASE_NAME = "user_database.db"
+        private const val SESSIONS_DATABASE_NAME = "sessions_database.db"
 
         fun collapseNetDriver(netDriver: String) : String {
             val driver = "${netDriver.split(":")[0]}:"
             return "jdbc:sqlite:${driver}\\AppData\\Roaming\\${FOLDER_NAME}\\${LOCAL_DATABASE_NAME}"
+        }
+
+        fun collapseNetDriverToSessions(netDriver: String) : String {
+            val driver = "${netDriver.split(":")[0]}:"
+            return "jdbc:sqlite:${driver}\\AppData\\Roaming\\${FOLDER_NAME}\\${SESSIONS_DATABASE_NAME}"
         }
     }
 }

@@ -13,46 +13,10 @@ CREATE TABLE IF NOT EXISTS Sessions (
     count INTEGER NOT NULL,
     errors INTEGER NOT NULL,
     experience INTEGER NOT NULL,
+    user_age INTEGER NOT NULL,
     driving_license_category TEXT NOT NULL,
     signal_interval TEXT NOT NULL
 );
-
-selectAllSessions{
-SELECT * FROM Sessions;
-}
-
-insertOrAbortNewSession{
-INSERT OR ABORT INTO Sessions (
-    user_id,
-    test_id,
-    test_year,
-    test_month,
-    test_day,
-    test_hour_of_day_24h,
-    test_minute_of_hour,
-    average_value,
-    standard_deviation,
-    count,
-    errors,
-    experience,
-    driving_license_category,
-    signal_interval)
-VALUES (
-?,
-?,
-?,
-?,
-?,
-?,
-?,
-?,
-?,
-?,
-?,
-?,
-?,
-?);
-}
 
 getLastSessionId:
 SELECT MAX(session_id) FROM Sessions;

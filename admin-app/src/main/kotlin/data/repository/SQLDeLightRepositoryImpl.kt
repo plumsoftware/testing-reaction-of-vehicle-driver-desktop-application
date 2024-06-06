@@ -19,6 +19,12 @@ class SQLDeLightRepositoryImpl(private val networkDrive: String) : SQLDeLightRep
         return driver
     }
 
+    private fun getSessionsDriver(networkDrive: String): SqlDriver {
+        val path = Constants.Database.collapseNetDriverToSessions(netDriver = networkDrive)
+        val driver: SqlDriver = JdbcSqliteDriver(path)
+        return driver
+    }
+
     init {
         if (networkDrive.isNotEmpty()) {
             val driverStr = "${networkDrive.split(":")[0]}:"
@@ -26,8 +32,11 @@ class SQLDeLightRepositoryImpl(private val networkDrive: String) : SQLDeLightRep
             createFolderIfNotExists(folderPath = "${driverStr}\\AppData\\Roaming")
             createFolderIfNotExists(folderPath = "${driverStr}\\AppData\\Roaming\\${Constants.FOLDER_NAME}")
 
-            val database = Database(driver = getDriver(networkDrive))
-            database.sqldelight_users_schemeQueries.create()
+            val userDatabase = Database(driver = getDriver(networkDrive))
+            userDatabase.sqldelight_users_schemeQueries.create()
+
+            val sessionsDatabase = Database(driver = getSessionsDriver(networkDrive))
+            sessionsDatabase.sqldelight_schemeQueries.create()
         }
     }
 
@@ -40,13 +49,9 @@ class SQLDeLightRepositoryImpl(private val networkDrive: String) : SQLDeLightRep
         }
     }
 
-    override suspend fun getAllSessions(): List<SessionDTO> {
-        TODO("Not yet implemented")
-    }
-
     override suspend fun getSessionsWithUserId(id: Long): List<Sessions> {
         return if (networkDrive.isNotEmpty()) {
-            val database = Database(driver = getDriver(networkDrive))
+            val database = Database(driver = getSessionsDriver(networkDrive))
             database.sqldelight_schemeQueries.getSessionsWithUserId(user_id = id).executeAsList()
         } else {
             emptyList()
