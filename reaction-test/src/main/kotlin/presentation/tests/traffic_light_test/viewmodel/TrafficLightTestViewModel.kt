@@ -246,6 +246,9 @@ class TrafficLightTestViewModel(
         sessionStorage.insertOrAbort(
             sessionDTO = sessionDTO
         )
+        sessionStorage.insertOrAbortNewSessionToRoamingDatabase(
+            sessionDTO = sessionDTO
+        )
     }
 
     private fun stopTest() {

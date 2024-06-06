@@ -12,7 +12,7 @@ import ru.plumsoftware.sessions.GetLastSessionId
 import ru.plumsoftware.sessions.Sessions
 import utils.createFolderIfNotExists
 
-class SessionRepositoryImpl : SessionRepository {
+class SessionRepositoryImpl(private val netDriver: String) : SessionRepository {
 
     init {
 //        createFolderIfNotExists(folderPath = Constants.General.PATH_TO_LOCAL_SQL_FOLDER)
@@ -87,5 +87,34 @@ class SessionRepositoryImpl : SessionRepository {
         val database = Database(driver = driver)
         val executeAsList: List<GetLastSessionId> = database.sqldelight_schemeQueries.getLastSessionId().executeAsList()
         return executeAsList[0].MAX ?: 0L
+    }
+
+    override suspend fun insertOrAbortNewSessionToRoamingDatabase(sessionDTO: SessionDTO) {
+        if (netDriver.isNotEmpty()) {
+            val driver: SqlDriver = JdbcSqliteDriver(Constants.Database.collapseNetDriverToSessions(netDriver = netDriver))
+            val database = Database(driver = driver)
+
+            with(sessionDTO) {
+                database.sqldelight_schemeQueries.transaction {
+                    database.sqldelight_schemeQueries.insertOrAbortNewSession(
+                        userId,
+                        testId,
+                        testYear.toLong(),
+                        testMonth.toLong(),
+                        testDay.toLong(),
+                        testHourOfDay24h.toLong(),
+                        testMinuteOfHour.toLong(),
+                        averageValue,
+                        standardDeviation,
+                        count.toLong(),
+                        errors.toLong(),
+                        experience.toLong(),
+                        userAge.toLong(),
+                        drivingLicenseCategory.toString(),
+                        signalInterval.toString()
+                    )
+                }
+            }
+        }
     }
 }

@@ -27,6 +27,7 @@ import domain.usecase.sql_database.local.GetAllSessionsDtoFromDatabaseUseCase
 import domain.usecase.sql_database.local.GetLastSessionIdUseCase
 import domain.usecase.sql_database.local.InsertOrAbortNewSessionUseCase
 import domain.usecase.sql_database.roaming.GetUserByLoginAndPasswordUseCase
+import domain.usecase.sql_database.roaming.InsertOrAbortNewSessionToRoamingDatabaseUseCase
 import domain.usecase.workbook.CreateWorkbookIfNotExistsUseCase
 import domain.usecase.workbook.WriteDataToWorkbookUseCase
 import kotlinx.coroutines.*
@@ -75,12 +76,6 @@ fun main() = run {
             createWorkbookIfNotExistsUseCase = CreateWorkbookIfNotExistsUseCase(workbookRepository),
             writeDataToWorkbookUseCase = WriteDataToWorkbookUseCase(workbookRepository)
         )
-        val sessionRepository = SessionRepositoryImpl()
-        val sessionStorage = SessionStorage(
-            getAllSessionsDtoFromDatabaseUseCase = GetAllSessionsDtoFromDatabaseUseCase(sessionRepository),
-            insertOrAbortNewSessionUseCase = InsertOrAbortNewSessionUseCase(sessionRepository),
-            getLastSessionIdUseCase = GetLastSessionIdUseCase(sessionRepository)
-        )
 //        endregion
 
 //        region::Actions
@@ -94,6 +89,15 @@ fun main() = run {
         val userRepository = UserRepositoryImpl(netDriver = settings.networkDrive)
         val userStorage = UserStorage(
             getUserByLoginAndPasswordUseCase = GetUserByLoginAndPasswordUseCase(userRepository)
+        )
+        val sessionRepository = SessionRepositoryImpl(netDriver = settings.networkDrive)
+        val sessionStorage = SessionStorage(
+            getAllSessionsDtoFromDatabaseUseCase = GetAllSessionsDtoFromDatabaseUseCase(sessionRepository),
+            insertOrAbortNewSessionUseCase = InsertOrAbortNewSessionUseCase(sessionRepository),
+            getLastSessionIdUseCase = GetLastSessionIdUseCase(sessionRepository),
+            insertOrAbortNewSessionToRoamingDatabaseUseCase = InsertOrAbortNewSessionToRoamingDatabaseUseCase(
+                sessionRepository
+            )
         )
 //        endregion
 
