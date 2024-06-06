@@ -5,7 +5,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbookType
 
 object Constants {
     private val USER_NAME: String = System.getProperty("user.name")
-    private const val FOLDER_NAME = "Reaction test"
+    const val FOLDER_NAME = "Reaction test"
     private const val ROAMING_FOLDER_NAME = "Admin - Reaction test"
 
     object General {
@@ -16,6 +16,7 @@ object Constants {
         val PATH_TO_SHARED_FILE = "C:\\Users\\${USER_NAME}\\AppData\\Roaming\\${FOLDER_NAME}\\shared.json"
 
         val PATH_TO_LOCAL_SQL_FOLDER = "C:\\Users\\${USER_NAME}\\AppData\\Local\\${FOLDER_NAME}"
+        val PART_PATH_TO_LOCAL_SQL_FOLDER = "C:\\Users\\${USER_NAME}"
         val PATH_TO_ROAMING_SQL_FOLDER = "C:\\Users\\${USER_NAME}\\AppData\\Roaming\\${FOLDER_NAME}"
     }
 
@@ -58,7 +59,7 @@ object Constants {
     }
 
     object Database {
-        private const val LOCAL_DATABASE_NAME = "database.db"
+        private const val LOCAL_DATABASE_NAME = "sessions_database.db"
         val LOCAL_JDBC_DRIVER_NAME = "jdbc:sqlite:C:\\Users\\${USER_NAME}\\AppData\\Local\\${FOLDER_NAME}\\${LOCAL_DATABASE_NAME}"
 
         private const val ROAMING_DATABASE_NAME = "user_database.db"

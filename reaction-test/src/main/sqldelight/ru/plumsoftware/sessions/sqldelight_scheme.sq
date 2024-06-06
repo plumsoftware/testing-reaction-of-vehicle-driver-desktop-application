@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS Sessions (
     count INTEGER NOT NULL,
     errors INTEGER NOT NULL,
     experience INTEGER NOT NULL,
+    user_age INTEGER NOT NULL,
     driving_license_category TEXT NOT NULL,
     signal_interval TEXT NOT NULL
 );
@@ -35,9 +36,11 @@ INSERT OR ABORT INTO Sessions (
     count,
     errors,
     experience,
+    user_age,
     driving_license_category,
     signal_interval)
 VALUES (
+?,
 ?,
 ?,
 ?,

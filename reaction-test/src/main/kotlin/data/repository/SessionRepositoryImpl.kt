@@ -14,15 +14,19 @@ import utils.createFolderIfNotExists
 
 class SessionRepositoryImpl : SessionRepository {
 
-    private val driver: SqlDriver = JdbcSqliteDriver(Constants.Database.LOCAL_JDBC_DRIVER_NAME)
-
     init {
-        createFolderIfNotExists(folderPath = Constants.General.PATH_TO_LOCAL_SQL_FOLDER)
+//        createFolderIfNotExists(folderPath = Constants.General.PATH_TO_LOCAL_SQL_FOLDER)
+        createFolderIfNotExists(folderPath = Constants.General.PART_PATH_TO_LOCAL_SQL_FOLDER)
+        createFolderIfNotExists(folderPath = "${Constants.General.PART_PATH_TO_LOCAL_SQL_FOLDER}\\AppData")
+        createFolderIfNotExists(folderPath = "${Constants.General.PART_PATH_TO_LOCAL_SQL_FOLDER}\\AppData\\Local")
+        createFolderIfNotExists(folderPath = "${Constants.General.PART_PATH_TO_LOCAL_SQL_FOLDER}\\AppData\\Local\\${Constants.FOLDER_NAME}")
+        val driver: SqlDriver = JdbcSqliteDriver(Constants.Database.LOCAL_JDBC_DRIVER_NAME)
         val database = Database(driver = driver)
         database.sqldelight_schemeQueries.create()
     }
 
     override suspend fun getAllSessionDtoFromDatabase(): List<SessionDTO> {
+        val driver: SqlDriver = JdbcSqliteDriver(Constants.Database.LOCAL_JDBC_DRIVER_NAME)
         val database = Database(driver = driver)
         val executeAsList: List<Sessions> = database.sqldelight_schemeQueries.selectAllSessions().executeAsList()
 
@@ -42,6 +46,7 @@ class SessionRepositoryImpl : SessionRepository {
                     count = count.toInt(),
                     errors = errors.toInt(),
                     experience = experience.toInt(),
+                    userAge = user_age.toInt(),
                     drivingLicenseCategory = DrivingLicenseCategory.valueOf(driving_license_category),
                     signalInterval = Interval.fromString(signal_interval)
                 )
@@ -52,6 +57,7 @@ class SessionRepositoryImpl : SessionRepository {
     }
 
     override suspend fun insertOrAbortNewSession(sessionDTO: SessionDTO) {
+        val driver: SqlDriver = JdbcSqliteDriver(Constants.Database.LOCAL_JDBC_DRIVER_NAME)
         val database = Database(driver = driver)
         with(sessionDTO) {
             database.sqldelight_schemeQueries.transaction {
@@ -68,6 +74,7 @@ class SessionRepositoryImpl : SessionRepository {
                     count.toLong(),
                     errors.toLong(),
                     experience.toLong(),
+                    userAge.toLong(),
                     drivingLicenseCategory.toString(),
                     signalInterval.toString()
                 )
@@ -76,6 +83,7 @@ class SessionRepositoryImpl : SessionRepository {
     }
 
     override suspend fun getLastSessionId(): Long {
+        val driver: SqlDriver = JdbcSqliteDriver(Constants.Database.LOCAL_JDBC_DRIVER_NAME)
         val database = Database(driver = driver)
         val executeAsList: List<GetLastSessionId> = database.sqldelight_schemeQueries.getLastSessionId().executeAsList()
         return executeAsList[0].MAX ?: 0L

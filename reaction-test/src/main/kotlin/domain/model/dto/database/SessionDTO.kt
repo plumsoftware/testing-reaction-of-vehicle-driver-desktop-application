@@ -17,6 +17,7 @@ data class SessionDTO(
     val count: Int,
     val errors: Int,
     val experience: Int,
+    val userAge: Int,
     val drivingLicenseCategory: DrivingLicenseCategory,
     val signalInterval: Interval
 )

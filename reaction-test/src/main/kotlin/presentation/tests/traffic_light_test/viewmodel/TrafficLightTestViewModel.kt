@@ -234,6 +234,7 @@ class TrafficLightTestViewModel(
             count = testDTO.count,
             errors = testDTO.errorsCount!!,
             experience = testDTO.user.experience,
+            userAge = testDTO.user.age,
             drivingLicenseCategory = testDTO.user.drivingLicenseCategory,
             signalInterval = testDTO.interval
         )
