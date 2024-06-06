@@ -2,7 +2,7 @@ package data
 
 object Constants {
     private val USER_NAME: String = System.getProperty("user.name")
-    private const val FOLDER_NAME = "Reaction test"
+    const val FOLDER_NAME = "Admin - Reaction test"
 
     object General {
         val PATH_TO_SETTINGS_FOLDER = "C:\\Users\\${USER_NAME}\\AppData\\Local\\${FOLDER_NAME}"

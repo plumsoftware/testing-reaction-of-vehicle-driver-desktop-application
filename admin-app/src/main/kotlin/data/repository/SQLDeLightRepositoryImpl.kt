@@ -11,25 +11,33 @@ import ru.plumsoftware.sessions.Sessions
 import ru.plumsoftware.users.Users
 import utils.createFolderIfNotExists
 
-class SQLDeLightRepositoryImpl(networkDrive: String) : SQLDeLightRepository {
-    private val path = Constants.Database.collapseNetDriver(netDriver = networkDrive)
+class SQLDeLightRepositoryImpl(private val networkDrive: String) : SQLDeLightRepository {
 
-    private val driver: SqlDriver = JdbcSqliteDriver(path)
+    private fun getDriver(networkDrive: String): SqlDriver {
+        val path = Constants.Database.collapseNetDriver(netDriver = networkDrive)
+        val driver: SqlDriver = JdbcSqliteDriver(path)
+        return driver
+    }
 
     init {
+        if (networkDrive.isNotEmpty()) {
+            val driverStr = "${networkDrive.split(":")[0]}:"
+            createFolderIfNotExists(folderPath = "${driverStr}\\AppData")
+            createFolderIfNotExists(folderPath = "${driverStr}\\AppData\\Roaming")
+            createFolderIfNotExists(folderPath = "${driverStr}\\AppData\\Roaming\\${Constants.FOLDER_NAME}")
 
-        val driverStr = "${networkDrive.split(":")[0]}:"
-        createFolderIfNotExists(folderPath = "${driverStr}\\AppData")
-        createFolderIfNotExists(folderPath = "${driverStr}\\AppData\\Roaming")
-        createFolderIfNotExists(folderPath = "${driverStr}\\AppData\\Roaming\\Reaction test")
-
-        val database = Database(driver = driver)
-        database.sqldelight_users_schemeQueries.create()
+            val database = Database(driver = getDriver(networkDrive))
+            database.sqldelight_users_schemeQueries.create()
+        }
     }
 
     override suspend fun getAllUsers(): List<Users> {
-        val database = Database(driver = driver)
-        return database.sqldelight_users_schemeQueries.getAllUsers().executeAsList()
+        return if (networkDrive.isNotEmpty()) {
+            val database = Database(driver = getDriver(networkDrive))
+            database.sqldelight_users_schemeQueries.getAllUsers().executeAsList()
+        } else {
+            emptyList()
+        }
     }
 
     override suspend fun getAllSessions(): List<SessionDTO> {
@@ -37,41 +45,51 @@ class SQLDeLightRepositoryImpl(networkDrive: String) : SQLDeLightRepository {
     }
 
     override suspend fun getSessionsWithUserId(id: Long): List<Sessions> {
-        val database = Database(driver = driver)
-        return database.sqldelight_schemeQueries.getSessionsWithUserId(user_id = id).executeAsList()
+        return if (networkDrive.isNotEmpty()) {
+            val database = Database(driver = getDriver(networkDrive))
+            database.sqldelight_schemeQueries.getSessionsWithUserId(user_id = id).executeAsList()
+        } else {
+            emptyList()
+        }
     }
 
     override suspend fun insertNewUser(user: User, login: String, password: String) {
-        val database = Database(driver = driver)
-        with(user) {
-            database.sqldelight_users_schemeQueries.insertNewUser(
-                user_login = login,
-                user_password = password,
-                user_name = name,
-                user_surname = surname,
-                user_patronymic = patronymic,
-                gender = gender.toString(),
-            )
+        if (networkDrive.isNotEmpty()) {
+            val database = Database(driver = getDriver(networkDrive))
+            with(user) {
+                database.sqldelight_users_schemeQueries.insertNewUser(
+                    user_login = login,
+                    user_password = password,
+                    user_name = name,
+                    user_surname = surname,
+                    user_patronymic = patronymic,
+                    gender = gender.toString(),
+                )
+            }
         }
     }
 
     override suspend fun updateUser(user: User, login: String, password: String) {
-        val database = Database(driver = driver)
-        with(user) {
-            database.sqldelight_users_schemeQueries.updateUser(
-                user_login = login,
-                user_password = password,
-                user_name = name,
-                user_surname = surname,
-                user_patronymic = patronymic,
-                gender = gender.toString(),
-                user_id = id
-            )
+        if (networkDrive.isNotEmpty()) {
+            val database = Database(driver = getDriver(networkDrive))
+            with(user) {
+                database.sqldelight_users_schemeQueries.updateUser(
+                    user_login = login,
+                    user_password = password,
+                    user_name = name,
+                    user_surname = surname,
+                    user_patronymic = patronymic,
+                    gender = gender.toString(),
+                    user_id = id
+                )
+            }
         }
     }
 
     override suspend fun deleteUser(id: Long) {
-        val database = Database(driver = driver)
-        database.sqldelight_users_schemeQueries.deleteUser(user_id = id)
+        if (networkDrive.isNotEmpty()) {
+            val database = Database(driver = getDriver(networkDrive))
+            database.sqldelight_users_schemeQueries.deleteUser(user_id = id)
+        }
     }
 }

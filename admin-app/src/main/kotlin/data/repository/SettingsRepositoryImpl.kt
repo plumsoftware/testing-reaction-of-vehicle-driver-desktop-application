@@ -9,6 +9,11 @@ import java.io.File
 import java.io.FileNotFoundException
 
 class SettingsRepositoryImpl : SettingsRepository {
+
+    init {
+        createFolderIfNotExists()
+    }
+
     override fun saveData(settings: Settings) {
         println("SettingsRepositoryImpl: User settings to save is: $settings")
 //        val jsonString = Json.encodeToString("""{$settings}""".trimIndent())
