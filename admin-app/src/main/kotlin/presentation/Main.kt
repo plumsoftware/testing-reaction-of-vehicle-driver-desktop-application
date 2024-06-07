@@ -1,5 +1,7 @@
 package presentation
 
+import presentation.aboutuser.AboutUserPage
+import presentation.aboutuser.viewmodel.AboutUserViewModel
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.BitmapPainter
@@ -27,6 +29,7 @@ import moe.tlaster.precompose.navigation.NavHost
 import moe.tlaster.precompose.navigation.rememberNavigator
 import moe.tlaster.precompose.navigation.transition.NavTransition
 import moe.tlaster.precompose.viewmodel.viewModel
+import presentation.aboutuser.store.Event
 import presentation.home.HomePage
 import presentation.home.store.Output
 import presentation.home.viewmodel.HomeViewModel
@@ -80,7 +83,7 @@ fun main() = run {
         Window(
             onCloseRequest = ::exitApplication,
             icon = BitmapPainter(useResource("main_icon.png", ::loadImageBitmap)),
-            title = "Администратор. Тест на рекацию",
+            title = "Администратор. Тест на реакцию",
             state = windowState,
         ) {
             AppTheme(useDarkTheme = settings.isDarkTheme) {
@@ -111,6 +114,19 @@ fun main() = run {
                             }
                         )
                     }
+                    val aboutUserViewModel: AboutUserViewModel = viewModel(modelClass = AboutUserViewModel::class) {
+                        AboutUserViewModel(
+                            sqlDeLightStorage = sqlDeLightStorage,
+                            coroutineContextIO = coroutineContextIO,
+                            output = { output ->
+                                when (output) {
+                                    presentation.aboutuser.store.Output.BackButtonClicked -> {
+                                        navigator.popBackStack()
+                                    }
+                                }
+                            }
+                        )
+                    }
                     val usersViewModel: UsersViewModel = viewModel(modelClass = UsersViewModel::class) {
                         UsersViewModel(
                             output = { output ->
@@ -118,10 +134,14 @@ fun main() = run {
                                     presentation.users.store.Output.BackButtonClicked -> {
                                         navigator.popBackStack()
                                     }
+
+                                    is presentation.users.store.Output.OnUserClicked -> {
+                                        aboutUserViewModel.onEvent(Event.ChangeSelectedUser(userId = output.userId))
+                                        navigator.navigate(route = DesktopRouting.aboutuser)
+                                    }
                                 }
                             },
-                            sqlDeLightStorage = sqlDeLightStorage,
-                            coroutineContextIO = coroutineContextIO
+                            sqlDeLightStorage = sqlDeLightStorage
                         )
                     }
                     val settingsViewModel: SettingsViewModel = viewModel(modelClass = SettingsViewModel::class) {
@@ -165,7 +185,11 @@ fun main() = run {
                         }
                         scene(route = DesktopRouting.users) {
                             println("Users page rendered")
-                            UsersPage(onEvent = usersViewModel::onEvent, usersViewModel)
+                            UsersPage(
+                                onEvent = usersViewModel::onEvent,
+                                onAction = usersViewModel::onAction,
+                                usersViewModel = usersViewModel
+                            )
                         }
                         scene(route = DesktopRouting.settings) {
                             println("Settings page rendered")
@@ -180,6 +204,10 @@ fun main() = run {
                                 onEvent = newUserViewModel::onEvent,
                                 newUserViewModel = newUserViewModel
                             )
+                        }
+                        scene(route = DesktopRouting.aboutuser) {
+                            println("About user page created")
+                            AboutUserPage(onEvent = aboutUserViewModel::onEvent, aboutUserViewModel)
                         }
 //                    endregion
                     }
