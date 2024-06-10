@@ -81,19 +81,37 @@ val dark_ontestContainer = Color(0xFFFFDDB4)
 
 val md_theme_light_success = Color(0xFFCDEDA3)
 val md_theme_light_onSuccess = Color(0xFF102000)
+
 val md_theme_dark_success = Color(0xFF354E16)
 val md_theme_dark_onSuccess = Color(0xFFCDEDA3)
+
+val md_theme_light_line_chart_color = md_theme_light_primary
+val md_theme_light_point_chart_color = Color(250, 114, 2)
+
+val md_theme_dark_line_chart_color = md_theme_dark_primary
+val md_theme_dark_point_chart_color = Color(250, 114, 2)
+
+val md_theme_light_axis_line_chart_color = md_theme_light_onBackground.copy(alpha = 0.5f)
+val md_theme_dark_axis_line_chart_color = md_theme_dark_onBackground.copy(alpha = 0.5f)
 
 @Immutable
 data class ExtendedColors(
     val successContainer: Color,
-    val onSuccessContainer: Color
+    val onSuccessContainer: Color,
+
+    val lineChartColor: Color,
+    val pointChartColor: Color,
+
+    val lineChartAxisColor: Color
 )
 
 val LocalExtendedColors = staticCompositionLocalOf {
     ExtendedColors(
         successContainer = Color.Unspecified,
-        onSuccessContainer = Color.Unspecified
+        onSuccessContainer = Color.Unspecified,
+        lineChartColor = Color.Unspecified,
+        pointChartColor = Color.Unspecified,
+        lineChartAxisColor = Color.Unspecified
     )
 }
 

@@ -1,6 +1,6 @@
 package domain.model.regular.userstatistic
 
-data class LinearGraphItem(
+data class LineChartItem(
     val valueX: Long,
     val valueY: Double
 )
