@@ -13,6 +13,8 @@ class GetAllUsersUseCase(private val sqlDeLightRepository: SQLDeLightRepository)
                 surname = it.user_surname,
                 patronymic = it.user_patronymic ?: "",
                 gender = Gender.fromString(it.gender),
+                login = it.user_login,
+                password = it.user_password
             )
         }
         return allUsers

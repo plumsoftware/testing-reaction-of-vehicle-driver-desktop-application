@@ -12,6 +12,7 @@ object ExtensionPadding {
 
     private val mediumHorPadding = 22.dp
     private val smallHorPadding = 16.dp
+    private val extraSmallHorPadding = 10.dp
     private val mediumVerPadding = 18.dp
     private val smallVerPadding = 14.dp
 
@@ -32,6 +33,7 @@ object ExtensionPadding {
     val mediumAsymmetricalContentPadding = PaddingValues(horizontal = mediumHorPadding, vertical = mediumVerPadding)
     val mediumSymmetricalContentPadding = PaddingValues(horizontal = mediumHorPadding)
 
+    val extraSmallVerticalContentPadding = PaddingValues(vertical = extraSmallHorPadding)
     val smallAsymmetricalContentPadding = PaddingValues(horizontal = smallHorPadding, vertical = smallVerPadding)
     val smallVerticalContentPadding = PaddingValues(vertical = smallVerPadding)
 

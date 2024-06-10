@@ -31,7 +31,7 @@ class AboutUserViewModel(
                 viewModelScope.launch(coroutineContextIO) {
                     val sessions: List<SessionDTO> = sqlDeLightStorage.getSessions(userId = event.userId)
                     val user = sqlDeLightStorage.getAllUsers().find { it.id == event.userId }
-                        ?: User.empty() //TODO(replace later)
+                        ?: User.empty()
 
                     state.update {
                         it.copy(user = user, sessions = sessions)
@@ -40,12 +40,35 @@ class AboutUserViewModel(
             }
 
             Event.BackButtonClicked -> {
+                clearState()
                 onOutput(Output.BackButtonClicked)
             }
 
             Event.SaveChanges -> {
 
             }
+
+            is Event.OnLoginChanged -> {
+                state.update {
+                    it.copy(
+                        login = event.login
+                    )
+                }
+            }
+
+            is Event.OnPasswordChanged -> {
+                state.update {
+                    it.copy(
+                        password = event.password
+                    )
+                }
+            }
+        }
+    }
+
+    private fun clearState() {
+        state.update {
+            State()
         }
     }
 

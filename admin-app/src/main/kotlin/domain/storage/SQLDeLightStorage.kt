@@ -16,8 +16,8 @@ class SQLDeLightStorage(
     suspend fun getSessions(userId: Long) = getSessionsWithUserIdUseCase.execute(userId = userId)
 
     @Throws(Exception::class)
-    suspend fun insert(user: User, login: String, password: String) =
-        insertNewUserUseCase.execute(user = user, login = login, password = password)
+    suspend fun insert(user: User) =
+        insertNewUserUseCase.execute(user = user)
 
     suspend fun isPasswordUnique(password: String): Boolean = isPasswordUniqueUseCase.execute(password = password)
 

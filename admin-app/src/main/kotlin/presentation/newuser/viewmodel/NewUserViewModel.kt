@@ -85,17 +85,15 @@ class NewUserViewModel(
                         name = state.value.name,
                         surname = state.value.surname,
                         patronymic = state.value.patronymic,
-                        gender = state.value.gender
+                        gender = state.value.gender,
+                        login = state.value.login,
+                        password = state.value.password
                     )
                     viewModelScope.launch(coroutineContextIO) {
                         val isPasswordUnique = sqlDeLightStorage.isPasswordUnique(state.value.password)
                         if (isPasswordUnique) {
                             try {
-                                sqlDeLightStorage.insert(
-                                    user = newUser,
-                                    login = state.value.login,
-                                    password = state.value.password
-                                )
+                                sqlDeLightStorage.insert(user = newUser)
 
                                 state.update {
                                     it.copy(appEither = AppEither.Success("Пользователь добавлен"))

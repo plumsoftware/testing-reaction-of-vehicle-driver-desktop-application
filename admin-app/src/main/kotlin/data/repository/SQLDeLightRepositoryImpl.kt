@@ -3,7 +3,6 @@ package data.repository
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import data.Constants
-import domain.model.dto.database.SessionDTO
 import domain.model.regular.user.User
 import domain.repository.SQLDeLightRepository
 import ru.plumsoftware.Database
@@ -59,7 +58,7 @@ class SQLDeLightRepositoryImpl(private val networkDrive: String) : SQLDeLightRep
     }
 
     @Throws(Exception::class)
-    override suspend fun insertNewUser(user: User, login: String, password: String) {
+    override suspend fun insertNewUser(user: User) {
         if (networkDrive.isNotEmpty()) {
             val database = Database(driver = getDriver(networkDrive))
             with(user) {

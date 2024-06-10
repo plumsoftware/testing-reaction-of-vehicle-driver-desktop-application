@@ -8,18 +8,20 @@ data class User(
     var age: Int,
     var gender: Gender,
     var drivingLicenseCategory: DrivingLicenseCategory,
-    var experience: Int
+    var experience: Int,
+    var login: String,
+    var password: String,
 ) {
 
-    constructor(id: Long, name: String, surname: String, patronymic: String, gender: Gender) :
-            this(id, name, surname, patronymic, 0, gender, DrivingLicenseCategory.Empty, 0)
+    constructor(id: Long, name: String, surname: String, patronymic: String, gender: Gender, login: String, password: String) :
+            this(id, name, surname, patronymic, 0, gender, DrivingLicenseCategory.Empty, 0, login, password)
 
 
-    constructor(name: String, surname: String, patronymic: String, gender: Gender) :
-            this(0L, name, surname, patronymic, 0, gender, DrivingLicenseCategory.Empty, 0)
+    constructor(name: String, surname: String, patronymic: String, gender: Gender, login: String, password: String) :
+            this(0L, name, surname, patronymic, 0, gender, DrivingLicenseCategory.Empty, 0, login, password)
 
     companion object {
-        fun empty () = User(
+        fun empty() = User(
             id = -1L,
             name = "",
             surname = "",
@@ -27,7 +29,9 @@ data class User(
             age = 0,
             gender = Gender.MALE,
             drivingLicenseCategory = DrivingLicenseCategory.NoDrivingLicense,
-            experience = 0
+            experience = 0,
+            login = "",
+            password = ""
         )
     }
 }
