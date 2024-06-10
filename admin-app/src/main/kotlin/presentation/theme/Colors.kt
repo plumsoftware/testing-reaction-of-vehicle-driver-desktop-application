@@ -1,6 +1,8 @@
 package presentation.theme
 
 import androidx.compose.material3.ColorScheme
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
 val md_theme_light_primary = Color(0xFF5455A9)
@@ -76,6 +78,25 @@ val dark_test = Color(0xFFFFB953)
 val dark_ontest = Color(0xFF452B00)
 val dark_testContainer = Color(0xFF633F00)
 val dark_ontestContainer = Color(0xFFFFDDB4)
+
+val md_theme_light_success = Color(0xFFCDEDA3)
+val md_theme_light_onSuccess = Color(0xFF102000)
+val md_theme_dark_success = Color(0xFF354E16)
+val md_theme_dark_onSuccess = Color(0xFFCDEDA3)
+
+@Immutable
+data class ExtendedColors(
+    val successContainer: Color,
+    val onSuccessContainer: Color
+)
+
+val LocalExtendedColors = staticCompositionLocalOf {
+    ExtendedColors(
+        successContainer = Color.Unspecified,
+        onSuccessContainer = Color.Unspecified
+    )
+}
+
 
 internal val lightColors = ColorScheme(
     primary = md_theme_light_primary,

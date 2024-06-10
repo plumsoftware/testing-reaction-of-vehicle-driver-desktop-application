@@ -1,10 +1,11 @@
 package presentation.newuser.viewmodel
 
+import domain.model.either.AppEither
 import domain.model.regular.user.Gender
 import domain.model.regular.user.User
 import domain.storage.SQLDeLightStorage
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
@@ -95,8 +96,22 @@ class NewUserViewModel(
                                     login = state.value.login,
                                     password = state.value.password
                                 )
+
+                                state.update {
+                                    it.copy(appEither = AppEither.Success("Пользователь добавлен"))
+                                }
+                                delay(5000)
+                                state.update {
+                                    it.copy(appEither = AppEither.Handle)
+                                }
                             } catch (e: Exception) {
-                                TODO("Show error on UI")
+                                state.update {
+                                    it.copy(appEither = AppEither.Exception(e))
+                                }
+                            }
+                        } else {
+                            state.update {
+                                it.copy(appEither = AppEither.Exception("Такой пароль уже существует"))
                             }
                         }
                     }

@@ -1,5 +1,6 @@
 package presentation.newuser.store
 
+import domain.model.either.AppEither
 import domain.model.regular.user.Gender
 
 data class State(
@@ -15,4 +16,6 @@ data class State(
     val isGenderError: Boolean = false,
     val isLoginError: Boolean = false,
     val isPasswordError: Boolean = false,
+
+    val appEither: AppEither = AppEither.Handle
 )
