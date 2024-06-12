@@ -103,6 +103,11 @@ fun AboutUserPage(onEvent: (Event) -> Unit, aboutUserViewModel: AboutUserViewMod
                         }
                     }
                 }
+
+                item {
+                    Spacer(modifier = Modifier.padding(ExtensionPadding.smallVerPadding))
+                }
+
                 item {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -166,6 +171,9 @@ fun AboutUserPage(onEvent: (Event) -> Unit, aboutUserViewModel: AboutUserViewMod
                             }
                         }
                     }
+                }
+                item {
+                    Spacer(modifier = Modifier.padding(ExtensionPadding.smallVerPadding))
                 }
                 item {
                     Column(

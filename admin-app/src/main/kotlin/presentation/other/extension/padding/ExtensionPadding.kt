@@ -15,7 +15,7 @@ object ExtensionPadding {
     private val smallHorPadding = 16.dp
     private val extraSmallHorPadding = 10.dp
     private val mediumVerPadding = 18.dp
-    private val smallVerPadding = 14.dp
+    val smallVerPadding = 14.dp
 
     val scaffoldTopPadding = 80.dp
 
