@@ -61,5 +61,15 @@ val typography = Typography(
         fontFamily = fontFamily,
         fontSize = 14.sp,
         fontWeight = FontWeight.Thin
-    )
+    ),
+    titleMedium = TextStyle(
+        fontFamily = fontFamily,
+        fontSize = 14.sp,
+        fontWeight = FontWeight.Black
+    ),
+    titleSmall = TextStyle(
+        fontFamily = fontFamily,
+        fontSize = 12.sp,
+        fontWeight = FontWeight.Black
+    ),
 )

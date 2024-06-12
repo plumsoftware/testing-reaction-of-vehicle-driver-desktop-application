@@ -13,10 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import domain.model.regular.user.User
-import domain.model.regular.userstatistic.LineChartItem
-import presentation.aboutuser.components.LineChart
+import presentation.aboutuser.components.LinearChart
 import presentation.aboutuser.components.SessionCard
 import presentation.aboutuser.store.Event
 import presentation.aboutuser.viewmodel.AboutUserViewModel
@@ -25,7 +23,7 @@ import presentation.other.components.AuthTextField
 import presentation.other.components.BackButton
 import presentation.other.components.DefaultButton
 import presentation.other.extension.padding.ExtensionPadding
-import java.util.Calendar
+import utils.toLineChartData
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -165,25 +163,8 @@ fun AboutUserPage(onEvent: (Event) -> Unit, aboutUserViewModel: AboutUserViewMod
                             modifier = Modifier.fillMaxWidth().wrapContentHeight()
                                 .padding(ExtensionPadding.mediumAsymmetricalContentPadding)
                         ) {
-                            LineChart(
-                                data = state.value.sessions
-                                    .takeLast(30)
-                                    .map {
-                                        val cal = Calendar.getInstance()
-                                        cal.set(Calendar.YEAR, it.testYear)
-                                        cal.set(Calendar.MONTH, it.testMonth)
-                                        cal.set(Calendar.DAY_OF_MONTH, it.testDay)
-                                        cal.set(Calendar.HOUR_OF_DAY, it.testHourOfDay24h)
-                                        cal.set(Calendar.MINUTE, it.testMinuteOfHour)
-
-                                        LineChartItem(
-                                            valueX = cal.timeInMillis,
-                                            valueY = it.averageValue
-                                        )
-                                    },
-                                modifier = Modifier
-                                    .height(500.dp)
-                                    .width(750.dp)
+                            LinearChart(
+                                list = state.value.sessions.take(30).toLineChartData()
                             )
                         }
                     }

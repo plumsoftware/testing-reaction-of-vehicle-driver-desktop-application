@@ -17,7 +17,7 @@ class GetSessionsWithUserIdUseCase(private val sqlDeLightRepository: SQLDeLightR
                 testDay = it.test_day.toInt(),
                 testHourOfDay24h = it.test_hour_of_day_24h.toInt(),
                 testMinuteOfHour = it.test_minute_of_hour.toInt(),
-                averageValue = it.average_value,
+                averageValue = kotlin.math.ceil(it.average_value * 10) / 10,
                 standardDeviation = it.standard_deviation,
                 count = it.count.toInt(),
                 errors = it.errors.toInt(),

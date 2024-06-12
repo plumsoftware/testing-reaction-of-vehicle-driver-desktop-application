@@ -34,8 +34,8 @@ fun ExtendedTheme(
     val extendedColors = ExtendedColors(
         successContainer = if (useDarkTheme) md_theme_dark_success else md_theme_light_success,
         onSuccessContainer = if (useDarkTheme) md_theme_dark_onSuccess else md_theme_light_onSuccess,
-        lineChartColor = if (useDarkTheme) md_theme_dark_line_chart_color else md_theme_light_line_chart_color,
-        pointChartColor = if (useDarkTheme) md_theme_dark_point_chart_color else md_theme_light_point_chart_color,
+        lineChartColor1 = if (useDarkTheme) md_theme_dark_line_color_1 else md_theme_light_line_color_1,
+        lineChartGripColor = if (useDarkTheme) md_theme_dark_grid_color else md_theme_light_grid_color,
         lineChartAxisColor = if (useDarkTheme) md_theme_dark_axis_line_chart_color else md_theme_light_axis_line_chart_color
     )
     CompositionLocalProvider(LocalExtendedColors provides extendedColors) {

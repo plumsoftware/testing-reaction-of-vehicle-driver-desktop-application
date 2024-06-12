@@ -94,13 +94,21 @@ val md_theme_dark_point_chart_color = Color(250, 114, 2)
 val md_theme_light_axis_line_chart_color = md_theme_light_onBackground.copy(alpha = 0.5f)
 val md_theme_dark_axis_line_chart_color = md_theme_dark_onBackground.copy(alpha = 0.5f)
 
+//region::Charts
+val md_theme_light_line_color_1 = Color(0xFF865319)
+val md_theme_dark_line_color_1 = Color(0xFFfdb876)
+
+val md_theme_light_grid_color = Color(0xFF837469)
+val md_theme_dark_grid_color = Color(0xFF9e8e81)
+//endregion
+
 @Immutable
 data class ExtendedColors(
     val successContainer: Color,
     val onSuccessContainer: Color,
 
-    val lineChartColor: Color,
-    val pointChartColor: Color,
+    val lineChartColor1: Color,
+    val lineChartGripColor: Color,
 
     val lineChartAxisColor: Color
 )
@@ -109,8 +117,8 @@ val LocalExtendedColors = staticCompositionLocalOf {
     ExtendedColors(
         successContainer = Color.Unspecified,
         onSuccessContainer = Color.Unspecified,
-        lineChartColor = Color.Unspecified,
-        pointChartColor = Color.Unspecified,
+        lineChartColor1 = Color.Unspecified,
+        lineChartGripColor = Color.Unspecified,
         lineChartAxisColor = Color.Unspecified
     )
 }

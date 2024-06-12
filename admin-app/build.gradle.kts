@@ -49,6 +49,7 @@ dependencies {
     val material3 = "1.2.1"
     val precompose_version = "1.6.0"
     val kotlinx_serialization_json = "1.6.0"
+    val aay_chart_version = "Beta-0.0.5"
 
     implementation(compose.desktop.currentOs)
 
@@ -74,6 +75,9 @@ dependencies {
 
 //    Database
     implementation("app.cash.sqldelight:sqlite-driver:$sqlLightVersion")
+
+//    Charts
+    implementation("io.github.thechance101:chart:$aay_chart_version")
 }
 
 compose.desktop {
