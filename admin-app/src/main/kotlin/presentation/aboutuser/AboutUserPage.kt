@@ -22,7 +22,6 @@ import presentation.aboutuser.components.LinearChart
 import presentation.aboutuser.components.SessionCard
 import presentation.aboutuser.store.Event
 import presentation.aboutuser.viewmodel.AboutUserViewModel
-import presentation.aboutuser.viewmodel.getname
 import presentation.other.components.AuthTextField
 import presentation.other.components.BackButton
 import presentation.other.components.DefaultButton
@@ -44,9 +43,26 @@ fun AboutUserPage(onEvent: (Event) -> Unit, aboutUserViewModel: AboutUserViewMod
             )
         },
         floatingActionButton = {
-            DefaultButton(
-                onClick = { onEvent(Event.SaveChanges) },
-                content = { Text(text = "Сохранить изменения", style = MaterialTheme.typography.headlineMedium) })
+            Column(
+                modifier = Modifier
+                    .wrapContentSize(),
+                verticalArrangement = ExtensionPadding.smallVerticalArrangementTop,
+                horizontalAlignment = Alignment.Start
+            ) {
+                DefaultButton(
+                    onClick = { onEvent(Event.SaveChanges) },
+                    content = { Text(text = "Сохранить изменения", style = MaterialTheme.typography.bodyMedium) }
+                )
+
+                DefaultButton(
+                    onClick = { onEvent(Event.DeleteUser) },
+                    content = { Text(text = "Удалить пользователя", style = MaterialTheme.typography.bodyMedium) },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer,
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer
+                    )
+                )
+            }
         },
         modifier = Modifier.fillMaxSize()
     ) { scaffoldContentPadding ->
@@ -70,17 +86,45 @@ fun AboutUserPage(onEvent: (Event) -> Unit, aboutUserViewModel: AboutUserViewMod
                             verticalArrangement = ExtensionPadding.smallVerticalArrangementTop,
                             horizontalAlignment = Alignment.Start
                         ) {
-                            Text(
-                                text = getname(
-                                    name = state.value.user.name,
-                                    surname = state.value.user.surname,
-                                    patronymic = state.value.user.patronymic
-                                ),
-                                style = MaterialTheme.typography.headlineLarge,
-                                modifier = Modifier.fillMaxWidth().wrapContentHeight(),
-                                textAlign = TextAlign.Start,
-                                fontWeight = FontWeight.Black
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = ExtensionPadding.mediumHorizontalArrangement,
+                                modifier = Modifier.fillMaxWidth().wrapContentHeight()
+                            ) {
+                                TextField(
+                                    value = state.value.user.name,
+                                    onValueChange = {
+                                        onEvent(Event.OnNameChanged(name = it))
+                                    },
+                                    modifier = Modifier.wrapContentSize(),
+                                    textStyle = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Black),
+                                    colors = TextFieldDefaults.textFieldColors(
+                                        containerColor = Color.Transparent
+                                    )
+                                )
+                                TextField(
+                                    value = state.value.user.surname,
+                                    onValueChange = {
+                                        onEvent(Event.OnSurnameChanged(surname = it))
+                                    },
+                                    modifier = Modifier.wrapContentSize(),
+                                    textStyle = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Black),
+                                    colors = TextFieldDefaults.textFieldColors(
+                                        containerColor = Color.Transparent
+                                    )
+                                )
+                                TextField(
+                                    value = state.value.user.patronymic,
+                                    onValueChange = {
+                                        onEvent(Event.OnPatronymicChanged(patronymic = it))
+                                    },
+                                    modifier = Modifier.wrapContentSize(),
+                                    textStyle = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Black),
+                                    colors = TextFieldDefaults.textFieldColors(
+                                        containerColor = Color.Transparent
+                                    )
+                                )
+                            }
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = ExtensionPadding.mediumHorizontalArrangementCenter,
@@ -126,7 +170,7 @@ fun AboutUserPage(onEvent: (Event) -> Unit, aboutUserViewModel: AboutUserViewMod
                                 fontWeight = FontWeight.Bold
                             )
                             OutlinedTextField(
-                                textStyle = MaterialTheme.typography.bodyMedium,
+                                textStyle = MaterialTheme.typography.bodySmall,
                                 shape = MaterialTheme.shapes.medium,
                                 maxLines = 1,
                                 colors = TextFieldDefaults.outlinedTextFieldColors(

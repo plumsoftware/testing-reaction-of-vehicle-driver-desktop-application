@@ -82,6 +82,23 @@ class AboutUserViewModel(
             Event.FilterSessions -> filterSessionsDTO()
 
             Event.DeleteUser -> viewModelScope.launch(coroutineContextIO) { deleteUser() }
+            is Event.OnNameChanged -> {
+                state.update {
+                    it.copy(user = state.value.user.copy(name = event.name))
+                }
+            }
+
+            is Event.OnPatronymicChanged -> {
+                state.update {
+                    it.copy(user = state.value.user.copy(patronymic = event.patronymic))
+                }
+            }
+
+            is Event.OnSurnameChanged -> {
+                state.update {
+                    it.copy(user = state.value.user.copy(surname = event.surname))
+                }
+            }
         }
     }
 
@@ -92,21 +109,51 @@ class AboutUserViewModel(
     }
 
     private suspend fun updateUser() {
-        if (state.value.login.isNotEmpty() && state.value.password.isNotEmpty()) {
+        if (state.value.login.isNotEmpty() && state.value.password.isNotEmpty() && state.value.user.name.isNotEmpty() && state.value.user.surname.isNotEmpty()) {
             state.update {
                 it.copy(
                     isLoginError = false,
-                    isPasswordError = false
+                    isPasswordError = false,
+                    isNameError = false,
+                    isSurnameError = false
                 )
             }
             try {
-                val isPasswordUnique = sqlDeLightStorage.isPasswordUnique(state.value.password)
-                if (isPasswordUnique) {
+                if (state.value.user.password != state.value.password) {
+//                    region::Password change
+                    val isPasswordUnique = sqlDeLightStorage.isPasswordUnique(state.value.password)
+                    if (isPasswordUnique) {
+                        val updatedUser: User = state.updateAndGet {
+                            it.copy(
+                                user = state.value.user.copy(
+                                    login = state.value.login,
+                                    password = state.value.password
+                                )
+                            )
+                        }.user
+                        sqlDeLightStorage.update(user = updatedUser)
+
+                        state.update {
+                            it.copy(appEither = AppEither.Success("Данные пользователя обновлены"))
+                        }
+                        delay(5000)
+                        state.update {
+                            it.copy(appEither = AppEither.Handle)
+                        }
+//                        endregion
+                    } else {
+                        state.update {
+                            it.copy(
+                                appEither = AppEither.Exception("Такой пароль уже существует"),
+                                isPasswordError = true
+                            )
+                        }
+                    }
+                } else {
                     val updatedUser: User = state.updateAndGet {
                         it.copy(
                             user = state.value.user.copy(
                                 login = state.value.login,
-                                password = state.value.password
                             )
                         )
                     }.user
@@ -118,13 +165,6 @@ class AboutUserViewModel(
                     delay(5000)
                     state.update {
                         it.copy(appEither = AppEither.Handle)
-                    }
-                } else {
-                    state.update {
-                        it.copy(
-                            appEither = AppEither.Exception("Такой пароль уже существует"),
-                            isPasswordError = true
-                        )
                     }
                 }
             } catch (e: Exception) {
@@ -150,6 +190,12 @@ class AboutUserViewModel(
             state.update {
                 it.copy(appEither = AppEither.Success("Пользователь удалён"))
             }
+            delay(2000)
+            state.update {
+                it.copy(appEither = AppEither.Handle)
+            }
+            clearState()
+            onOutput(Output.BackButtonClicked)
         } catch (e: Exception) {
             state.update {
                 it.copy(appEither = AppEither.Exception("Ошибка: ${e.message}\nВызвана: ${e.cause.toString()}"))

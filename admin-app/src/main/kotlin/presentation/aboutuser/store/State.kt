@@ -16,6 +16,8 @@ data class State(
     val isPasswordError: Boolean = false,
     val isLoginError: Boolean = false,
     val isFilterError: Boolean = false,
+    val isNameError: Boolean = false,
+    val isSurnameError: Boolean = false,
 
     val testNumberFilter: String = "",
 
