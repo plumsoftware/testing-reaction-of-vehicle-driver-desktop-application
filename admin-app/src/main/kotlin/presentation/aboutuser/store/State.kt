@@ -8,6 +8,7 @@ data class State(
     val user: User = User.empty(),
     val sessions: List<SessionDTO> = emptyList(),
     val filteredSessionsList: List<SessionDTO> = emptyList(),
+    val selectedChipList: MutableList<Boolean> = mutableListOf(true, false, false, false),
 
     val login: String = "",
     val password: String = "",

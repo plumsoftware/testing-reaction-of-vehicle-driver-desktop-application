@@ -80,7 +80,7 @@ val dark_testContainer = Color(0xFF633F00)
 val dark_ontestContainer = Color(0xFFFFDDB4)
 
 val md_theme_light_success = Color(0xFFCDEDA3)
-val md_theme_light_onSuccess = Color(0xFF102000)
+val md_theme_light_onSuccess = Color(0xFF5aad07)
 
 val md_theme_dark_success = Color(0xFF354E16)
 val md_theme_dark_onSuccess = Color(0xFFCDEDA3)
@@ -95,8 +95,11 @@ val md_theme_light_axis_line_chart_color = md_theme_light_onBackground.copy(alph
 val md_theme_dark_axis_line_chart_color = md_theme_dark_onBackground.copy(alpha = 0.5f)
 
 //region::Charts
-val md_theme_light_line_color_1 = Color(0xFF865319)
+val md_theme_light_line_color_1 = Color(0xFFed9632)
 val md_theme_dark_line_color_1 = Color(0xFFfdb876)
+
+val md_theme_light_line_color_2 = Color(0xFF732fc2)
+val md_theme_dark_line_color_2 = Color(0xFFaa78e3)
 
 val md_theme_light_grid_color = Color(0xFF837469)
 val md_theme_dark_grid_color = Color(0xFF9e8e81)
@@ -108,6 +111,7 @@ data class ExtendedColors(
     val onSuccessContainer: Color,
 
     val lineChartColor1: Color,
+    val lineChartColor2: Color,
     val lineChartGripColor: Color,
 
     val lineChartAxisColor: Color
@@ -118,6 +122,7 @@ val LocalExtendedColors = staticCompositionLocalOf {
         successContainer = Color.Unspecified,
         onSuccessContainer = Color.Unspecified,
         lineChartColor1 = Color.Unspecified,
+        lineChartColor2 = Color.Unspecified,
         lineChartGripColor = Color.Unspecified,
         lineChartAxisColor = Color.Unspecified
     )

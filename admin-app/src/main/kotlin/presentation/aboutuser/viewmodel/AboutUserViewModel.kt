@@ -35,7 +35,6 @@ class AboutUserViewModel(
                     val sessions: List<SessionDTO> = sqlDeLightStorage.getSessions(userId = event.userId)
                     val user = sqlDeLightStorage.getAllUsers().find { it.id == event.userId }
                         ?: User.empty()
-
                     state.update {
                         it.copy(
                             user = user,
@@ -97,6 +96,19 @@ class AboutUserViewModel(
             is Event.OnSurnameChanged -> {
                 state.update {
                     it.copy(user = state.value.user.copy(surname = event.surname))
+                }
+            }
+
+            is Event.OnFilterChipClick -> {
+                val list = state.value.selectedChipList
+                list.set(index = event.index, element = event.selected)
+
+                println("===${list}===")
+
+                state.update {
+                    it.copy(
+                        selectedChipList = list
+                    )
                 }
             }
         }

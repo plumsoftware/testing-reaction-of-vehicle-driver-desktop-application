@@ -9,6 +9,8 @@ sealed class Event {
     data class OnSurnameChanged(val surname: String) : Event()
     data class OnPatronymicChanged(val patronymic: String) : Event()
 
+    data class OnFilterChipClick(val index: Int, val selected: Boolean) : Event()
+
     data object BackButtonClicked : Event()
 
     data object SaveChanges : Event()

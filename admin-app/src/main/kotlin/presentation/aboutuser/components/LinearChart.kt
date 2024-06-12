@@ -1,7 +1,7 @@
 package presentation.aboutuser.components
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -12,30 +12,59 @@ import com.aay.compose.baseComponents.model.LegendPosition
 import com.aay.compose.lineChart.LineChart
 import com.aay.compose.lineChart.model.LineParameters
 import com.aay.compose.lineChart.model.LineType
-import domain.model.regular.userstatistic.LineChartItem
+import domain.model.dto.database.SessionDTO
 import presentation.theme.ExtendedTheme
-import utils.toSemiDate
-import utils.x
-import utils.y
+import utils.*
 
 @Composable
-fun LinearChart(list: List<LineChartItem>) {
-    val testLineParameters: List<LineParameters> = listOf(
+fun LinearChart(list: List<SessionDTO>, acceptedLineParams: List<Boolean>) {
+
+    val lineParameters: MutableList<LineParameters> = mutableListOf(
         LineParameters(
             label = "Среднее значение",
-            data = list.y(),
+            data = list.toLineChartData().y(),
             lineColor = ExtendedTheme.colors.lineChartColor1,
+            lineType = LineType.DEFAULT_LINE,
+            lineShadow = false,
+        ),
+        LineParameters(
+            label = "Стандартное отклонение",
+            data = list.toLineChartData1().y(),
+            lineColor = ExtendedTheme.colors.lineChartColor2,
+            lineType = LineType.DEFAULT_LINE,
+            lineShadow = false,
+        ),
+        LineParameters(
+            label = "Количество ошибок",
+            data = list.toLineChartData2().y(),
+            lineColor = MaterialTheme.colorScheme.error,
+            lineType = LineType.DEFAULT_LINE,
+            lineShadow = false,
+        ),
+        LineParameters(
+            label = "Количество попыток",
+            data = list.toLineChartData3().y(),
+            lineColor = ExtendedTheme.colors.onSuccessContainer,
             lineType = LineType.DEFAULT_LINE,
             lineShadow = false,
         )
     )
-    Box(modifier = Modifier.size(width = 400.dp, height = 550.dp)) {
+
+    val lineParametersToShow = mutableListOf<LineParameters>()
+
+    acceptedLineParams.forEachIndexed { index, item ->
+        if (item) {
+            lineParametersToShow.add(lineParameters[index])
+        }
+    }
+
+    Box(modifier = Modifier.size(width = 600.dp, height = 550.dp)) {
         LineChart(
-            modifier = Modifier.fillMaxSize(),
-            linesParameters = testLineParameters,
+            modifier = Modifier.fillMaxWidth(),
+            linesParameters = lineParametersToShow,
             isGrid = true,
             gridColor = ExtendedTheme.colors.lineChartGripColor,
-            xAxisData = list.x().toSemiDate(),
+            xAxisData = list.toLineChartData().x().toSemiDate(),
             animateChart = true,
             showGridWithSpacer = true,
             yAxisStyle = MaterialTheme.typography.titleSmall.copy(color = MaterialTheme.colorScheme.onBackground),
@@ -48,6 +77,6 @@ fun LinearChart(list: List<LineChartItem>) {
             legendPosition = LegendPosition.BOTTOM,
             descriptionStyle = MaterialTheme.typography.titleMedium.copy(color = MaterialTheme.colorScheme.onBackground),
 
-        )
+            )
     }
 }

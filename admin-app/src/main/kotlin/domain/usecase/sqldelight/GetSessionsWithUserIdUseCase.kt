@@ -25,7 +25,7 @@ class GetSessionsWithUserIdUseCase(private val sqlDeLightRepository: SQLDeLightR
                 drivingLicenseCategory = DrivingLicenseCategory.fromString(it.driving_license_category),
                 signalInterval = Interval.fromString(it.signal_interval)
             )
-        }
+        }.reversed()
         return sessionsWithUserId
     }
 }

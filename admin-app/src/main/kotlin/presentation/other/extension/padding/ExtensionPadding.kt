@@ -10,7 +10,7 @@ object ExtensionPadding {
     private val mediumItemSpacing = 18.dp
     private val largeItemSpacing = 32.dp
 
-    private val largeHorPadding = 44.dp
+    val largeHorPadding = 44.dp
     private val mediumHorPadding = 22.dp
     private val smallHorPadding = 16.dp
     private val extraSmallHorPadding = 10.dp

@@ -8,14 +8,14 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import data.Constants
 import domain.model.either.AppEither
 import domain.model.regular.user.User
 import presentation.aboutuser.components.LinearChart
@@ -28,10 +28,9 @@ import presentation.other.components.DefaultButton
 import presentation.other.extension.padding.ExtensionPadding
 import presentation.other.extension.size.ConstantSize
 import presentation.theme.ExtendedTheme
-import utils.toLineChartData
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun AboutUserPage(onEvent: (Event) -> Unit, aboutUserViewModel: AboutUserViewModel) {
     val state = aboutUserViewModel.state.collectAsState()
@@ -245,7 +244,8 @@ fun AboutUserPage(onEvent: (Event) -> Unit, aboutUserViewModel: AboutUserViewMod
                             ) {
                                 if (state.value.sessions.isNotEmpty())
                                     LinearChart(
-                                        list = state.value.sessions.take(30).toLineChartData()
+                                        list = state.value.sessions.take(30),
+                                        acceptedLineParams = state.value.selectedChipList
                                     )
                                 else
                                     Box(
@@ -253,11 +253,36 @@ fun AboutUserPage(onEvent: (Event) -> Unit, aboutUserViewModel: AboutUserViewMod
                                     ) {
                                         Image(
                                             painter = painterResource("nothing_to_show.png"),
-                                            contentDescription = "Изображение - Ничего не найдено по запросу на фильтрацию тестов",
+                                            contentDescription = "Изображение - Ничего не найдено по запросу на статистику",
                                             modifier = Modifier.size(ConstantSize.emptySessionsListSize)
                                                 .align(Alignment.Center)
                                         )
                                     }
+
+                                FlowRow(
+                                    horizontalArrangement = ExtensionPadding.mediumHorizontalArrangement,
+                                    modifier = Modifier.fillMaxWidth().wrapContentHeight()
+                                        .padding(ExtensionPadding.mediumAsymmetricalContentPadding)
+                                        .padding(start = ExtensionPadding.largeHorPadding)
+                                ) {
+                                    state.value.selectedChipList.forEachIndexed { index, item ->
+                                        var selected by remember { mutableStateOf(index == 0) }
+                                        FilterChip(
+                                            selected = selected,
+                                            onClick = {
+                                                selected = !selected
+                                                onEvent(Event.OnFilterChipClick(index = index, selected = selected))
+                                            },
+                                            label = {
+                                                Text(
+                                                    text = Constants.UI.lineChartParams[index],
+                                                    style = MaterialTheme.typography.bodyMedium
+                                                )
+                                            },
+                                            shape = MaterialTheme.shapes.medium
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
