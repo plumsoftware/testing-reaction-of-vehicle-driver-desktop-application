@@ -243,9 +243,21 @@ fun AboutUserPage(onEvent: (Event) -> Unit, aboutUserViewModel: AboutUserViewMod
                                 modifier = Modifier.fillMaxWidth().wrapContentHeight()
                                     .padding(ExtensionPadding.mediumAsymmetricalContentPadding)
                             ) {
-                                LinearChart(
-                                    list = state.value.sessions.take(30).toLineChartData()
-                                )
+                                if (state.value.sessions.isNotEmpty())
+                                    LinearChart(
+                                        list = state.value.sessions.take(30).toLineChartData()
+                                    )
+                                else
+                                    Box(
+                                        modifier = Modifier.fillMaxWidth().height(ConstantSize.emptySessionsListHeight)
+                                    ) {
+                                        Image(
+                                            painter = painterResource("nothing_to_show.png"),
+                                            contentDescription = "Изображение - Ничего не найдено по запросу на фильтрацию тестов",
+                                            modifier = Modifier.size(ConstantSize.emptySessionsListSize)
+                                                .align(Alignment.Center)
+                                        )
+                                    }
                             }
                         }
                     }
