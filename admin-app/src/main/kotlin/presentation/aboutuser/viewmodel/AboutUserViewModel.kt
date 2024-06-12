@@ -53,60 +53,7 @@ class AboutUserViewModel(
                 onOutput(Output.BackButtonClicked)
             }
 
-            Event.SaveChanges -> {
-                viewModelScope.launch(coroutineContextIO) {
-                    if (state.value.login.isNotEmpty() && state.value.password.isNotEmpty()) {
-                        state.update {
-                            it.copy(
-                                isLoginError = false,
-                                isPasswordError = false
-                            )
-                        }
-                        try {
-                            val isPasswordUnique = sqlDeLightStorage.isPasswordUnique(state.value.password)
-                            if (isPasswordUnique) {
-                                val updatedUser: User = state.updateAndGet {
-                                    it.copy(
-                                        user = state.value.user.copy(
-                                            login = state.value.login,
-                                            password = state.value.password
-                                        )
-                                    )
-                                }.user
-                                sqlDeLightStorage.update(user = updatedUser)
-
-                                state.update {
-                                    it.copy(appEither = AppEither.Success("Данные пользователя обновлены"))
-                                }
-                                delay(5000)
-                                state.update {
-                                    it.copy(appEither = AppEither.Handle)
-                                }
-                            } else {
-                                state.update {
-                                    it.copy(
-                                        appEither = AppEither.Exception("Такой пароль уже существует"),
-                                        isPasswordError = true
-                                    )
-                                }
-                            }
-                        } catch (e: Exception) {
-                            state.update {
-                                it.copy(
-                                    appEither = AppEither.Exception("Ошибка: ${e.message}\nВызвана: ${e.cause.toString()}")
-                                )
-                            }
-                        }
-                    } else {
-                        state.update {
-                            it.copy(
-                                isLoginError = state.value.login.isEmpty(),
-                                isPasswordError = state.value.password.isEmpty()
-                            )
-                        }
-                    }
-                }
-            }
+            Event.SaveChanges -> viewModelScope.launch(coroutineContextIO) { updateUser() }
 
             is Event.OnLoginChanged -> {
                 state.update {
@@ -132,37 +79,9 @@ class AboutUserViewModel(
                 }
             }
 
-            Event.FilterSessions -> {
-                if (state.value.testNumberFilter.isNotEmpty())
-                    try {
-                        val filter = state.value.testNumberFilter.toLong()
+            Event.FilterSessions -> filterSessionsDTO()
 
-                        if (filter > 0) {
-                            val filteredSessionsDTOList = state.value.sessions.filter { it.testId == filter }
-                            if (filteredSessionsDTOList.isNotEmpty())
-                                state.update {
-                                    it.copy(filteredSessionsList = filteredSessionsDTOList, isFilterError = false)
-                                }
-                            else {
-                                state.update {
-                                    it.copy(filteredSessionsList = emptyList(), isFilterError = false)
-                                }
-                            }
-                        } else {
-                            state.update {
-                                it.copy(filteredSessionsList = state.value.sessions, isFilterError = false)
-                            }
-                        }
-                    } catch (e: Exception) {
-                        state.update {
-                            it.copy(isFilterError = true)
-                        }
-                    }
-                else
-                    state.update {
-                        it.copy(filteredSessionsList = state.value.sessions, isFilterError = false)
-                    }
-            }
+            Event.DeleteUser -> viewModelScope.launch(coroutineContextIO) { deleteUser() }
         }
     }
 
@@ -170,6 +89,104 @@ class AboutUserViewModel(
         state.update {
             State()
         }
+    }
+
+    private suspend fun updateUser() {
+        if (state.value.login.isNotEmpty() && state.value.password.isNotEmpty()) {
+            state.update {
+                it.copy(
+                    isLoginError = false,
+                    isPasswordError = false
+                )
+            }
+            try {
+                val isPasswordUnique = sqlDeLightStorage.isPasswordUnique(state.value.password)
+                if (isPasswordUnique) {
+                    val updatedUser: User = state.updateAndGet {
+                        it.copy(
+                            user = state.value.user.copy(
+                                login = state.value.login,
+                                password = state.value.password
+                            )
+                        )
+                    }.user
+                    sqlDeLightStorage.update(user = updatedUser)
+
+                    state.update {
+                        it.copy(appEither = AppEither.Success("Данные пользователя обновлены"))
+                    }
+                    delay(5000)
+                    state.update {
+                        it.copy(appEither = AppEither.Handle)
+                    }
+                } else {
+                    state.update {
+                        it.copy(
+                            appEither = AppEither.Exception("Такой пароль уже существует"),
+                            isPasswordError = true
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                state.update {
+                    it.copy(
+                        appEither = AppEither.Exception("Ошибка: ${e.message}\nВызвана: ${e.cause.toString()}")
+                    )
+                }
+            }
+        } else {
+            state.update {
+                it.copy(
+                    isLoginError = state.value.login.isEmpty(),
+                    isPasswordError = state.value.password.isEmpty()
+                )
+            }
+        }
+    }
+
+    private suspend fun deleteUser() {
+        try {
+            sqlDeLightStorage.delete(userId = state.value.user.id)
+            state.update {
+                it.copy(appEither = AppEither.Success("Пользователь удалён"))
+            }
+        } catch (e: Exception) {
+            state.update {
+                it.copy(appEither = AppEither.Exception("Ошибка: ${e.message}\nВызвана: ${e.cause.toString()}"))
+            }
+        }
+    }
+
+    private fun filterSessionsDTO() {
+        if (state.value.testNumberFilter.isNotEmpty())
+            try {
+                val filter = state.value.testNumberFilter.toLong()
+
+                if (filter > 0) {
+                    val filteredSessionsDTOList = state.value.sessions.filter { it.testId == filter }
+                    if (filteredSessionsDTOList.isNotEmpty())
+                        state.update {
+                            it.copy(filteredSessionsList = filteredSessionsDTOList, isFilterError = false)
+                        }
+                    else {
+                        state.update {
+                            it.copy(filteredSessionsList = emptyList(), isFilterError = false)
+                        }
+                    }
+                } else {
+                    state.update {
+                        it.copy(filteredSessionsList = state.value.sessions, isFilterError = false)
+                    }
+                }
+            } catch (e: Exception) {
+                state.update {
+                    it.copy(isFilterError = true)
+                }
+            }
+        else
+            state.update {
+                it.copy(filteredSessionsList = state.value.sessions, isFilterError = false)
+            }
     }
 
     private fun onOutput(o: Output) {

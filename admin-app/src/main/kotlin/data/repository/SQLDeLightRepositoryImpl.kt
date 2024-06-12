@@ -42,7 +42,7 @@ class SQLDeLightRepositoryImpl(private val networkDrive: String) : SQLDeLightRep
     override suspend fun getAllUsers(): List<Users> {
         return if (networkDrive.isNotEmpty()) {
             val database = Database(driver = getDriver(networkDrive))
-            database.sqldelight_users_schemeQueries.getAllUsers().executeAsList()
+            database.sqldelight_users_schemeQueries.getAllUsers().executeAsList().reversed()
         } else {
             emptyList()
         }

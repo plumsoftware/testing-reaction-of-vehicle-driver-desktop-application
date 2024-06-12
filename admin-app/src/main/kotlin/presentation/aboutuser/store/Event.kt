@@ -11,4 +11,5 @@ sealed class Event {
     data object SaveChanges : Event()
 
     data object FilterSessions : Event()
+    data object DeleteUser : Event()
 }
