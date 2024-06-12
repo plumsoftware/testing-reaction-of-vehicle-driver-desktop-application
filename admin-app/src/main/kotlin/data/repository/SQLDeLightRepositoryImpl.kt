@@ -85,7 +85,7 @@ class SQLDeLightRepositoryImpl(private val networkDrive: String) : SQLDeLightRep
             emptyList()
     }
 
-    override suspend fun updateUser(user: User, login: String, password: String) {
+    override suspend fun updateUser(user: User) {
         if (networkDrive.isNotEmpty()) {
             val database = Database(driver = getDriver(networkDrive))
             with(user) {

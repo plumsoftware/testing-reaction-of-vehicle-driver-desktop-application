@@ -14,7 +14,7 @@ interface SQLDeLightRepository {
 
     suspend fun getAllPasswords() : List<String>
 
-    suspend fun updateUser(user: User, login: String, password: String)
+    suspend fun updateUser(user: User)
 
     suspend fun deleteUser(id: Long)
 }

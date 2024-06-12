@@ -1,6 +1,7 @@
 package presentation.aboutuser.store
 
 import domain.model.dto.database.SessionDTO
+import domain.model.either.AppEither
 import domain.model.regular.user.User
 
 data class State(
@@ -16,5 +17,7 @@ data class State(
     val isLoginError: Boolean = false,
     val isFilterError: Boolean = false,
 
-    val testNumberFilter: String = ""
+    val testNumberFilter: String = "",
+
+    val appEither: AppEither = AppEither.Handle
 )

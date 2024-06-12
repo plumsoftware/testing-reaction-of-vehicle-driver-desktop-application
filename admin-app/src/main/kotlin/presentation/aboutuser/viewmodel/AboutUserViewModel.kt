@@ -1,10 +1,13 @@
 package presentation.aboutuser.viewmodel
 
 import domain.model.dto.database.SessionDTO
+import domain.model.either.AppEither
 import domain.model.regular.user.User
 import domain.storage.SQLDeLightStorage
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
@@ -34,7 +37,13 @@ class AboutUserViewModel(
                         ?: User.empty()
 
                     state.update {
-                        it.copy(user = user, sessions = sessions, filteredSessionsList = sessions)
+                        it.copy(
+                            user = user,
+                            sessions = sessions,
+                            filteredSessionsList = sessions,
+                            login = user.login,
+                            password = user.password
+                        )
                     }
                 }
             }
@@ -45,7 +54,58 @@ class AboutUserViewModel(
             }
 
             Event.SaveChanges -> {
+                viewModelScope.launch(coroutineContextIO) {
+                    if (state.value.login.isNotEmpty() && state.value.password.isNotEmpty()) {
+                        state.update {
+                            it.copy(
+                                isLoginError = false,
+                                isPasswordError = false
+                            )
+                        }
+                        try {
+                            val isPasswordUnique = sqlDeLightStorage.isPasswordUnique(state.value.password)
+                            if (isPasswordUnique) {
+                                val updatedUser: User = state.updateAndGet {
+                                    it.copy(
+                                        user = state.value.user.copy(
+                                            login = state.value.login,
+                                            password = state.value.password
+                                        )
+                                    )
+                                }.user
+                                sqlDeLightStorage.update(user = updatedUser)
 
+                                state.update {
+                                    it.copy(appEither = AppEither.Success("Данные пользователя обновлены"))
+                                }
+                                delay(5000)
+                                state.update {
+                                    it.copy(appEither = AppEither.Handle)
+                                }
+                            } else {
+                                state.update {
+                                    it.copy(
+                                        appEither = AppEither.Exception("Такой пароль уже существует"),
+                                        isPasswordError = true
+                                    )
+                                }
+                            }
+                        } catch (e: Exception) {
+                            state.update {
+                                it.copy(
+                                    appEither = AppEither.Exception("Ошибка: ${e.message}\nВызвана: ${e.cause.toString()}")
+                                )
+                            }
+                        }
+                    } else {
+                        state.update {
+                            it.copy(
+                                isLoginError = state.value.login.isEmpty(),
+                                isPasswordError = state.value.password.isEmpty()
+                            )
+                        }
+                    }
+                }
             }
 
             is Event.OnLoginChanged -> {

@@ -21,8 +21,8 @@ class SQLDeLightStorage(
 
     suspend fun isPasswordUnique(password: String): Boolean = isPasswordUniqueUseCase.execute(password = password)
 
-    suspend fun update(user: User, login: String, password: String) =
-        updateUserUseCase.execute(user = user, login = login, password = password)
+    suspend fun update(user: User) =
+        updateUserUseCase.execute(user = user)
 
     suspend fun delete(userId: Long) = deleteUserUseCase.execute(userId = userId)
 }
