@@ -34,7 +34,7 @@ class AboutUserViewModel(
                         ?: User.empty()
 
                     state.update {
-                        it.copy(user = user, sessions = sessions)
+                        it.copy(user = user, sessions = sessions, filteredSessionsList = sessions)
                     }
                 }
             }
@@ -62,6 +62,46 @@ class AboutUserViewModel(
                         password = event.password
                     )
                 }
+            }
+
+            is Event.OnFilterChange -> {
+                state.update {
+                    it.copy(
+                        testNumberFilter = event.filter
+                    )
+                }
+            }
+
+            Event.FilterSessions -> {
+                if (state.value.testNumberFilter.isNotEmpty())
+                    try {
+                        val filter = state.value.testNumberFilter.toLong()
+
+                        if (filter > 0) {
+                            val filteredSessionsDTOList = state.value.sessions.filter { it.testId == filter }
+                            if (filteredSessionsDTOList.isNotEmpty())
+                                state.update {
+                                    it.copy(filteredSessionsList = filteredSessionsDTOList, isFilterError = false)
+                                }
+                            else {
+                                state.update {
+                                    it.copy(filteredSessionsList = emptyList(), isFilterError = false)
+                                }
+                            }
+                        } else {
+                            state.update {
+                                it.copy(filteredSessionsList = state.value.sessions, isFilterError = false)
+                            }
+                        }
+                    } catch (e: Exception) {
+                        state.update {
+                            it.copy(isFilterError = true)
+                        }
+                    }
+                else
+                    state.update {
+                        it.copy(filteredSessionsList = state.value.sessions, isFilterError = false)
+                    }
             }
         }
     }

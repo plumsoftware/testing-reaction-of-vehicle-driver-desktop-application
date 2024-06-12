@@ -6,6 +6,7 @@ import domain.model.regular.user.User
 data class State(
     val user: User = User.empty(),
     val sessions: List<SessionDTO> = emptyList(),
+    val filteredSessionsList: List<SessionDTO> = emptyList(),
 
     val login: String = "",
     val password: String = "",
@@ -13,4 +14,7 @@ data class State(
 
     val isPasswordError: Boolean = false,
     val isLoginError: Boolean = false,
+    val isFilterError: Boolean = false,
+
+    val testNumberFilter: String = ""
 )

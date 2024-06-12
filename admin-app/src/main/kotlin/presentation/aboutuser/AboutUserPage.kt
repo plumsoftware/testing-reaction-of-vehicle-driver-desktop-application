@@ -1,5 +1,6 @@
 package presentation.aboutuser
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -11,6 +12,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import domain.model.regular.user.User
@@ -23,6 +25,7 @@ import presentation.other.components.AuthTextField
 import presentation.other.components.BackButton
 import presentation.other.components.DefaultButton
 import presentation.other.extension.padding.ExtensionPadding
+import presentation.other.extension.size.ConstantSize
 import utils.toLineChartData
 
 
@@ -120,10 +123,16 @@ fun AboutUserPage(onEvent: (Event) -> Unit, aboutUserViewModel: AboutUserViewMod
                             colors = TextFieldDefaults.outlinedTextFieldColors(
                                 containerColor = Color.Transparent,
                             ),
-                            value = "",
-                            onValueChange = {},
+                            isError = state.value.isFilterError,
+                            value = state.value.testNumberFilter,
+                            onValueChange = {
+                                onEvent(Event.OnFilterChange(it))
+                            },
                             trailingIcon = {
-                                IconButton(onClick = {}) {
+                                IconButton(
+                                    onClick = {
+                                        onEvent(Event.FilterSessions)
+                                    }) {
                                     Icon(
                                         imageVector = Icons.Rounded.Search,
                                         contentDescription = "Иконка поиска по айди теста"
@@ -141,8 +150,22 @@ fun AboutUserPage(onEvent: (Event) -> Unit, aboutUserViewModel: AboutUserViewMod
                         )
                     }
                 }
-                itemsIndexed(state.value.sessions) { _, item ->
-                    SessionCard(item)
+                with(state.value.filteredSessionsList) {
+                    if (this.isNotEmpty()) {
+                        itemsIndexed(this) { _, item ->
+                            SessionCard(item)
+                        }
+                    } else {
+                        item {
+                            Box(modifier = Modifier.fillMaxWidth().height(ConstantSize.emptySessionsListHeight)) {
+                                Image(
+                                    painter = painterResource("nothing_to_show.png"),
+                                    contentDescription = "Изображение - Ничего не найдено по запросу на фильтрацию тестов",
+                                    modifier = Modifier.size(ConstantSize.emptySessionsListSize).align(Alignment.Center)
+                                )
+                            }
+                        }
+                    }
                 }
                 item {
                     Column(
