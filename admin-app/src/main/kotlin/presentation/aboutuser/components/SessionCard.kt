@@ -8,7 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import domain.model.dto.database.SessionDTO
@@ -93,12 +93,12 @@ fun SessionCard(sessionDTO: SessionDTO) {
         Divider(
             modifier = Modifier
                 .fillMaxWidth(0.7f)
-                .height(ConstantSize.dividerStatisticHeight)
                 .background(
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
-                    shape = MaterialTheme.shapes.large
-                )
-                .alpha(alpha = 0.8f)
+                    color = Color.Transparent,
+                    shape = MaterialTheme.shapes.small
+                ),
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.12f),
+            thickness = ConstantSize.dividerStatisticHeight
         )
     }
 }
