@@ -1,13 +1,16 @@
 package presentation.aboutuser.components
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Divider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowDropDown
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -26,6 +29,13 @@ fun SessionCard(sessionDTO: SessionDTO) {
     cal.set(Calendar.DAY_OF_MONTH, sessionDTO.testDay)
     cal.set(Calendar.HOUR_OF_DAY, sessionDTO.testHourOfDay24h)
     cal.set(Calendar.MINUTE, sessionDTO.testMinuteOfHour)
+
+    var isExpanded by remember { mutableStateOf(false) }
+
+    val rotation by animateFloatAsState(
+        targetValue = if (isExpanded) 180f else 0f,
+        animationSpec = tween(durationMillis = 200)
+    )
 
     Column(
         modifier = Modifier
@@ -89,6 +99,34 @@ fun SessionCard(sessionDTO: SessionDTO) {
                 style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error),
                 textAlign = TextAlign.Start,
             )
+            IconButton(
+                onClick = {
+                    isExpanded = !isExpanded
+                }) {
+                Icon(
+                    imageVector = Icons.Rounded.ArrowDropDown,
+                    contentDescription = "Показать дополнительную информацию",
+                    modifier = Modifier.rotate(rotation)
+                )
+            }
+        }
+        if (isExpanded) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = ExtensionPadding.mediumHorizontalArrangement,
+                modifier = Modifier.wrapContentWidth().wrapContentHeight()
+            ) {
+                Text(
+                    text = "Категория водительского удостоверения ${sessionDTO.drivingLicenseCategory}.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Start,
+                )
+            }
+            Text(
+                text = "Стаж вождения на момент прохождения тестирования ${sessionDTO.experience} ${getEnd(sessionDTO)}.",
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Start,
+            )
         }
         Divider(
             modifier = Modifier
@@ -101,4 +139,21 @@ fun SessionCard(sessionDTO: SessionDTO) {
             thickness = ConstantSize.dividerStatisticHeight
         )
     }
+}
+
+private fun getEnd(sessionDTO: SessionDTO): String {
+    val end = if (sessionDTO.experience > 4) {
+        "лет"
+    } else {
+        if (sessionDTO.experience == 0) {
+            "лет"
+        } else {
+            if (sessionDTO.experience == 1) {
+                "год"
+            } else {
+                "года"
+            }
+        }
+    }
+    return end
 }
