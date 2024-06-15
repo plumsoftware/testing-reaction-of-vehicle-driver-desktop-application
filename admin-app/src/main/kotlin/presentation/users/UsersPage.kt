@@ -26,10 +26,8 @@ import presentation.users.viewmodel.UsersViewModel
 fun UsersPage(onEvent: (Event) -> Unit, usersViewModel: UsersViewModel, onAction: suspend (Action) -> Unit) {
 
     val state = usersViewModel.state.collectAsState()
-//    val actions = usersViewModel.actions
 
     LaunchedEffect(Unit) {
-//        actions.emit(Action.InitUsers)
         onAction(Action.InitUsers)
     }
 
@@ -45,7 +43,9 @@ fun UsersPage(onEvent: (Event) -> Unit, usersViewModel: UsersViewModel, onAction
                 BackButton(
                     onClick = { onEvent(Event.BackClicked) }
                 )
-                SearchField(onSearchClick = {})
+                SearchField(onSearchClick = {
+                    onEvent(Event.OnSearch(query = it))
+                })
             }
         },
         modifier = Modifier.fillMaxSize()
@@ -58,7 +58,7 @@ fun UsersPage(onEvent: (Event) -> Unit, usersViewModel: UsersViewModel, onAction
             verticalArrangement = ExtensionPadding.largeVerticalArrangementTop,
             horizontalAlignment = Alignment.Start
         ) {
-            itemsIndexed(state.value.list) { index, item ->
+            itemsIndexed(state.value.searchList) { index, item ->
                 UserButton(
                     onClick = {
                         onEvent(Event.OnUserClick(userId = item.id))

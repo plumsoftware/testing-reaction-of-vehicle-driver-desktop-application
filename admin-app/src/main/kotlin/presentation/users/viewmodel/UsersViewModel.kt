@@ -22,12 +22,13 @@ class UsersViewModel(
     }
 
     suspend fun onAction(action: Action) {
-        when(action) {
+        when (action) {
             Action.InitUsers -> {
                 val allUsers: List<User> = sqlDeLightStorage.getAllUsers()
                 state.update {
                     it.copy(
-                        list = allUsers
+                        list = allUsers,
+                        searchList = allUsers
                     )
                 }
             }
@@ -42,6 +43,39 @@ class UsersViewModel(
 
             is Event.OnUserClick -> {
                 onOutput(Output.OnUserClicked(userId = event.userId))
+            }
+
+            is Event.OnSearch -> {
+                state.update {
+                    it.copy(
+                        query = event.query
+                    )
+                }
+
+                val allUsers: List<User> = state.value.list
+
+                if (state.value.query.isNotEmpty()) {
+                    val searchList: MutableList<User> = mutableListOf()
+                    allUsers.forEachIndexed { _, user ->
+                        if (user.name.lowercase().contains(state.value.query.lowercase()) ||
+                            user.surname.lowercase().contains(state.value.query.lowercase()) ||
+                            user.patronymic.lowercase().contains(state.value.query.lowercase())
+                        ) {
+                            searchList.add(user)
+                        }
+                    }
+                    state.update {
+                        it.copy(
+                            searchList = searchList
+                        )
+                    }
+                } else {
+                    state.update {
+                        it.copy(
+                            searchList = allUsers
+                        )
+                    }
+                }
             }
         }
     }
