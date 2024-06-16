@@ -7,17 +7,22 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import data.repository.SessionRepositoryImpl
 import data.repository.SettingsRepositoryImpl
 import data.repository.UserRepositoryImpl
 import data.repository.WorkbookRepositoryImpl
 import domain.model.regular.tests.ReactionTest
 import domain.model.regular.tests.TrafficLight
+import domain.storage.SessionStorage
 import domain.storage.SettingsStorage
 import domain.storage.UserStorage
 import domain.storage.WorkbookStorage
 import domain.usecase.settings.GetUserSettingsUseCase
 import domain.usecase.settings.SaveUserSettingsUseCase
+import domain.usecase.sql_database.local.GetAllSessionsDtoFromDatabaseUseCase
+import domain.usecase.sql_database.local.GetLastSessionIdUseCase
 import domain.usecase.sql_database.local.GetUserByLoginAndPasswordUseCase
+import domain.usecase.sql_database.local.InsertOrAbortNewSessionUseCase
 import domain.usecase.sql_database.local.user.DeleteUserUseCase
 import domain.usecase.sql_database.local.user.GetAllUsersUseCase
 import domain.usecase.sql_database.local.user.UpdateUserUseCase
@@ -62,6 +67,12 @@ fun main() = run {
             deleteUserUseCase = DeleteUserUseCase(userRepository),
             isPasswordUniqueUseCase = IsPasswordUniqueUseCase(userRepository),
             getUserByLoginAndPasswordUseCase = GetUserByLoginAndPasswordUseCase(userRepository)
+        )
+        val sessionRepository = SessionRepositoryImpl()
+        val sessionStorage = SessionStorage(
+            getLastSessionIdUseCase = GetLastSessionIdUseCase(sessionRepository),
+            getAllSessionsDtoFromDatabaseUseCase = GetAllSessionsDtoFromDatabaseUseCase(sessionRepository),
+            insertOrAbortNewSessionUseCase = InsertOrAbortNewSessionUseCase(sessionRepository)
         )
 //        endregion
 
