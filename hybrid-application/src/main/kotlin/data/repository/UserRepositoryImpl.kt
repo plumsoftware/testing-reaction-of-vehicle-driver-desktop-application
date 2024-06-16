@@ -2,6 +2,7 @@ package data.repository
 
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import data.Constants
+import domain.model.either.LocalEither
 import domain.model.regular.user.User
 import domain.repository.UserRepository
 import ru.plumsoftware.Database
@@ -77,5 +78,23 @@ class UserRepositoryImpl : UserRepository {
     override suspend fun deleteUser(id: Long) {
         val database = Database(driver = JdbcSqliteDriver(url = Constants.Database.LOCAL_USER_JDBC_DRIVER_NAME))
         database.sqldelight_users_schemeQueries.deleteUser(user_id = id)
+    }
+
+    override suspend fun getUserByLoginAndPassword(
+        login: String,
+        password: String
+    ): LocalEither<Exception, List<Users>> {
+        val database = Database(driver = JdbcSqliteDriver(url = Constants.Database.LOCAL_USER_JDBC_DRIVER_NAME))
+        try {
+            val executeAsList: List<Users> = database.sqldelight_users_schemeQueries.getUserByLoginAndPassword(
+                user_login = login,
+                user_password = password
+            ).executeAsList()
+
+            return LocalEither.Data(executeAsList)
+
+        } catch (e: Exception) {
+            return LocalEither.Exception(e)
+        }
     }
 }
