@@ -2,8 +2,6 @@ package domain.repository
 
 import domain.model.either.LocalEither
 import domain.model.regular.user.User
-import ru.plumsoftware.sessions.Sessions
-import ru.plumsoftware.users.Users
 
 interface UserRepository {
     suspend fun getAllUsers(): List<Users>
