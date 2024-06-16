@@ -53,6 +53,10 @@ object Constants {
         )
     }
 
+    object UI {
+        val lineChartParams = listOf("Среднее значение", "Стандартное отклонение", "Количество ошибок", "Количество попыток")
+    }
+
     object Database {
         private const val LOCAL_SESSION_DATABASE_NAME = "sessions_database.db"
         private const val LOCAL_USER_DATABASE_NAME = "user_database.db"
