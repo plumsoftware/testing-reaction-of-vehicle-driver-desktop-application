@@ -32,6 +32,22 @@ fun HomePage(onEvent: (Event) -> Unit) {
             )
             DefaultButton(
                 content = {
+                    Text(text = "Пользователи", style = MaterialTheme.typography.headlineMedium)
+                },
+                onClick = {
+                    onEvent(Event.UsersButtonClicked)
+                },
+            )
+            DefaultButton(
+                content = {
+                    Text(text = "Добавить нового пользователя", style = MaterialTheme.typography.headlineMedium)
+                },
+                onClick = {
+                    onEvent(Event.AddNewUserButtonClicked)
+                },
+            )
+            DefaultButton(
+                content = {
                     Text(text = "Настройки", style = MaterialTheme.typography.headlineMedium)
                 },
                 onClick = {

@@ -27,6 +27,14 @@ class HomeViewModel(
             Event.TestsButtonClicked -> {
                 onOutput(o = Output.TestsButtonClicked)
             }
+
+            Event.AddNewUserButtonClicked -> {
+                onOutput(o = Output.AddNewUserButtonClicked)
+            }
+
+            Event.UsersButtonClicked -> {
+                onOutput(o = Output.UsersButtonClicked)
+            }
         }
     }
 
