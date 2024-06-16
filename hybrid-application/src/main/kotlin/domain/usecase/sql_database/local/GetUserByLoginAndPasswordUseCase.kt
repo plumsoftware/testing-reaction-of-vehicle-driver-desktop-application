@@ -6,6 +6,7 @@ import domain.model.regular.user.DrivingLicenseCategory
 import domain.model.regular.user.Gender
 import domain.model.regular.user.User
 import domain.repository.UserRepository
+import ru.plumsoftware.users.Users
 
 class GetUserByLoginAndPasswordUseCase(private val userRepository: UserRepository) {
     suspend fun execute(login: String, password: String): LocalEither<Exception, User> {
