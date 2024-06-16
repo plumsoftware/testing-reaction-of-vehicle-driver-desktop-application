@@ -77,7 +77,7 @@ dependencies {
 
 compose.desktop {
     application {
-        mainClass = "MainKt"
+        mainClass = "presentation.MainKt"
 
         nativeDistributions {
             targetFormats(
