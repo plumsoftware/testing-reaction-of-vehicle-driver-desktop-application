@@ -53,6 +53,8 @@ import presentation.main.MainViewModel
 import presentation.newuser.NewUserPage
 import presentation.newuser.viewmodel.NewUserViewModel
 import presentation.other.extension.route.DesktopRouting
+import presentation.privacypolicy.PrivacyPolicy
+import presentation.privacypolicy.viewmodel.PrivacyPolicyViewModel
 import presentation.settings.SettingsPage
 import presentation.settings.viewmodel.SettingsViewModel
 import presentation.testmenu.TestMenu
@@ -194,6 +196,8 @@ fun main() = run {
                                         trafficLightTestViewModel?.onEvent(Event.InitStartData(testDTO = output.testDTO))
                                         navigator.navigate(route = DesktopRouting.testmenu)
                                     }
+
+                                    presentation.authorization.login.store.Output.OpenPrivacyPolicy -> navigator.navigate(route = DesktopRouting.privacyPolicy)
                                 }
                             },
                             userStorage = userStorage
@@ -225,6 +229,16 @@ fun main() = run {
                                     presentation.aboutuser.store.Output.BackButtonClicked -> {
                                         navigator.popBackStack()
                                     }
+                                }
+                            }
+                        )
+                    }
+
+                    val privacyPolicyViewModel = viewModel(modelClass = PrivacyPolicyViewModel::class) {
+                        PrivacyPolicyViewModel(
+                            output = { output ->
+                                when (output) {
+                                    presentation.privacypolicy.store.Output.BackButtonClicked -> navigator.popBackStack()
                                 }
                             }
                         )
@@ -310,6 +324,12 @@ fun main() = run {
                         scene(route = DesktopRouting.aboutuser) {
                             println("About user page created")
                             AboutUserPage(onEvent = aboutUserViewModel::onEvent, aboutUserViewModel)
+                        }
+//                        endregion
+
+//                        region::Privacy policy
+                        scene(route = DesktopRouting.privacyPolicy) {
+                            PrivacyPolicy(onEvent = privacyPolicyViewModel::onEvent)
                         }
 //                        endregion
 

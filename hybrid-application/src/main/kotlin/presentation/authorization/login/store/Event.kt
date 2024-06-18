@@ -16,4 +16,7 @@ sealed class Event {
     data class OnIntervalChanged(val interval: Interval) : Event()
 
     data class OnAgeChanged(val age: Int) : Event()
+
+    data object OpenPrivacyPolicy : Event()
+    data class OnEnableStartTestChanged(val enabled: Boolean) : Event()
 }

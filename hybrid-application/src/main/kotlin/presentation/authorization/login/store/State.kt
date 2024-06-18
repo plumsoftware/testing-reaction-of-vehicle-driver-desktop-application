@@ -22,5 +22,9 @@ data class State (
     val intervals: List<Interval> = emptyList(),
     val selectedInterval: Interval = Interval(),
 
-    val roamingErrorMessage: String = ""
+    val roamingErrorMessage: String = "",
+
+//    region::Privacy policy
+    val isEnableStartTest: Boolean = false,
+//    endregion
 )
