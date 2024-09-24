@@ -13,4 +13,4 @@ pluginManagement {
     }
 }
 
-rootProject.name = "reaction-test"
+rootProject.name = "ethernet-application-reaction-test"
