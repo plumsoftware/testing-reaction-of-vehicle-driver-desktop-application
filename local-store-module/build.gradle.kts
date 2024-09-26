@@ -28,6 +28,7 @@ dependencies {
 
     val apachi_poi = "5.2.3"
     val kotlinx_serialization_json = "1.6.0"
+    val kotlinx_corutines = "1.9.0"
 
 //    Excel
     implementation("org.apache.poi:poi:${apachi_poi}")
@@ -35,4 +36,7 @@ dependencies {
 
 //    Serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${kotlinx_serialization_json}")
+
+//    Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_corutines")
 }
