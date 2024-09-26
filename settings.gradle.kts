@@ -17,3 +17,4 @@ rootProject.name = "testing-reaction-of-vehicle-driver-desktop-application"
 include(":offline-application-hybrid")
 include(":ethernet-application-reaction-test")
 include(":ethernet-application-admin")
+include(":hash-module")
