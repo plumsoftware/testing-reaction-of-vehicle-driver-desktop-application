@@ -1,31 +1,42 @@
 package data
 
 import domain.CryptographyRepository
+import javax.crypto.Cipher
+import javax.crypto.spec.SecretKeySpec
 
 class CryptographyRepositoryImpl : CryptographyRepository {
-    override suspend fun encode(text: String, key: String): String {
-        val sb = StringBuilder()
-        for (i in text.indices) {
-            val c = text[i]
-            val k = key[i % key.length]
-            val encoded = c.code xor k.code
-            sb.append(encoded.toChar())
-        }
+    private val ALGORITHM = "AES"
+    private val TRANSFORMATION = "AES/ECB/PKCS5Padding"
 
-        println(sb.toString())
-        return sb.toString()
+    override suspend fun encode(text: String, key: String): String {
+        val secretKey = generateSecretKey(key)
+        val cipher = Cipher.getInstance(TRANSFORMATION)
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey)
+        val encryptedBytes = cipher.doFinal(text.toByteArray())
+        return encryptedBytes.toHexString()
     }
 
     override suspend fun decode(text: String, key: String): String {
-        val sb = StringBuilder()
-        for (i in text.indices) {
-            val c = text[i]
-            val k = key[i % key.length]
-            val decoded = c.code xor k.code
-            sb.append(decoded.toChar())
-        }
-        println(sb.toString())
-        return sb.toString()
+        val secretKey = generateSecretKey(key)
+        val cipher = Cipher.getInstance(TRANSFORMATION)
+        cipher.init(Cipher.DECRYPT_MODE, secretKey)
+        val decryptedBytes = cipher.doFinal(text.hexToByteArray())
+        return String(decryptedBytes)
     }
 
+    private fun generateSecretKey(key: String): SecretKeySpec {
+        val keyBytes = key.toByteArray()
+        return SecretKeySpec(keyBytes, ALGORITHM)
+    }
+
+    private fun ByteArray.toHexString(): String {
+        return joinToString("") { "%02x".format(it) }
+    }
+
+    private fun String.hexToByteArray(): ByteArray {
+        return chunked(2)
+            .map { it.toInt(16).toByte() }
+            .toByteArray()
+    }
 }
+
