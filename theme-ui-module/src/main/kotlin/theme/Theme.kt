@@ -4,6 +4,24 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import theme.ExtendedColors
+import theme.LocalExtendedColors
+import theme.darkColors
+import theme.lightColors
+import theme.md_theme_dark_axis_line_chart_color
+import theme.md_theme_dark_grid_color
+import theme.md_theme_dark_line_color_1
+import theme.md_theme_dark_line_color_2
+import theme.md_theme_dark_onSuccess
+import theme.md_theme_dark_success
+import theme.md_theme_light_axis_line_chart_color
+import theme.md_theme_light_grid_color
+import theme.md_theme_light_line_color_1
+import theme.md_theme_light_line_color_2
+import theme.md_theme_light_onSuccess
+import theme.md_theme_light_success
+import theme.shapes
+import theme.typography
 
 @Composable
 fun AppTheme(

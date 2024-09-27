@@ -1,4 +1,4 @@
-package presentation.theme
+package theme
 
 import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Immutable
