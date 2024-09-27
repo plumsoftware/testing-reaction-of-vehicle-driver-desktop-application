@@ -1,6 +1,6 @@
 package domain.storage
 
-import data.model.dto.TestDTO
+import data.model.dto.test.TestDTO
 import domain.usecase.workbook.CreateWorkbookIfNotExistsUseCase
 import domain.usecase.workbook.WriteDataToWorkbookUseCase
 

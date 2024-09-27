@@ -6,11 +6,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import domain.model.regular.tests.ReactionTest
-import domain.model.regular.tests.TestMode
-import presentation.other.components.BackButton
-import presentation.other.extension.padding.ExtensionPadding
-import presentation.other.extension.size.ConstantSize
+import data.model.regular.tests.TestMode
+import model.tests.ReactionTest
+import other.components.BackButton
+import other.extension.padding.ExtensionPadding
+import other.extension.size.ConstantSize
 import presentation.testmenu.store.Event
 import presentation.testmenu.viewmodel.TestMenuViewModel
 

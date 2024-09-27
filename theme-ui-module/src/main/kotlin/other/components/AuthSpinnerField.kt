@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import data.model.regular.user.DrivingLicenseCategory
+import data.model.regular.user.Gender
 import data.model.regular.user.Interval
 
 @Composable
@@ -57,6 +58,7 @@ fun AuthSpinnerField(
                             is DrivingLicenseCategory -> any
                             is Int -> any
                             is Interval -> any
+                            is Gender -> any
                             else -> DrivingLicenseCategory.Empty
                         }
 

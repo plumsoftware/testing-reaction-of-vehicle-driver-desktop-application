@@ -15,19 +15,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import data.Constants
-import domain.model.either.AppEither
-import domain.model.regular.user.User
+import data.constant.UIConstants
+import data.model.either.AppEither
+import data.model.regular.user.User
+import other.components.AuthTextField
+import other.components.BackButton
+import other.components.DefaultButton
+import other.extension.padding.ExtensionPadding
+import other.extension.size.ConstantSize
 import presentation.aboutuser.components.LinearChart
 import presentation.aboutuser.components.SessionCard
 import presentation.aboutuser.store.Event
 import presentation.aboutuser.viewmodel.AboutUserViewModel
-import presentation.other.components.AuthTextField
-import presentation.other.components.BackButton
-import presentation.other.components.DefaultButton
-import presentation.other.extension.padding.ExtensionPadding
-import presentation.other.extension.size.ConstantSize
-import presentation.theme.ExtendedTheme
+import theme.ExtendedTheme
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -275,7 +275,7 @@ fun AboutUserPage(onEvent: (Event) -> Unit, aboutUserViewModel: AboutUserViewMod
                                             },
                                             label = {
                                                 Text(
-                                                    text = Constants.UI.lineChartParams[index],
+                                                    text = UIConstants.lineChartParams[index],
                                                     style = MaterialTheme.typography.bodyMedium
                                                 )
                                             },

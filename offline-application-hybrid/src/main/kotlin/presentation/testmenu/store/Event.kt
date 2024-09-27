@@ -1,7 +1,7 @@
 package presentation.testmenu.store
 
-import domain.model.regular.tests.TestMode
-import domain.model.regular.user.User
+import data.model.regular.tests.TestMode
+import data.model.regular.user.User
 
 sealed class Event {
     data class TestClicked(val route: String, val testMode: TestMode) : Event()

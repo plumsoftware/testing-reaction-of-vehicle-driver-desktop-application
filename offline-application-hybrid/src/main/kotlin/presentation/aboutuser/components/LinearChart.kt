@@ -12,8 +12,8 @@ import com.aay.compose.baseComponents.model.LegendPosition
 import com.aay.compose.lineChart.LineChart
 import com.aay.compose.lineChart.model.LineParameters
 import com.aay.compose.lineChart.model.LineType
-import domain.model.dto.database.SessionDTO
-import presentation.theme.ExtendedTheme
+import data.model.dto.database.SessionDTO
+import theme.ExtendedTheme
 import utils.*
 
 @Composable

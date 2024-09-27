@@ -6,36 +6,72 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import authorization.login.store.Effect
 import authorization.login.store.Event
-import authorization.login.store.State
+import authorization.login.viewmodel.LoginViewModel
 import data.constant.TestConstants
 import data.model.regular.user.DrivingLicenseCategory
 import data.model.regular.user.Interval
+import domain.storage.UserStorage
+import moe.tlaster.precompose.navigation.Navigator
+import moe.tlaster.precompose.viewmodel.viewModel
 import other.components.AuthSpinnerField
 import other.components.AuthTextField
 import other.components.BackButton
 import other.components.DefaultButton
 import other.extension.padding.ExtensionPadding
 import other.extension.padding.ExtensionPadding.mediumHorizontalArrangementCenter
+import other.extension.route.DesktopRouting
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Login(
-    onEvent: (Event) -> Unit,
-    state: androidx.compose.runtime.State<State>
-) {
+fun Login(navigator: Navigator, userStorage: UserStorage) {
+
+    val loginViewModel: LoginViewModel = viewModel(modelClass = LoginViewModel::class) {
+        LoginViewModel(
+            userStorage = userStorage
+        )
+    }
+
+    LaunchedEffect(key1 = Unit) {
+        loginViewModel.effect.collect { effect ->
+            when (effect) {
+                Effect.BackButtonClicked -> {
+                    navigator.goBack()
+                }
+
+                is Effect.OpenTestMenu -> {
+                    navigator.navigate(route = DesktopRouting.testmenu)
+                }
+
+                Effect.OpenPrivacyPolicy -> {
+                    navigator.navigate(route = DesktopRouting.privacyPolicy)
+                }
+            }
+        }
+    }
+    val state = loginViewModel.state.collectAsState()
+
+
     Scaffold(
         topBar = {
             BackButton(
-                onClick = { onEvent(Event.BackClicked) }
+                onClick = { loginViewModel.onEvent(Event.BackClicked) }
             )
         },
         floatingActionButton = {
             DefaultButton(
-                onClick = { onEvent(Event.StartTest) },
-                content = { Text(text = "Перейти в меню с тестами", style = MaterialTheme.typography.headlineMedium) })
+                onClick = { loginViewModel.onEvent(Event.StartTest) },
+                content = {
+                    Text(
+                        text = "Перейти в меню с тестами",
+                        style = MaterialTheme.typography.headlineMedium
+                    )
+                })
         },
         floatingActionButtonPosition = FabPosition.End,
         modifier = Modifier.fillMaxSize()
@@ -51,7 +87,7 @@ fun Login(
                 text = state.value.login,
                 labelHint = "Логин",
                 onValueChange = {
-                    onEvent(Event.OnLoginChanged(login = it))
+                    loginViewModel.onEvent(Event.OnLoginChanged(login = it))
                 },
                 isError = state.value.isLoginError
             )
@@ -60,7 +96,7 @@ fun Login(
                 text = state.value.password,
                 labelHint = "Пароль",
                 onValueChange = {
-                    onEvent(Event.OnPasswordChanged(password = it))
+                    loginViewModel.onEvent(Event.OnPasswordChanged(password = it))
                 },
                 isError = state.value.isPasswordError
             )
@@ -74,7 +110,7 @@ fun Login(
                     text = if (state.value.experience == 0) "" else state.value.experience.toString(),
                     labelHint = "Стаж вождения",
                     onValueChange = {
-                        onEvent(
+                        loginViewModel.onEvent(
                             Event.OnExperienceChanged(
                                 experience = try {
                                     it.toInt()
@@ -91,7 +127,7 @@ fun Login(
                     text = if (state.value.age < 0) "" else state.value.age.toString(),
                     labelHint = "Возраст",
                     onValueChange = {
-                        onEvent(
+                        loginViewModel.onEvent(
                             Event.OnAgeChanged(
                                 age = try {
                                     it.toInt()
@@ -109,7 +145,7 @@ fun Login(
                     labelHint = "Категория прав",
                     onValueChange = {
                         it as DrivingLicenseCategory
-                        onEvent(Event.OnDrivingLicenseCategoryChanged(it))
+                        loginViewModel.onEvent(Event.OnDrivingLicenseCategoryChanged(it))
                     },
                     isError = state.value.isDrivingLicenseCategoryError,
                     list = DrivingLicenseCategory.entries,
@@ -120,7 +156,7 @@ fun Login(
                     labelHint = "Количество попыток",
                     onValueChange = {
                         it as Int
-                        onEvent(Event.OnCountChanged(it))
+                        loginViewModel.onEvent(Event.OnCountChanged(it))
                     },
                     isError = state.value.isCountError,
                     list = TestConstants.counts.toList(),
@@ -132,7 +168,7 @@ fun Login(
                 text = if (state.value.selectedInterval == Interval()) "" else state.value.selectedInterval.toString(),
                 labelHint = "Интервал сигнала в секундах",
                 onValueChange = {
-                    onEvent(Event.OnIntervalChanged(it as Interval))
+                    loginViewModel.onEvent(Event.OnIntervalChanged(it as Interval))
                 },
                 isError = state.value.isIntervalError,
                 list = TestConstants.Tests.intervals.toList(),

@@ -1,7 +1,6 @@
 package presentation
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.res.loadImageBitmap
@@ -11,12 +10,11 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import data.repository.SessionRepositoryImpl
+import authorization.login.Login
+import data.repository.SessionRepositoryImpl_
 import data.repository.SettingsRepositoryImpl
 import data.repository.UserRepositoryImpl
 import data.repository.WorkbookRepositoryImpl
-import domain.model.regular.tests.ReactionTest
-import domain.model.regular.tests.TrafficLight
 import domain.storage.SessionStorage
 import domain.storage.SettingsStorage
 import domain.storage.UserStorage
@@ -43,16 +41,17 @@ import moe.tlaster.precompose.navigation.NavHost
 import moe.tlaster.precompose.navigation.rememberNavigator
 import moe.tlaster.precompose.navigation.transition.NavTransition
 import moe.tlaster.precompose.viewmodel.viewModel
-import presentation.aboutuser.AboutUserPage
-import presentation.aboutuser.viewmodel.AboutUserViewModel
-import presentation.authorization.login.Login
-import presentation.authorization.login.viewmodel.LoginViewModel
 import presentation.home.HomePage
 import presentation.home.viewmodel.HomeViewModel
+import theme.AppTheme
+import model.tests.ReactionTest
+import model.tests.TrafficLight
+import other.extension.route.DesktopRouting
+import presentation.aboutuser.AboutUserPage
+import presentation.aboutuser.viewmodel.AboutUserViewModel
 import presentation.main.MainViewModel
 import presentation.newuser.NewUserPage
 import presentation.newuser.viewmodel.NewUserViewModel
-import presentation.other.extension.route.DesktopRouting
 import presentation.privacypolicy.PrivacyPolicy
 import presentation.privacypolicy.viewmodel.PrivacyPolicyViewModel
 import presentation.settings.SettingsPage
@@ -63,7 +62,6 @@ import presentation.testmenu.viewmodel.TestMenuViewModel
 import presentation.tests.traffic_light_test.TrafficLightTest
 import presentation.tests.traffic_light_test.store.Event
 import presentation.tests.traffic_light_test.viewmodel.TrafficLightTestViewModel
-import presentation.theme.AppTheme
 import presentation.users.UsersPage
 import presentation.users.viewmodel.UsersViewModel
 import kotlin.coroutines.CoroutineContext
@@ -80,16 +78,7 @@ fun main() = run {
         )
 
 //        region::Storage
-        val settingsRepository = SettingsRepositoryImpl()
-        val settingsStorage = SettingsStorage(
-            getUserSettingsUseCase = GetUserSettingsUseCase(settingsRepository),
-            saveUserSettingsUseCase = SaveUserSettingsUseCase(settingsRepository)
-        )
-        val workbookRepository = WorkbookRepositoryImpl()
-        val workBookStorage = WorkbookStorage(
-            createWorkbookIfNotExistsUseCase = CreateWorkbookIfNotExistsUseCase(workbookRepository),
-            writeDataToWorkbookUseCase = WriteDataToWorkbookUseCase(workbookRepository)
-        )
+        /** Integrated **/
         val userRepository = UserRepositoryImpl()
         val userStorage = UserStorage(
             getAllUsersUseCase = GetAllUsersUseCase(userRepository),
@@ -100,7 +89,18 @@ fun main() = run {
             isPasswordUniqueUseCase = IsPasswordUniqueUseCase(userRepository),
             getUserByLoginAndPasswordUseCase = GetUserByLoginAndPasswordUseCase(userRepository)
         )
-        val sessionRepository = SessionRepositoryImpl()
+
+        val settingsRepository = SettingsRepositoryImpl()
+        val settingsStorage = SettingsStorage(
+            getUserSettingsUseCase = GetUserSettingsUseCase(settingsRepository),
+            saveUserSettingsUseCase = SaveUserSettingsUseCase(settingsRepository)
+        )
+        val workbookRepository = WorkbookRepositoryImpl()
+        val workBookStorage = WorkbookStorage(
+            createWorkbookIfNotExistsUseCase = CreateWorkbookIfNotExistsUseCase(workbookRepository),
+            writeDataToWorkbookUseCase = WriteDataToWorkbookUseCase(workbookRepository)
+        )
+        val sessionRepository = SessionRepositoryImpl_()
         val sessionStorage = SessionStorage(
             getLastSessionIdUseCase = GetLastSessionIdUseCase(sessionRepository),
             getAllSessionsDtoFromDatabaseUseCase = GetAllSessionsDtoFromDatabaseUseCase(sessionRepository),
@@ -183,24 +183,6 @@ fun main() = run {
                                     presentation.settings.store.Output.BackClicked -> navigator.goBack()
                                 }
                             }
-                        )
-                    }
-                    val loginViewModel: LoginViewModel = viewModel(modelClass = LoginViewModel::class) {
-                        LoginViewModel(
-                            output = { output ->
-                                when (output) {
-                                    presentation.authorization.login.store.Output.BackButtonClicked -> navigator.goBack()
-
-                                    is presentation.authorization.login.store.Output.OpenTestMenu -> {
-                                        testMenuViewModel.onEvent(presentation.testmenu.store.Event.ChangeUser(user = output.testDTO.user))
-                                        trafficLightTestViewModel?.onEvent(Event.InitStartData(testDTO = output.testDTO))
-                                        navigator.navigate(route = DesktopRouting.testmenu)
-                                    }
-
-                                    presentation.authorization.login.store.Output.OpenPrivacyPolicy -> navigator.navigate(route = DesktopRouting.privacyPolicy)
-                                }
-                            },
-                            userStorage = userStorage
                         )
                     }
                     trafficLightTestViewModel = viewModel(modelClass = TrafficLightTestViewModel::class) {
@@ -301,10 +283,7 @@ fun main() = run {
                         }
                         scene(route = DesktopRouting.login) {
                             println("Login page rendered")
-                            Login(
-                                onEvent = loginViewModel::onEvent,
-                                state = loginViewModel.state.collectAsState(),
-                            )
+                            Login(navigator = navigator, userStorage = userStorage)
                         }
                         scene(route = DesktopRouting.users) {
                             println("Users page rendered")

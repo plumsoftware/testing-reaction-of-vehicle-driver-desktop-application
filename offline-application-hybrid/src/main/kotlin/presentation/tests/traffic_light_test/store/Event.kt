@@ -1,7 +1,7 @@
 package presentation.tests.traffic_light_test.store
 
-import domain.model.dto.TestDTO
-import domain.model.regular.tests.TestMode
+import data.model.dto.test.TestDTO
+import data.model.regular.tests.TestMode
 
 sealed class Event {
     data object BackCLicked : Event()

@@ -7,16 +7,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import domain.model.either.AppEither
-import domain.model.regular.user.Gender
+import data.model.either.AppEither
+import data.model.regular.user.Gender
+import other.components.AuthSpinnerField
+import other.components.AuthTextField
+import other.components.BackButton
+import other.components.DefaultButton
+import other.extension.padding.ExtensionPadding
 import presentation.newuser.store.Event
 import presentation.newuser.viewmodel.NewUserViewModel
-import presentation.other.components.AuthSpinnerField
-import presentation.other.components.AuthTextField
-import presentation.other.components.BackButton
-import presentation.other.components.DefaultButton
-import presentation.other.extension.padding.ExtensionPadding
-import presentation.theme.ExtendedTheme
+import theme.ExtendedTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

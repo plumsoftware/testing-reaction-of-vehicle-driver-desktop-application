@@ -1,7 +1,7 @@
 package presentation.authorization.login.store
 
-import domain.model.regular.user.DrivingLicenseCategory
-import domain.model.regular.user.Interval
+import data.model.regular.user.DrivingLicenseCategory
+import data.model.regular.user.Interval
 
 sealed class Event {
 

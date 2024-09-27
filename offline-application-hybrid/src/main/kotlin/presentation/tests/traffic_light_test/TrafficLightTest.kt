@@ -7,11 +7,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.flow.MutableStateFlow
-import presentation.other.components.BackButton
-import presentation.other.extension.padding.ExtensionPadding
-import presentation.other.extension.size.ConstantSize
-import presentation.tests.traffic_light_test.components.TestFinishedComponent
-import presentation.tests.traffic_light_test.components.TestProccessComponent
+import other.components.BackButton
+import other.extension.padding.ExtensionPadding
+import other.extension.size.ConstantSize
+import other.components.TestFinishedComponent
+import other.components.TestProccessComponent
 import presentation.tests.traffic_light_test.store.Event
 import presentation.tests.traffic_light_test.store.State
 

@@ -13,7 +13,7 @@ import other.extension.padding.ExtensionPadding
 import other.extension.size.ConstantSize
 
 @Composable
-fun DefaultButton(content: @Composable() (RowScope.() -> Unit), onClick: () -> Unit, colors: ButtonColors = ButtonDefaults.buttonColors()) {
+fun DefaultButton(content: @Composable() (RowScope.() -> Unit), onClick: () -> Unit, colors: ButtonColors = ButtonDefaults.buttonColors(), enabled: Boolean = true) {
     Button(
         onClick = onClick,
         modifier = Modifier

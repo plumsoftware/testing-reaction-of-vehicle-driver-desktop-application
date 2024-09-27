@@ -14,10 +14,10 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import domain.model.dto.database.SessionDTO
-import presentation.other.extension.padding.ExtensionPadding
-import presentation.other.extension.size.ConstantSize
-import presentation.theme.ExtendedTheme
+import data.model.dto.database.SessionDTO
+import other.extension.padding.ExtensionPadding
+import other.extension.size.ConstantSize
+import theme.ExtendedTheme
 import java.text.SimpleDateFormat
 import java.util.*
 

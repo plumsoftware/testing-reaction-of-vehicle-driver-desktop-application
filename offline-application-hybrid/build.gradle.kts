@@ -19,20 +19,6 @@ plugins {
     kotlin("jvm")
     id("org.jetbrains.compose")
     kotlin("plugin.serialization") version "1.9.24"
-    id("app.cash.sqldelight") version "2.0.2"
-}
-
-val sqlLightVersion = "2.0.2"
-
-sqldelight {
-    databases {
-        create("Database") {
-            packageName.set("ru.plumsoftware")
-            schemaOutputDirectory = file("src/main/kotlin/data/sqldelight/databases")
-            verifyMigrations = true
-            deriveSchemaFromMigrations = true
-        }
-    }
 }
 
 group = "ru.plumsoftware"
@@ -53,8 +39,6 @@ dependencies {
 
     implementation(compose.desktop.currentOs)
 
-    implementation("org.apache.poi:poi:${apachi_poi}")
-    implementation("org.apache.poi:poi-ooxml:${apachi_poi}")
     implementation("org.jetbrains.compose.material3:material3-desktop:${material3}")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${kotlinx_serialization_json}")
 
@@ -68,11 +52,13 @@ dependencies {
 
 // api("moe.tlaster:precompose-koin:$precompose_version") // For Koin intergration
 
-//    Database
-    implementation("app.cash.sqldelight:sqlite-driver:$sqlLightVersion")
-
 //    Charts
     implementation("io.github.thechance101:chart:$aay_chart_version")
+
+//    Modules
+    implementation(project(path = ":authorization-ui-module"))
+    implementation(project(path = ":theme-ui-module"))
+    implementation(project(path = ":local-store-module"))
 }
 
 compose.desktop {

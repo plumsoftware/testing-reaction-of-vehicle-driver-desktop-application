@@ -1,8 +1,8 @@
 package presentation.aboutuser.store
 
-import domain.model.dto.database.SessionDTO
-import domain.model.either.AppEither
-import domain.model.regular.user.User
+import data.model.dto.database.SessionDTO
+import data.model.either.AppEither
+import data.model.regular.user.User
 
 data class State(
     val user: User = User.empty(),

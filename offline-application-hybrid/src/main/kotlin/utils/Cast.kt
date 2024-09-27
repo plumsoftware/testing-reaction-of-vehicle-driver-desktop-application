@@ -1,7 +1,7 @@
 package utils
 
-import domain.model.dto.database.SessionDTO
-import domain.model.regular.userstatistic.LineChartItem
+import data.model.dto.database.SessionDTO
+import model.userstatistic.LineChartItem
 import java.text.SimpleDateFormat
 import java.util.*
 

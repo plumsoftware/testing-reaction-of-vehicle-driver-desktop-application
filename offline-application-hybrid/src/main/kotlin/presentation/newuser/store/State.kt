@@ -1,7 +1,7 @@
 package presentation.newuser.store
 
-import domain.model.either.AppEither
-import domain.model.regular.user.Gender
+import data.model.either.AppEither
+import data.model.regular.user.Gender
 
 data class State(
     val name: String = "",

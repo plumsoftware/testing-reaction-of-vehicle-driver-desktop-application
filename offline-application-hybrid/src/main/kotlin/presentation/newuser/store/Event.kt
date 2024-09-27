@@ -1,6 +1,6 @@
 package presentation.newuser.store
 
-import domain.model.regular.user.Gender
+import data.model.regular.user.Gender
 
 sealed class Event {
     data object BackCLicked : Event()

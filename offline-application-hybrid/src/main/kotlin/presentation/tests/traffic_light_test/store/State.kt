@@ -1,9 +1,9 @@
 package presentation.tests.traffic_light_test.store
 
-import domain.model.dto.TestDTO
-import domain.model.regular.user.Interval
-import domain.model.regular.tests.TestMode
-import domain.model.regular.user.User
+import data.model.dto.test.TestDTO
+import data.model.regular.tests.TestMode
+import data.model.regular.user.Interval
+import data.model.regular.user.User
 
 data class State(
     val startTimerTime: Int = 10,

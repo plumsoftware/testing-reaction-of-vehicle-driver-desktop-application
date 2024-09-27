@@ -1,26 +1,27 @@
 package authorization.login.viewmodel
 
+import authorization.login.store.Effect
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
 import authorization.login.store.Event
-import authorization.login.store.Output
 import authorization.login.store.State
-import data.model.dto.TestDTO
+import data.model.dto.test.TestDTO
 import data.model.either.local.LocalEither
 import data.model.regular.user.DrivingLicenseCategory
 import data.model.regular.user.Interval
 import data.model.regular.user.User
-import domain.storage.UserDataStorage
+import domain.storage.UserStorage
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 class LoginViewModel(
-    private val output: (Output) -> Unit,
-    private val userDataStorage: UserDataStorage
+    private val userStorage: UserStorage
 ) : ViewModel() {
 
     val state = MutableStateFlow(State())
+    val effect = MutableSharedFlow<Effect>()
 
     init {
         println("Login view model created")
@@ -28,7 +29,11 @@ class LoginViewModel(
 
     fun onEvent(event: Event) {
         when (event) {
-            Event.BackClicked -> onOutput(Output.BackButtonClicked)
+            Event.BackClicked -> {
+                viewModelScope.launch {
+                    effect.emit(Effect.BackButtonClicked)
+                }
+            }
 
             is Event.OnLoginChanged -> {
                 state.update {
@@ -63,7 +68,7 @@ class LoginViewModel(
 
                     viewModelScope.launch {
                         isErrorsStatus()
-                        val localEither: LocalEither<Exception, User> = userDataStorage
+                        val localEither: LocalEither<Exception, User> = userStorage
                             .getUserByLoginAndPassword(login = login, password = password)
                         when (localEither) {
                             is LocalEither.Data -> {
@@ -85,7 +90,7 @@ class LoginViewModel(
                                         roamingErrorMessage = ""
                                     )
                                 }
-                                onOutput(Output.OpenTestMenu(testDTO = testDto))
+                                effect.emit(Effect.OpenTestMenu(testDto = testDto))
                             }
 
                             is LocalEither.Exception -> {
@@ -140,10 +145,6 @@ class LoginViewModel(
                 }
             }
         }
-    }
-
-    private fun onOutput(out: Output) {
-        output(out)
     }
 
     private fun isErrorsStatus() {

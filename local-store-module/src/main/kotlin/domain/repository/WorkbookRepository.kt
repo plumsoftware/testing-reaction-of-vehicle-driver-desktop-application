@@ -1,6 +1,6 @@
 package domain.repository
 
-import data.model.dto.TestDTO
+import data.model.dto.test.TestDTO
 import org.apache.poi.xssf.usermodel.XSSFWorkbookType
 
 interface WorkbookRepository {

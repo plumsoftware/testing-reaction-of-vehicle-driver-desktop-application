@@ -8,17 +8,17 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import data.Constants
-import domain.model.regular.user.DrivingLicenseCategory
-import domain.model.regular.user.Interval
+import data.constant.TestConstants
+import data.model.regular.user.DrivingLicenseCategory
+import data.model.regular.user.Interval
+import other.components.AuthSpinnerField
+import other.components.AuthTextField
+import other.components.BackButton
+import other.components.DefaultButton
+import other.extension.padding.ExtensionPadding
+import other.extension.padding.ExtensionPadding.mediumHorizontalArrangementCenter
 import presentation.authorization.login.store.Event
 import presentation.authorization.login.store.State
-import presentation.other.components.AuthSpinnerField
-import presentation.other.components.AuthTextField
-import presentation.other.components.BackButton
-import presentation.other.components.DefaultButton
-import presentation.other.extension.padding.ExtensionPadding
-import presentation.other.extension.padding.ExtensionPadding.mediumHorizontalArrangementCenter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -126,7 +126,7 @@ fun Login(
                         onEvent(Event.OnCountChanged(it))
                     },
                     isError = state.value.isCountError,
-                    list = Constants.Test.counts.toList(),
+                    list = TestConstants.counts.toList(),
                     modifier = Modifier.fillMaxWidth().weight(1.0f)
                 )
             }
@@ -138,7 +138,7 @@ fun Login(
                     onEvent(Event.OnIntervalChanged(it as Interval))
                 },
                 isError = state.value.isIntervalError,
-                list = Constants.Test.intervals.toList(),
+                list = TestConstants.Tests.intervals.toList(),
                 modifier = Modifier.wrapContentWidth().wrapContentHeight().align(Alignment.Start)
             )
 

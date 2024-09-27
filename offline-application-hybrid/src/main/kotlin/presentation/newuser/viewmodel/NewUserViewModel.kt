@@ -1,8 +1,8 @@
 package presentation.newuser.viewmodel
 
-import domain.model.either.AppEither
-import domain.model.regular.user.Gender
-import domain.model.regular.user.User
+import data.model.either.AppEither
+import data.model.regular.user.Gender
+import data.model.regular.user.User
 import domain.storage.UserStorage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*

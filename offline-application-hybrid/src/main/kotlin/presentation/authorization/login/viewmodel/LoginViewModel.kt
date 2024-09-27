@@ -1,10 +1,10 @@
 package presentation.authorization.login.viewmodel
 
-import domain.model.dto.TestDTO
-import domain.model.either.LocalEither
-import domain.model.regular.user.DrivingLicenseCategory
-import domain.model.regular.user.Interval
-import domain.model.regular.user.User
+import data.model.dto.test.TestDTO
+import data.model.either.local.LocalEither
+import data.model.regular.user.DrivingLicenseCategory
+import data.model.regular.user.Interval
+import data.model.regular.user.User
 import domain.storage.UserStorage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update

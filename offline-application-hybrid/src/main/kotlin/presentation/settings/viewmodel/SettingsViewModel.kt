@@ -1,7 +1,7 @@
 package presentation.settings.viewmodel
 
-import data.Constants
-import domain.model.regular.settings.Settings
+import data.constant.SettingsConstants
+import data.model.regular.settings.Settings
 import domain.storage.SettingsStorage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,9 +38,9 @@ class SettingsViewModel(
 
                 it.copy(
                     isDarkTheme = settings.isDarkTheme,
-                    isXlsFormat = settings.dataFormats[Constants.Settings.XLS]!!,
-                    isXlsxFormat = settings.dataFormats[Constants.Settings.XLSX]!!,
-                    isXltxFormat = settings.dataFormats[Constants.Settings.XLTX]!!,
+                    isXlsFormat = settings.dataFormats[SettingsConstants.XLS]!!,
+                    isXlsxFormat = settings.dataFormats[SettingsConstants.XLSX]!!,
+                    isXltxFormat = settings.dataFormats[SettingsConstants.XLTX]!!,
                     settings = settings,
 
                     listRoots = listRoots,
@@ -116,9 +116,9 @@ class SettingsViewModel(
                 settings = Settings(
                     isDarkTheme = state.value.isDarkTheme,
                     dataFormats = mapOf(
-                        Constants.Settings.XLSX to state.value.isXlsxFormat,
-                        Constants.Settings.XLS to state.value.isXlsFormat,
-                        Constants.Settings.XLTX to state.value.isXltxFormat,
+                        SettingsConstants.XLSX to state.value.isXlsxFormat,
+                        SettingsConstants.XLS to state.value.isXlsFormat,
+                        SettingsConstants.XLTX to state.value.isXltxFormat,
                     ),
                     localFolderToTable = state.value.selectedLocalFolderToTable.path
                 )

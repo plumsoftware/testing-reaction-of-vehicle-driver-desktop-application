@@ -1,6 +1,6 @@
 package presentation.authorization.login.store
 
-import domain.model.dto.TestDTO
+import data.model.dto.test.TestDTO
 
 sealed class Output {
     data object BackButtonClicked : Output()

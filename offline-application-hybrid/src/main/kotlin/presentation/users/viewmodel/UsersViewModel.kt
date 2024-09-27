@@ -1,6 +1,6 @@
 package presentation.users.viewmodel
 
-import domain.model.regular.user.User
+import data.model.regular.user.User
 import domain.storage.UserStorage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update

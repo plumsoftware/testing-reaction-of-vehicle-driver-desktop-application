@@ -3,6 +3,7 @@ package other.extension.padding
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 object ExtensionPadding {
@@ -12,8 +13,10 @@ object ExtensionPadding {
 
     private val mediumHorPadding = 22.dp
     private val smallHorPadding = 16.dp
+    val largeHorPadding = 26.dp
+    val emptySessionsListSize = 22.dp
     private val mediumVerPadding = 18.dp
-    private val smallVerPadding = 14.dp
+    val smallVerPadding = 14.dp
 
     val scaffoldTopPadding = 80.dp
 
@@ -24,6 +27,7 @@ object ExtensionPadding {
 
     val smallVerticalArrangementTop =
         Arrangement.spacedBy(space = smallItemSpacing, alignment = Alignment.Top)
+    val smallHorizontalArrangementCenter = Arrangement.Center
     val mediumVerticalArrangementTop =
         Arrangement.spacedBy(space = mediumItemSpacing, alignment = Alignment.Top)
     val largeVerticalArrangementTop =

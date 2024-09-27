@@ -9,9 +9,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.flow.MutableStateFlow
-import presentation.other.components.BackButton
-import presentation.other.extension.padding.ExtensionPadding
-import presentation.other.extension.size.ConstantSize
+import other.components.BackButton
+import other.extension.padding.ExtensionPadding
+import other.extension.size.ConstantSize
 import presentation.settings.store.Event
 import presentation.settings.store.State
 

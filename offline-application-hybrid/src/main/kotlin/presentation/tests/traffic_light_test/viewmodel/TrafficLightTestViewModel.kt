@@ -1,7 +1,7 @@
 package presentation.tests.traffic_light_test.viewmodel
 
-import domain.model.dto.TestDTO
-import domain.model.dto.database.SessionDTO
+import data.model.dto.test.TestDTO
+import data.model.dto.database.SessionDTO
 import domain.storage.SessionStorage
 import domain.storage.WorkbookStorage
 import kotlinx.coroutines.delay

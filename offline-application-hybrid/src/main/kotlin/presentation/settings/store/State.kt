@@ -1,6 +1,6 @@
 package presentation.settings.store
 
-import domain.model.regular.settings.Settings
+import data.model.regular.settings.Settings
 import java.io.File
 
 data class State(

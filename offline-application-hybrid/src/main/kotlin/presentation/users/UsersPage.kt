@@ -13,10 +13,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import presentation.other.components.BackButton
-import presentation.other.components.SearchField
-import presentation.other.components.UserButton
-import presentation.other.extension.padding.ExtensionPadding
+import other.components.BackButton
+import other.components.SearchField
+import other.components.UserButton
+import other.extension.padding.ExtensionPadding
 import presentation.users.store.Action
 import presentation.users.store.Event
 import presentation.users.viewmodel.UsersViewModel

@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.Json.Default.decodeFromString
 import utlis.createFolderIfNotExists
 import java.io.File
 import java.io.FileNotFoundException
@@ -73,7 +74,7 @@ class SettingsRepositoryImpl : SettingsRepository {
         var jsonString = settingsFile.readText()
 
         if (jsonString.isNotEmpty()) {
-            val settings: Settings = Json.decodeFromString<Settings>(jsonString)
+            val settings: Settings = Json { ignoreUnknownKeys = true }.decodeFromString<Settings>(jsonString)
             println("User settings to load is: $settings")
             return settings
         } else {
