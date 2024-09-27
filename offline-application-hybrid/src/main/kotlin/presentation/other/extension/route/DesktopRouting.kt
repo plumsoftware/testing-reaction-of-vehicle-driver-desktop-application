@@ -12,6 +12,8 @@ object DesktopRouting {
     const val users = "/users"
     const val about = "/about"
 
+    const val privacyPolicy = "/pp"
+
 //    region::Tests
     const val trafficLight = "/trafficLight"
 //    endregion

@@ -10,14 +10,14 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":offline-application-hybrid"))
     val material3 = "1.2.1"
 
     implementation(compose.desktop.currentOs)
 
     implementation("org.jetbrains.compose.material3:material3-desktop:${material3}")
 
-//    Recompose
+//    Precompose
+    api(globalVersions.precompose.viewmodel)
     api(globalVersions.precompose)
 
 //    Modules

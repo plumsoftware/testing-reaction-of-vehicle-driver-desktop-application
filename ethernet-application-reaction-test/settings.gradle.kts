@@ -14,3 +14,4 @@ pluginManagement {
 }
 
 rootProject.name = "ethernet-application-reaction-test"
+include(":authorization-ui-module")

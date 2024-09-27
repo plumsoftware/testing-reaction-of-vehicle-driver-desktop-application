@@ -1,18 +1,20 @@
 package authorization.auth.viewmodel
 
+import authorization.auth.store.Effect
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import moe.tlaster.precompose.viewmodel.ViewModel
 import authorization.auth.store.Event
-import authorization.auth.store.Output
 import authorization.auth.store.State
 import data.model.regular.user.User
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.launch
+import moe.tlaster.precompose.viewmodel.viewModelScope
 
-class AuthorizationViewModel(
-    private val output: (Output) -> Unit
-) : ViewModel() {
+class AuthorizationViewModel : ViewModel() {
 
     val state = MutableStateFlow(State(user = User.empty()))
+    val effect = MutableSharedFlow<Effect>()
 
     init {
         println("Authorization view model created")
@@ -21,7 +23,9 @@ class AuthorizationViewModel(
     fun onEvent(event: Event) {
         when (event) {
             Event.BackCLicked -> {
-                onOutput(Output.BackButtonClicked)
+                viewModelScope.launch {
+                    effect.emit(Effect.GoBack)
+                }
             }
 
             is Event.OnNameChanged -> {
@@ -52,9 +56,5 @@ class AuthorizationViewModel(
                 println(state.value.user.toString())
             }
         }
-    }
-
-    private fun onOutput(o: Output) {
-        output(o)
     }
 }

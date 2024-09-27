@@ -75,6 +75,10 @@ dependencies {
 
 //    Database
     implementation("app.cash.sqldelight:sqlite-driver:$sqlLightVersion")
+
+
+//    Modules
+    implementation(project(path = ":authorization-ui-module"))
 }
 
 compose.desktop {

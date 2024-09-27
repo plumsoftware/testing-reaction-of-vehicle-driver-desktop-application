@@ -11,6 +11,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import authorization.auth.AuthorizationPage
 import data.repository.SessionRepositoryImpl
 import data.repository.SettingsRepositoryImpl
 import data.repository.UserRepositoryImpl
@@ -36,8 +37,6 @@ import moe.tlaster.precompose.navigation.NavHost
 import moe.tlaster.precompose.navigation.rememberNavigator
 import moe.tlaster.precompose.navigation.transition.NavTransition
 import moe.tlaster.precompose.viewmodel.viewModel
-import presentation.authorization.auth.AuthorizationPage
-import presentation.authorization.auth.viewmodel.AuthorizationViewModel
 import presentation.authorization.login.Login
 import presentation.authorization.login.viewmodel.LoginViewModel
 import presentation.home.HomePage
@@ -153,18 +152,18 @@ fun main() = run {
                             }
                         )
                     }
-                    val authorizationViewModel: AuthorizationViewModel =
-                        viewModel(modelClass = AuthorizationViewModel::class) {
-                            AuthorizationViewModel(
-                                output = { output ->
-                                    when (output) {
-                                        presentation.authorization.auth.store.Output.BackButtonClicked -> {
-                                            navigator.goBack()
-                                        }
-                                    }
-                                }
-                            )
-                        }
+//                    val authorizationViewModel: AuthorizationViewModel =
+//                        viewModel(modelClass = AuthorizationViewModel::class) {
+//                            AuthorizationViewModel(
+//                                output = { output ->
+//                                    when (output) {
+//                                        presentation.authorization.auth.store.Output.BackButtonClicked -> {
+//                                            navigator.goBack()
+//                                        }
+//                                    }
+//                                }
+//                            )
+//                        }
                     val settingsViewModel: SettingsViewModel = viewModel(modelClass = SettingsViewModel::class) {
                         SettingsViewModel(
                             settingsStorage = settingsStorage,
@@ -227,7 +226,7 @@ fun main() = run {
                         }
                         scene(route = DesktopRouting.auth) {
                             println("Authorization page rendered")
-                            AuthorizationPage(authorizationViewModel::onEvent)
+                            AuthorizationPage(navigator = navigator)
                         }
                         scene(route = DesktopRouting.settings) {
                             println("Settings page rendered")
