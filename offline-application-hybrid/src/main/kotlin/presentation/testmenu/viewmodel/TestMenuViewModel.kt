@@ -31,7 +31,7 @@ class TestMenuViewModel : ViewModel() {
         when (event) {
             is Event.TestClicked -> {
                 viewModelScope.launch {
-                    effect.emit(Effect.TestClicked(route = event.route, testMode = event.testMode))
+                    effect.emit(Effect.TestClicked(route = event.route, testDTO = event.testDTO))
                 }
             }
 

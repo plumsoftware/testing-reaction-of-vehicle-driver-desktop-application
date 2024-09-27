@@ -22,7 +22,8 @@ import presentation.testmenu.viewmodel.TestMenuViewModel
 @Composable
 fun TestMenu(
     navigator: Navigator,
-    testDto: TestDTO
+    testDto: TestDTO,
+    block: (TestDTO) -> Unit = {}
 ) {
 
     val testMenuViewModel = viewModel(modelClass = TestMenuViewModel::class) {
@@ -52,6 +53,7 @@ fun TestMenu(
                 }
 
                 is Effect.TestClicked -> {
+                    block.invoke(effect.testDTO)
                     navigator.navigate(route = effect.route)
                 }
             }
@@ -86,10 +88,13 @@ fun TestMenu(
             for (i in state.reactionTests) {
                 Button(
                     onClick = {
+                        val testMode = TestMode(name = i.name, id = i.id.toLong())
+                        val testDto_ = testDto.copy(testMode = testMode)
+
                         testMenuViewModel.onEvent(
                             Event.TestClicked(
                                 route = i.route,
-                                testMode = TestMode(name = i.name, id = i.id.toLong())
+                                testDTO = testDto_
                             )
                         )
                     },

@@ -274,7 +274,17 @@ fun main() = run {
                         }
                         scene(route = DesktopRouting.testmenu) {
                             println("Test menu page rendered")
-                            TestMenu(navigator = navigator, testDto = mainState.value.testDTO)
+                            TestMenu(
+                                navigator = navigator,
+                                testDto = mainState.value.testDTO,
+                                block = {
+                                    mainViewModel.onEvent(
+                                        presentation.main.Event.ChangeTestDto(
+                                            testDto = it
+                                        )
+                                    )
+                                }
+                            )
                         }
                         scene(route = DesktopRouting.settings) {
                             println("Settings page rendered")
