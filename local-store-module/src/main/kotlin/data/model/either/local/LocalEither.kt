@@ -1,4 +1,4 @@
-package data.model.either
+package data.model.either.local
 
 sealed class LocalEither<out E, out D> {
 

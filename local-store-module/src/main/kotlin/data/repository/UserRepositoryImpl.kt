@@ -3,7 +3,7 @@ package data.repository
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import data.constant.DatabaseConstants
 import data.constant.GeneralConstants
-import data.model.either.LocalEither
+import data.model.either.local.LocalEither
 import domain.repository.UserRepository
 import ru.plumsoftware.Database
 import ru.plumsoftware.users.Users

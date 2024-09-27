@@ -10,6 +10,7 @@ repositories {
 }
 
 dependencies {
+    implementation(project(":local-store-module"))
     val material3 = "1.2.1"
 
     implementation(compose.desktop.currentOs)

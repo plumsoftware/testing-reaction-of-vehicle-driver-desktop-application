@@ -10,15 +10,19 @@ repositories {
 }
 
 dependencies {
+    implementation(project(":offline-application-hybrid"))
     val material3 = "1.2.1"
 
     implementation(compose.desktop.currentOs)
 
     implementation("org.jetbrains.compose.material3:material3-desktop:${material3}")
 
-//    JUnit
-    testImplementation("org.junit.jupiter:junit-jupiter:5.7.1")
-    testImplementation(kotlin("test"))
+//    Recompose
+    api(globalVersions.precompose)
+
+//    Modules
+    implementation(project(":local-store-module"))
+    implementation(project(":theme-ui-module"))
 }
 
 tasks.test {

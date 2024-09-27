@@ -13,3 +13,5 @@ pluginManagement {
 }
 
 rootProject.name = "authorization-ui-module"
+include(":theme-ui-module")
+include(":local-store-module")

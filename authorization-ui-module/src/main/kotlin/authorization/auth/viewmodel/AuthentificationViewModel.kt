@@ -1,0 +1,60 @@
+package authorization.auth.viewmodel
+
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
+import moe.tlaster.precompose.viewmodel.ViewModel
+import authorization.auth.store.Event
+import authorization.auth.store.Output
+import authorization.auth.store.State
+import data.model.regular.user.User
+
+class AuthorizationViewModel(
+    private val output: (Output) -> Unit
+) : ViewModel() {
+
+    val state = MutableStateFlow(State(user = User.empty()))
+
+    init {
+        println("Authorization view model created")
+    }
+
+    fun onEvent(event: Event) {
+        when (event) {
+            Event.BackCLicked -> {
+                onOutput(Output.BackButtonClicked)
+            }
+
+            is Event.OnNameChanged -> {
+                state.update {
+                    it.copy(
+                        user = it.user.copy(name = event.name)
+                    )
+                }
+            }
+
+            is Event.OnPatronymicChanged -> {
+                state.update {
+                    it.copy(
+                        user = it.user.copy(patronymic = event.patronymic)
+                    )
+                }
+            }
+
+            is Event.OnSurnameChanged -> {
+                state.update {
+                    it.copy(
+                        user = it.user.copy(surname = event.surname)
+                    )
+                }
+            }
+
+            Event.StartTest -> {
+                println(state.value.user.toString())
+            }
+        }
+    }
+
+    private fun onOutput(o: Output) {
+        output(o)
+    }
+}

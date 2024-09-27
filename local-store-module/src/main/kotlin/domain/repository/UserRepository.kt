@@ -1,6 +1,6 @@
 package domain.repository
 
-import data.model.either.LocalEither
+import data.model.either.local.LocalEither
 import data.model.regular.user.User
 import ru.plumsoftware.sessions.Sessions
 import ru.plumsoftware.users.Users

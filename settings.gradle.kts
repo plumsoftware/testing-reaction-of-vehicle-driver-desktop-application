@@ -22,3 +22,10 @@ include(":local-store-module")
 include(":cryptography-module")
 include(":authorization-ui-module")
 include(":theme-ui-module")
+dependencyResolutionManagement {
+    versionCatalogs {
+        create("globalVersions") {
+            from(files("gradle/globalVersions.versions.toml"))
+        }
+    }
+}

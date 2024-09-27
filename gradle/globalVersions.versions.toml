@@ -1,0 +1,8 @@
+[versions]
+precompose = "1.6.0"
+
+[libraries]
+precompose = {module = "moe.tlaster:precompose-viewmodel", version.ref = "precompose"}
+
+[plugins]
+
