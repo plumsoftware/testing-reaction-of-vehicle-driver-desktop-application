@@ -1,6 +1,6 @@
 package domain.storage
 
-import domain.model.regular.settings.Settings
+import data.model.regular.settings.Settings
 import domain.usecase.settings.GetUserSettingsUseCase
 import domain.usecase.settings.SaveUserSettingsUseCase
 import kotlinx.coroutines.CoroutineScope

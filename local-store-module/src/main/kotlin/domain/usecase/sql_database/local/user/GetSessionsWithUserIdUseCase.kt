@@ -1,8 +1,8 @@
 package domain.usecase.sql_database.local.user
 
-import domain.model.dto.database.SessionDTO
-import domain.model.regular.user.DrivingLicenseCategory
-import domain.model.regular.user.Interval
+import data.model.dto.database.SessionDTO
+import data.model.regular.user.DrivingLicenseCategory
+import data.model.regular.user.Interval
 import domain.repository.UserRepository
 
 class GetSessionsWithUserIdUseCase(private val userRepository: UserRepository) {
