@@ -2,79 +2,49 @@ package presentation.tests.traffic_light_test.viewmodel
 
 import data.model.dto.test.TestDTO
 import data.model.dto.database.SessionDTO
+import data.model.regular.settings.Settings
 import domain.storage.SessionStorage
 import domain.storage.WorkbookStorage
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
-import presentation.tests.traffic_light_test.store.Action
+import presentation.tests.traffic_light_test.store.Effect
 import presentation.tests.traffic_light_test.store.Event
-import presentation.tests.traffic_light_test.store.Output
 import presentation.tests.traffic_light_test.store.State
 import java.util.Calendar
 import kotlin.math.sqrt
 import kotlin.random.Random
 
 class TrafficLightTestViewModel(
-    private val output: (Output) -> Unit,
     private val workbookStorage: WorkbookStorage,
-    private val dataFormats: Map<String, Boolean>,
-    private val localFolderToTable: String,
-    private val actions: MutableStateFlow<Action?>,
+    settings: Settings,
+    testDTO: TestDTO,
     private val sessionStorage: SessionStorage
 ) : ViewModel() {
 
-    val state = MutableStateFlow(State())
+    val state = MutableStateFlow(
+        State(
+            dataFormats = settings.dataFormats,
+            localFolderToTable = settings.localFolderToTable,
+            testDTO = testDTO
+        )
+    )
+    val effect = MutableSharedFlow<Effect>()
 
     init {
         println("Traffic light Test ViewModel created")
-        collectActions()
-    }
-
-    private fun collectActions() {
-        viewModelScope.launch {
-            actions.collect { action ->
-                when (action) {
-                    Action.StartTimer -> {
-                        clearStartData()
-                        while (state.value.startTimerTime > 0) {
-                            delay(1000)
-                            val temp = state.value.startTimerTime - 1
-                            state.update {
-                                it.copy(
-                                    startTimerTime = temp
-                                )
-                            }
-                        }
-                        if (state.value.startTimerTime == 0) {
-                            actions.emit(Action.GenerateRandomSignal)
-                        }
-                        println("Count is ${state.value.count}")
-                    }
-
-                    Action.GenerateRandomSignal -> {
-                        generateRandomSignal()
-                    }
-
-                    is Action.IniStartData -> {
-                        state.update {
-                            it.copy(testDTO = action.testDTO)
-                        }
-                    }
-
-                    null -> {}
-                }
-            }
-        }
     }
 
     fun onEvent(event: Event) {
         when (event) {
             Event.BackCLicked -> {
-                onOutput(Output.BackButtonClicked)
+                viewModelScope.launch {
+                    effect.emit(Effect.BackClicked)
+                }
             }
 
             is Event.OnTrafficLightLampButtonClicked -> {
@@ -82,7 +52,7 @@ class TrafficLightTestViewModel(
                 registerUserReactionTime()
                 registerErrors(event.clickedLampIndex)
 
-                if (state.value.userClicked != state.value.count)
+                if (state.value.userClicked != state.value.testDTO.count)
                     generateRandomInterval()
                 else {
                     stopTest()
@@ -94,30 +64,25 @@ class TrafficLightTestViewModel(
                 }
             }
 
-            is Event.InitStartData -> state.update {
-                with(event.testDTO.copy(testMode = state.value.testMode)) {
-                    it.copy(
-                        user = this.user,
-                        count = this.count,
-                        signalInterval = this.interval,
-                        testMode = this.testMode,
-                        testDTO = this
-                    )
-                }
-            }
-
-            is Event.InitTestMode -> {
-                state.update {
-                    it.copy(
-                        testMode = event.testMode
-                    )
+            Event.StartTimer -> {
+                viewModelScope.launch {
+                    clearStartData()
+                    while (state.value.startTimerTime > 0) {
+                        delay(1000)
+                        val temp = state.value.startTimerTime - 1
+                        state.update {
+                            it.copy(
+                                startTimerTime = temp
+                            )
+                        }
+                    }
+                    if (state.value.startTimerTime == 0) {
+                        generateRandomSignal()
+                    }
+                    println("Count is ${state.value.testDTO.count}")
                 }
             }
         }
-    }
-
-    private fun onOutput(o: Output) {
-        output(o)
     }
 
     private fun generateRandomSignal() {
@@ -154,7 +119,10 @@ class TrafficLightTestViewModel(
                 }
 
                 val intervalSignal =
-                    Random.nextLong(state.value.signalInterval.start, state.value.signalInterval.finish)
+                    Random.nextLong(
+                        state.value.testDTO.interval.start,
+                        state.value.testDTO.interval.finish
+                    )
 
                 println("==================")
                 println("Signal interval is ${intervalSignal}msc")
@@ -202,19 +170,14 @@ class TrafficLightTestViewModel(
 
     private suspend fun preRegisterDataDatabaseCompile() {
         workbookStorage.createWorkbookIfNotExists(
-            folderPath = localFolderToTable,
-            dataFormats = dataFormats
+            folderPath = state.value.localFolderToTable,
+            dataFormats = state.value.dataFormats
         )
     }
 
     private suspend fun registerDataInDatabase() {
         val calendarForGetDate = Calendar.getInstance()
-        val testDTO = TestDTO(
-            user = state.value.user,
-            count = state.value.count,
-            interval = state.value.signalInterval,
-            testMode = state.value.testMode,
-            intervals = state.value.intervals.toList(),
+        val testDTO = state.value.testDTO.copy(
             errorsCount = state.value.errors,
             sessionId = sessionStorage.getLastSessionIdUseCase(),
             averageValue = getAverage(),
@@ -240,8 +203,8 @@ class TrafficLightTestViewModel(
         )
         workbookStorage.writeDataToWorkbook(
             testDTO = testDTO,
-            folderPath = localFolderToTable,
-            dataFormats = dataFormats
+            folderPath = state.value.localFolderToTable,
+            dataFormats = state.value.dataFormats
         )
         sessionStorage.insertOrAbort(
             sessionDTO = sessionDTO

@@ -128,8 +128,6 @@ fun main() = run {
                     //
                     val navigator = rememberNavigator()
 
-                    var trafficLightTestViewModel: TrafficLightTestViewModel? = null
-
                     //
                     val mainViewModel: MainViewModel =
                         viewModel(modelClass = MainViewModel::class) {
@@ -177,23 +175,6 @@ fun main() = run {
                                         presentation.settings.store.Output.BackClicked -> navigator.goBack()
                                     }
                                 }
-                            )
-                        }
-                    trafficLightTestViewModel =
-                        viewModel(modelClass = TrafficLightTestViewModel::class) {
-                            TrafficLightTestViewModel(
-                                workbookStorage = workBookStorage,
-                                dataFormats = settings.dataFormats,
-                                localFolderToTable = settings.localFolderToTable,
-                                output = { output ->
-                                    when (output) {
-                                        presentation.tests.traffic_light_test.store.Output.BackButtonClicked -> {
-                                            navigator.navigate(route = DesktopRouting.home)
-                                        }
-                                    }
-                                },
-                                actions = mainViewModel.trafficLightActions,
-                                sessionStorage = sessionStorage
                             )
                         }
 
@@ -335,11 +316,11 @@ fun main() = run {
                         scene(route = DesktopRouting.trafficLight) {
                             println("TrafficLightTest page rendered")
                             TrafficLightTest(
-                                trafficLightTestViewModel::onEvent,
-                                trafficLightTestViewModel.state,
-                                getAverage = trafficLightTestViewModel::getAverage,
-                                getStdDeviation = trafficLightTestViewModel::getStdDeviation,
-                                mainViewModel::onEvent
+                                workBookStorage = workBookStorage,
+                                settings = settings,
+                                testDTO = mainState.value.testDTO,
+                                sessionStorage = sessionStorage,
+                                navigator = navigator
                             )
                         }
 //                        endregion

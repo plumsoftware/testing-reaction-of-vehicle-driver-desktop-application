@@ -27,20 +27,7 @@ fun TestMenu(
 ) {
 
     val testMenuViewModel = viewModel(modelClass = TestMenuViewModel::class) {
-        TestMenuViewModel(
-//            output = { output ->
-//                when (output) {
-//                    is Output.TestClicked -> {
-//                        trafficLightTestViewModel?.onEvent(Event.InitTestMode(testMode = output.testMode))
-//                        navigator.navigate(route = output.route)
-//                    }
-//
-//                    Output.BackButtonClicked -> {
-//                        navigator.goBack()
-//                    }
-//                }
-//            }
-        )
+        TestMenuViewModel()
     }
 
     val state = testMenuViewModel.state.collectAsState().value
