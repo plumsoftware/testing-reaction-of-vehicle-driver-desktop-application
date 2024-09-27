@@ -1,6 +1,7 @@
 package presentation
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.res.loadImageBitmap
@@ -46,6 +47,7 @@ import presentation.home.viewmodel.HomeViewModel
 import theme.AppTheme
 import model.tests.ReactionTest
 import model.tests.TrafficLight
+import moe.tlaster.precompose.navigation.path
 import other.extension.route.DesktopRouting
 import presentation.aboutuser.AboutUserPage
 import presentation.aboutuser.viewmodel.AboutUserViewModel
@@ -73,9 +75,6 @@ fun main() = run {
     application {
 
         val windowState = rememberWindowState(placement = WindowPlacement.Maximized)
-        val reactionTests: List<ReactionTest> = listOf(
-            TrafficLight()
-        )
 
 //        region::Storage
         /** Integrated **/
@@ -103,7 +102,9 @@ fun main() = run {
         val sessionRepository = SessionRepositoryImpl_()
         val sessionStorage = SessionStorage(
             getLastSessionIdUseCase = GetLastSessionIdUseCase(sessionRepository),
-            getAllSessionsDtoFromDatabaseUseCase = GetAllSessionsDtoFromDatabaseUseCase(sessionRepository),
+            getAllSessionsDtoFromDatabaseUseCase = GetAllSessionsDtoFromDatabaseUseCase(
+                sessionRepository
+            ),
             insertOrAbortNewSessionUseCase = InsertOrAbortNewSessionUseCase(sessionRepository)
         )
 //        endregion
@@ -124,143 +125,141 @@ fun main() = run {
             AppTheme(useDarkTheme = settings.isDarkTheme) {
                 PreComposeApp {
 //                    region::View models
+                    //
                     val navigator = rememberNavigator()
-                    val testMenuViewModel: TestMenuViewModel
+
                     var trafficLightTestViewModel: TrafficLightTestViewModel? = null
 
-                    val mainViewModel: MainViewModel = viewModel(modelClass = MainViewModel::class) {
-                        MainViewModel()
-                    }
-                    val homeViewModel: HomeViewModel = viewModel(modelClass = HomeViewModel::class) {
-                        HomeViewModel(
-                            output = { output ->
-                                when (output) {
-                                    presentation.home.store.Output.AboutProgramButtonClicked -> {
+                    //
+                    val mainViewModel: MainViewModel =
+                        viewModel(modelClass = MainViewModel::class) {
+                            MainViewModel()
+                        }
+                    val mainState = mainViewModel.state.collectAsState()
 
-                                    }
 
-                                    presentation.home.store.Output.SettingsButtonClicked -> {
-                                        navigator.navigate(route = DesktopRouting.settings)
-                                    }
+                    val homeViewModel: HomeViewModel =
+                        viewModel(modelClass = HomeViewModel::class) {
+                            HomeViewModel(
+                                output = { output ->
+                                    when (output) {
+                                        presentation.home.store.Output.AboutProgramButtonClicked -> {
 
-                                    presentation.home.store.Output.TestsButtonClicked -> {
-                                        navigator.navigate(route = DesktopRouting.login)
-                                    }
+                                        }
 
-                                    presentation.home.store.Output.AddNewUserButtonClicked -> {
-                                        navigator.navigate(route = DesktopRouting.addnewuser)
-                                    }
+                                        presentation.home.store.Output.SettingsButtonClicked -> {
+                                            navigator.navigate(route = DesktopRouting.settings)
+                                        }
 
-                                    presentation.home.store.Output.UsersButtonClicked -> {
-                                        navigator.navigate(route = DesktopRouting.users)
-                                    }
-                                }
-                            }
-                        )
-                    }
-                    testMenuViewModel = viewModel(modelClass = TestMenuViewModel::class) {
-                        TestMenuViewModel(
-                            output = { output ->
-                                when (output) {
-                                    is Output.TestClicked -> {
-                                        trafficLightTestViewModel?.onEvent(Event.InitTestMode(testMode = output.testMode))
-                                        navigator.navigate(route = output.route)
-                                    }
+                                        presentation.home.store.Output.TestsButtonClicked -> {
+                                            navigator.navigate(route = DesktopRouting.login)
+                                        }
 
-                                    Output.BackButtonClicked -> {
-                                        navigator.goBack()
+                                        presentation.home.store.Output.AddNewUserButtonClicked -> {
+                                            navigator.navigate(route = DesktopRouting.addnewuser)
+                                        }
+
+                                        presentation.home.store.Output.UsersButtonClicked -> {
+                                            navigator.navigate(route = DesktopRouting.users)
+                                        }
                                     }
                                 }
-                            }
-                        )
-                    }
-                    val settingsViewModel: SettingsViewModel = viewModel(modelClass = SettingsViewModel::class) {
-                        SettingsViewModel(
-                            settingsStorage = settingsStorage,
-                            coroutineContextIO = coroutineContextIO,
-                            output = { output ->
-                                when (output) {
-                                    presentation.settings.store.Output.BackClicked -> navigator.goBack()
-                                }
-                            }
-                        )
-                    }
-                    trafficLightTestViewModel = viewModel(modelClass = TrafficLightTestViewModel::class) {
-                        TrafficLightTestViewModel(
-                            workbookStorage = workBookStorage,
-                            dataFormats = settings.dataFormats,
-                            localFolderToTable = settings.localFolderToTable,
-                            output = { output ->
-                                when (output) {
-                                    presentation.tests.traffic_light_test.store.Output.BackButtonClicked -> {
-                                        navigator.navigate(route = DesktopRouting.home)
+                            )
+                        }
+
+                    val settingsViewModel: SettingsViewModel =
+                        viewModel(modelClass = SettingsViewModel::class) {
+                            SettingsViewModel(
+                                settingsStorage = settingsStorage,
+                                coroutineContextIO = coroutineContextIO,
+                                output = { output ->
+                                    when (output) {
+                                        presentation.settings.store.Output.BackClicked -> navigator.goBack()
                                     }
                                 }
-                            },
-                            actions = mainViewModel.trafficLightActions,
-                            sessionStorage = sessionStorage
-                        )
-                    }
+                            )
+                        }
+                    trafficLightTestViewModel =
+                        viewModel(modelClass = TrafficLightTestViewModel::class) {
+                            TrafficLightTestViewModel(
+                                workbookStorage = workBookStorage,
+                                dataFormats = settings.dataFormats,
+                                localFolderToTable = settings.localFolderToTable,
+                                output = { output ->
+                                    when (output) {
+                                        presentation.tests.traffic_light_test.store.Output.BackButtonClicked -> {
+                                            navigator.navigate(route = DesktopRouting.home)
+                                        }
+                                    }
+                                },
+                                actions = mainViewModel.trafficLightActions,
+                                sessionStorage = sessionStorage
+                            )
+                        }
 
-                    val aboutUserViewModel: AboutUserViewModel = viewModel(modelClass = AboutUserViewModel::class) {
-                        AboutUserViewModel(
-                            userStorage = userStorage,
-                            coroutineContextIO = coroutineContextIO,
-                            output = { output ->
-                                when (output) {
-                                    presentation.aboutuser.store.Output.BackButtonClicked -> {
-                                        navigator.popBackStack()
+                    val aboutUserViewModel: AboutUserViewModel =
+                        viewModel(modelClass = AboutUserViewModel::class) {
+                            AboutUserViewModel(
+                                userStorage = userStorage,
+                                coroutineContextIO = coroutineContextIO,
+                                output = { output ->
+                                    when (output) {
+                                        presentation.aboutuser.store.Output.BackButtonClicked -> {
+                                            navigator.popBackStack()
+                                        }
                                     }
                                 }
-                            }
-                        )
-                    }
+                            )
+                        }
 
-                    val privacyPolicyViewModel = viewModel(modelClass = PrivacyPolicyViewModel::class) {
-                        PrivacyPolicyViewModel(
-                            output = { output ->
-                                when (output) {
-                                    presentation.privacypolicy.store.Output.BackButtonClicked -> navigator.popBackStack()
-                                }
-                            }
-                        )
-                    }
-
-                    val usersViewModel: UsersViewModel = viewModel(modelClass = UsersViewModel::class) {
-                        UsersViewModel(
-                            userStorage = userStorage,
-                            output = { output ->
-                                when (output) {
-                                    presentation.users.store.Output.BackButtonClicked -> {
-                                        navigator.popBackStack()
+                    val privacyPolicyViewModel =
+                        viewModel(modelClass = PrivacyPolicyViewModel::class) {
+                            PrivacyPolicyViewModel(
+                                output = { output ->
+                                    when (output) {
+                                        presentation.privacypolicy.store.Output.BackButtonClicked -> navigator.popBackStack()
                                     }
+                                }
+                            )
+                        }
 
-                                    is presentation.users.store.Output.OnUserClicked -> {
-                                        aboutUserViewModel.onEvent(
-                                            presentation.aboutuser.store.Event.ChangeSelectedUser(
-                                                userId = output.userId
+                    val usersViewModel: UsersViewModel =
+                        viewModel(modelClass = UsersViewModel::class) {
+                            UsersViewModel(
+                                userStorage = userStorage,
+                                output = { output ->
+                                    when (output) {
+                                        presentation.users.store.Output.BackButtonClicked -> {
+                                            navigator.popBackStack()
+                                        }
+
+                                        is presentation.users.store.Output.OnUserClicked -> {
+                                            aboutUserViewModel.onEvent(
+                                                presentation.aboutuser.store.Event.ChangeSelectedUser(
+                                                    userId = output.userId
+                                                )
                                             )
-                                        )
-                                        navigator.navigate(route = DesktopRouting.aboutuser)
+                                            navigator.navigate(route = DesktopRouting.aboutuser)
+                                        }
                                     }
                                 }
-                            }
-                        )
-                    }
+                            )
+                        }
 
-                    val newUserViewModel: NewUserViewModel = viewModel(modelClass = NewUserViewModel::class) {
-                        NewUserViewModel(
-                            userStorage = userStorage,
-                            coroutineContextIO = coroutineContextIO,
-                            output = { output ->
-                                when (output) {
-                                    presentation.newuser.store.Output.BackButtonClicked -> {
-                                        navigator.popBackStack()
+                    val newUserViewModel: NewUserViewModel =
+                        viewModel(modelClass = NewUserViewModel::class) {
+                            NewUserViewModel(
+                                userStorage = userStorage,
+                                coroutineContextIO = coroutineContextIO,
+                                output = { output ->
+                                    when (output) {
+                                        presentation.newuser.store.Output.BackButtonClicked -> {
+                                            navigator.popBackStack()
+                                        }
                                     }
                                 }
-                            }
-                        )
-                    }
+                            )
+                        }
 //                    endregion
                     NavHost(
                         navigator = navigator,
@@ -275,7 +274,7 @@ fun main() = run {
                         }
                         scene(route = DesktopRouting.testmenu) {
                             println("Test menu page rendered")
-                            TestMenu(testMenuViewModel::onEvent, reactionTests, testMenuViewModel)
+                            TestMenu(navigator = navigator, testDto = mainState.value.testDTO)
                         }
                         scene(route = DesktopRouting.settings) {
                             println("Settings page rendered")
@@ -283,7 +282,17 @@ fun main() = run {
                         }
                         scene(route = DesktopRouting.login) {
                             println("Login page rendered")
-                            Login(navigator = navigator, userStorage = userStorage)
+                            Login(
+                                navigator = navigator,
+                                userStorage = userStorage,
+                                block = {
+                                    mainViewModel.onEvent(
+                                        presentation.main.Event.ChangeTestDto(
+                                            testDto = it
+                                        )
+                                    )
+                                }
+                            )
                         }
                         scene(route = DesktopRouting.users) {
                             println("Users page rendered")

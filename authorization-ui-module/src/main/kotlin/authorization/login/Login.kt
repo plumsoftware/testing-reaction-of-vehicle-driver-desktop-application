@@ -14,6 +14,7 @@ import authorization.login.store.Effect
 import authorization.login.store.Event
 import authorization.login.viewmodel.LoginViewModel
 import data.constant.TestConstants
+import data.model.dto.test.TestDTO
 import data.model.regular.user.DrivingLicenseCategory
 import data.model.regular.user.Interval
 import domain.storage.UserStorage
@@ -29,7 +30,7 @@ import other.extension.route.DesktopRouting
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Login(navigator: Navigator, userStorage: UserStorage) {
+fun Login(navigator: Navigator, userStorage: UserStorage, block: (TestDTO) -> Unit = {}) {
 
     val loginViewModel: LoginViewModel = viewModel(modelClass = LoginViewModel::class) {
         LoginViewModel(
@@ -45,6 +46,7 @@ fun Login(navigator: Navigator, userStorage: UserStorage) {
                 }
 
                 is Effect.OpenTestMenu -> {
+                    block.invoke(effect.testDto)
                     navigator.navigate(route = DesktopRouting.testmenu)
                 }
 

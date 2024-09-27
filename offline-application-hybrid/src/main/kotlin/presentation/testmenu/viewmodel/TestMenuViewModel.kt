@@ -1,17 +1,27 @@
 package presentation.testmenu.viewmodel
 
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import model.tests.TrafficLight
 import moe.tlaster.precompose.viewmodel.ViewModel
+import moe.tlaster.precompose.viewmodel.viewModelScope
+import presentation.testmenu.store.Effect
 import presentation.testmenu.store.Event
 import presentation.testmenu.store.Output
 import presentation.testmenu.store.State
 
-class TestMenuViewModel(
-    private val output: (Output) -> Unit
-) : ViewModel() {
+class TestMenuViewModel : ViewModel() {
 
-    val state = MutableStateFlow(State())
+    val state = MutableStateFlow(
+        State(
+            reactionTests = listOf(
+                TrafficLight()
+            )
+        )
+    )
+    val effect = MutableSharedFlow<Effect>()
 
     init {
         println("Test menu view model created")
@@ -20,24 +30,16 @@ class TestMenuViewModel(
     fun onEvent(event: Event) {
         when (event) {
             is Event.TestClicked -> {
-                onOutput(o = Output.TestClicked(route = event.route, testMode = event.testMode))
+                viewModelScope.launch {
+                    effect.emit(Effect.TestClicked(route = event.route, testMode = event.testMode))
+                }
             }
 
             Event.BackCLicked -> {
-                onOutput(o = Output.BackButtonClicked)
-            }
-
-            is Event.ChangeUser -> {
-                state.update {
-                    it.copy(
-                        user = event.user
-                    )
+                viewModelScope.launch {
+                    effect.emit(Effect.BackClicked)
                 }
             }
         }
-    }
-
-    private fun onOutput(o: Output) {
-        output(o)
     }
 }

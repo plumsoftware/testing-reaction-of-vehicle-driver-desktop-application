@@ -1,7 +1,8 @@
 package presentation.testmenu.store
 
-import data.model.regular.user.User
+import model.tests.ReactionTest
 
 data class State(
-    val user: User = User.empty()
+    val id: Long = -1L,
+    val reactionTests: List<ReactionTest>,
 )
