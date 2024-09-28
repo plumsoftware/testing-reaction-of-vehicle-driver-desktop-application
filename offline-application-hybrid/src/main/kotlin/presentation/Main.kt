@@ -119,7 +119,7 @@ fun main() = run {
         Window(
             onCloseRequest = ::exitApplication,
             icon = BitmapPainter(useResource("main_icon.png", ::loadImageBitmap)),
-            title = "Тест на рекацию",
+            title = "Тест на реакцию",
             state = windowState,
         ) {
             AppTheme(useDarkTheme = settings.isDarkTheme) {
