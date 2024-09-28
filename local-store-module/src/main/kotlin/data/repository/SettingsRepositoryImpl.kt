@@ -9,7 +9,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.Json.Default.decodeFromString
 import utlis.createFolderIfNotExists
 import java.io.File
 import java.io.FileNotFoundException
@@ -37,6 +36,11 @@ class SettingsRepositoryImpl : SettingsRepository {
                     .append("\t\t\"$key\" : $value\n")
         }
         stringBuffer.append("\t},\n")
+
+//        Network drive & local drive
+        stringBuffer
+            .append("\t\"networkDrive\" : \"${settings.networkDrive}\"")
+            .append(",\n")
 
 //        Local folder to table
         stringBuffer
