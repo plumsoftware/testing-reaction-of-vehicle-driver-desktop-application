@@ -4,23 +4,24 @@ import data.model.either.AppEither
 import data.model.regular.user.Gender
 import data.model.regular.user.User
 import domain.storage.UserStorage
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
+import presentation.newuser.store.Effect
 import presentation.newuser.store.Event
-import presentation.newuser.store.Output
 import presentation.newuser.store.State
-import kotlin.coroutines.CoroutineContext
 
 class NewUserViewModel(
-    private val userStorage: UserStorage,
-    private val output: (Output) -> Unit,
-    private val coroutineContextIO: CoroutineContext
+    private val userStorage: UserStorage
 ) : ViewModel() {
 
-    val state: MutableStateFlow<State> = MutableStateFlow(State())
+    val state = MutableStateFlow(State())
+    val effect = MutableSharedFlow<Effect>()
+
+    private val supervisorCoroutineContext = viewModelScope.coroutineContext + SupervisorJob()
 
     init {
         println("New user view model created")
@@ -29,8 +30,10 @@ class NewUserViewModel(
     fun onEvent(event: Event) {
         when (event) {
             Event.BackCLicked -> {
-                onOutput(Output.BackButtonClicked)
                 clearState()
+                viewModelScope.launch {
+                    effect.emit(Effect.BackClicked)
+                }
             }
 
             is Event.OnGenderChanged -> {
@@ -89,7 +92,7 @@ class NewUserViewModel(
                         login = state.value.login,
                         password = state.value.password
                     )
-                    viewModelScope.launch(coroutineContextIO) {
+                    viewModelScope.launch(context = supervisorCoroutineContext) {
                         val isPasswordUnique = userStorage.isPasswordUnique(state.value.password)
                         if (isPasswordUnique) {
                             try {
@@ -116,10 +119,6 @@ class NewUserViewModel(
                 }
             }
         }
-    }
-
-    private fun onOutput(o: Output) {
-        output(o)
     }
 
     private fun checkErrors(): Boolean {

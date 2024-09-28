@@ -4,36 +4,63 @@ import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import data.model.either.AppEither
 import data.model.regular.user.Gender
+import domain.storage.UserStorage
+import moe.tlaster.precompose.navigation.Navigator
+import moe.tlaster.precompose.viewmodel.viewModel
 import other.components.AuthSpinnerField
 import other.components.AuthTextField
 import other.components.BackButton
 import other.components.DefaultButton
 import other.extension.padding.ExtensionPadding
+import presentation.newuser.store.Effect
 import presentation.newuser.store.Event
 import presentation.newuser.viewmodel.NewUserViewModel
 import theme.ExtendedTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewUserPage(onEvent: (Event) -> Unit, newUserViewModel: NewUserViewModel) {
+fun NewUserPage(navigator: Navigator, userStorage: UserStorage) {
+
+    val newUserViewModel: NewUserViewModel =
+        viewModel(modelClass = NewUserViewModel::class) {
+            NewUserViewModel(
+                userStorage = userStorage
+            )
+        }
 
     val state = newUserViewModel.state.collectAsState()
+
+    LaunchedEffect(key1 = Unit) {
+        newUserViewModel.effect.collect { effect ->
+            when (effect) {
+                Effect.BackClicked -> {
+                    navigator.goBack()
+                }
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
             BackButton(
-                onClick = { onEvent(Event.BackCLicked) }
+                onClick = { newUserViewModel.onEvent(Event.BackCLicked) }
             )
         },
         floatingActionButton = {
             DefaultButton(
-                onClick = { onEvent(Event.SaveNewUser) },
-                content = { Text(text = "Сохранить", style = MaterialTheme.typography.headlineMedium) })
+                onClick = { newUserViewModel.onEvent(Event.SaveNewUser) },
+                content = {
+                    Text(
+                        text = "Сохранить",
+                        style = MaterialTheme.typography.headlineMedium
+                    )
+                })
         },
         floatingActionButtonPosition = FabPosition.End,
         modifier = Modifier.fillMaxSize()
@@ -53,7 +80,7 @@ fun NewUserPage(onEvent: (Event) -> Unit, newUserViewModel: NewUserViewModel) {
                 AuthTextField(
                     labelHint = "Фамилию",
                     onValueChange = {
-                        onEvent(Event.OnSurnameChanged(surname = it))
+                        newUserViewModel.onEvent(Event.OnSurnameChanged(surname = it))
                     },
                     modifier = Modifier.fillMaxWidth().weight(1.0f),
                     isError = state.value.isSurnameError
@@ -61,7 +88,7 @@ fun NewUserPage(onEvent: (Event) -> Unit, newUserViewModel: NewUserViewModel) {
                 AuthTextField(
                     labelHint = "Имя",
                     onValueChange = {
-                        onEvent(Event.OnNameChanged(name = it))
+                        newUserViewModel.onEvent(Event.OnNameChanged(name = it))
                     },
                     modifier = Modifier.fillMaxWidth().weight(1.0f),
                     isError = state.value.isNameError
@@ -69,7 +96,7 @@ fun NewUserPage(onEvent: (Event) -> Unit, newUserViewModel: NewUserViewModel) {
                 AuthTextField(
                     labelHint = "Отчество (при наличии)",
                     onValueChange = {
-                        onEvent(Event.OnPatronymicChanged(patronymic = it))
+                        newUserViewModel.onEvent(Event.OnPatronymicChanged(patronymic = it))
                     },
                     modifier = Modifier.fillMaxWidth().weight(1.0f),
                 )
@@ -82,7 +109,7 @@ fun NewUserPage(onEvent: (Event) -> Unit, newUserViewModel: NewUserViewModel) {
                 AuthTextField(
                     labelHint = "Логин",
                     onValueChange = {
-                        onEvent(Event.OnLoginChanged(login = it))
+                        newUserViewModel.onEvent(Event.OnLoginChanged(login = it))
                     },
                     modifier = Modifier.fillMaxWidth().weight(1.0f),
                     isError = state.value.isLoginError
@@ -90,7 +117,7 @@ fun NewUserPage(onEvent: (Event) -> Unit, newUserViewModel: NewUserViewModel) {
                 AuthTextField(
                     labelHint = "Пароль",
                     onValueChange = {
-                        onEvent(Event.OnPasswordChanged(password = it))
+                        newUserViewModel.onEvent(Event.OnPasswordChanged(password = it))
                     },
                     modifier = Modifier.fillMaxWidth().weight(1.0f),
                     isError = state.value.isPasswordError
@@ -106,7 +133,7 @@ fun NewUserPage(onEvent: (Event) -> Unit, newUserViewModel: NewUserViewModel) {
                     labelHint = "Пол",
                     onValueChange = {
                         it as Gender
-                        onEvent(Event.OnGenderChanged(it))
+                        newUserViewModel.onEvent(Event.OnGenderChanged(it))
                     },
                     isError = state.value.isGenderError,
                     list = Gender.entries,
@@ -138,6 +165,7 @@ fun NewUserPage(onEvent: (Event) -> Unit, newUserViewModel: NewUserViewModel) {
                         }
                     }
                 }
+
                 AppEither.Handle -> {}
                 is AppEither.Success<*> -> {
                     AnimatedVisibility(

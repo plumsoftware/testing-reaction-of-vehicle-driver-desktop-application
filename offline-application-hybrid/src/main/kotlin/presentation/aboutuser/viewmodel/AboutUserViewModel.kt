@@ -4,25 +4,27 @@ import data.model.dto.database.SessionDTO
 import data.model.either.AppEither
 import data.model.regular.user.User
 import domain.storage.UserStorage
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
+import presentation.aboutuser.store.Effect
 import presentation.aboutuser.store.Event
-import presentation.aboutuser.store.Output
 import presentation.aboutuser.store.State
-import kotlin.coroutines.CoroutineContext
 
 class AboutUserViewModel(
     private val userStorage: UserStorage,
-    private val output: (Output) -> Unit,
-    private val coroutineContextIO: CoroutineContext
+    user: User,
 ) : ViewModel() {
 
-    val state = MutableStateFlow(State())
+    val state = MutableStateFlow(State(user = user))
+    val effect = MutableSharedFlow<Effect>()
+    private val supervisorCoroutineContext = viewModelScope.coroutineContext + SupervisorJob()
 
     init {
         println("About user page created")
@@ -31,7 +33,7 @@ class AboutUserViewModel(
     fun onEvent(event: Event) {
         when (event) {
             is Event.ChangeSelectedUser -> {
-                viewModelScope.launch(coroutineContextIO) {
+                viewModelScope.launch(context = supervisorCoroutineContext) {
                     val sessions: List<SessionDTO> = userStorage.getSessions(userId = event.userId)
                     val user = userStorage.getAllUsers().find { it.id == event.userId }
                         ?: User.empty()
@@ -49,10 +51,12 @@ class AboutUserViewModel(
 
             Event.BackButtonClicked -> {
                 clearState()
-                onOutput(Output.BackButtonClicked)
+                viewModelScope.launch {
+                    effect.emit(Effect.BackClicked)
+                }
             }
 
-            Event.SaveChanges -> viewModelScope.launch(coroutineContextIO) { updateUser() }
+            Event.SaveChanges -> viewModelScope.launch(context = supervisorCoroutineContext) { updateUser() }
 
             is Event.OnLoginChanged -> {
                 state.update {
@@ -80,7 +84,8 @@ class AboutUserViewModel(
 
             Event.FilterSessions -> filterSessionsDTO()
 
-            Event.DeleteUser -> viewModelScope.launch(coroutineContextIO) { deleteUser() }
+            Event.DeleteUser -> viewModelScope.launch(context = supervisorCoroutineContext) { deleteUser() }
+
             is Event.OnNameChanged -> {
                 state.update {
                     it.copy(user = state.value.user.copy(name = event.name))
@@ -207,7 +212,7 @@ class AboutUserViewModel(
                 it.copy(appEither = AppEither.Handle)
             }
             clearState()
-            onOutput(Output.BackButtonClicked)
+            effect.emit(Effect.BackClicked)
         } catch (e: Exception) {
             state.update {
                 it.copy(appEither = AppEither.Exception("Ошибка: ${e.message}\nВызвана: ${e.cause.toString()}"))
@@ -221,10 +226,14 @@ class AboutUserViewModel(
                 val filter = state.value.testNumberFilter.toLong()
 
                 if (filter > 0) {
-                    val filteredSessionsDTOList = state.value.sessions.filter { it.testId == filter }
+                    val filteredSessionsDTOList =
+                        state.value.sessions.filter { it.testId == filter }
                     if (filteredSessionsDTOList.isNotEmpty())
                         state.update {
-                            it.copy(filteredSessionsList = filteredSessionsDTOList, isFilterError = false)
+                            it.copy(
+                                filteredSessionsList = filteredSessionsDTOList,
+                                isFilterError = false
+                            )
                         }
                     else {
                         state.update {
@@ -245,9 +254,5 @@ class AboutUserViewModel(
             state.update {
                 it.copy(filteredSessionsList = state.value.sessions, isFilterError = false)
             }
-    }
-
-    private fun onOutput(o: Output) {
-        output(o)
     }
 }

@@ -4,57 +4,54 @@ import data.constant.SettingsConstants
 import data.model.regular.settings.Settings
 import domain.storage.SettingsStorage
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
+import presentation.settings.store.Effect
 import presentation.settings.store.Event
-import presentation.settings.store.Output
 import presentation.settings.store.State
 import utils.showFilePicker
 import java.io.File
-import kotlin.coroutines.CoroutineContext
 
 class SettingsViewModel(
-    private val output: (Output) -> Unit,
     private val settingsStorage: SettingsStorage,
-    coroutineContextIO: CoroutineContext,
 ) : ViewModel() {
-    private val listRoots = File.listRoots().asList()
+    val state = MutableStateFlow(State())
+    val effect = MutableSharedFlow<Effect>()
 
-    val state: MutableStateFlow<State> = MutableStateFlow(State())
+    private val supervisorCoroutineContext = viewModelScope.coroutineContext + SupervisorJob()
+    private val listRoots = File.listRoots().asList()
 
     init {
         println("Settings ViewModel created")
-        viewModelScope.launch(coroutineContextIO) {
-            val settings: Settings = settingsStorage.get(CoroutineScope(coroutineContextIO))
+        val settings: Settings =
+            settingsStorage.get(scope = CoroutineScope(supervisorCoroutineContext))
 
-            state.update {
+        state.update {
+            it.copy(
+                isDarkTheme = settings.isDarkTheme,
+                isXlsFormat = settings.dataFormats[SettingsConstants.XLS]!!,
+                isXlsxFormat = settings.dataFormats[SettingsConstants.XLSX]!!,
+                isXltxFormat = settings.dataFormats[SettingsConstants.XLTX]!!,
+                settings = settings,
 
-                /**
-                 *  Initial state for the settings
-                 * */
+                listRoots = listRoots,
 
-                it.copy(
-                    isDarkTheme = settings.isDarkTheme,
-                    isXlsFormat = settings.dataFormats[SettingsConstants.XLS]!!,
-                    isXlsxFormat = settings.dataFormats[SettingsConstants.XLSX]!!,
-                    isXltxFormat = settings.dataFormats[SettingsConstants.XLTX]!!,
-                    settings = settings,
-
-                    listRoots = listRoots,
-
-                    selectedLocalFolderToTable = File(settings.localFolderToTable)
-                )
-            }
+                selectedLocalFolderToTable = File(settings.localFolderToTable)
+            )
         }
     }
 
     fun onEvent(event: Event) {
         when (event) {
             Event.BackClicked -> {
-                onOutput(Output.BackClicked)
+                viewModelScope.launch {
+                    effect.emit(Effect.BackClicked)
+                }
             }
 
 //            region::Check boxes
@@ -124,9 +121,5 @@ class SettingsViewModel(
                 )
             )
         }
-    }
-
-    private fun onOutput(o: Output) {
-        output(o)
     }
 }

@@ -18,13 +18,18 @@ import androidx.compose.ui.text.style.TextAlign
 import data.constant.UIConstants
 import data.model.either.AppEither
 import data.model.regular.user.User
+import domain.storage.UserStorage
+import moe.tlaster.precompose.navigation.Navigator
+import moe.tlaster.precompose.viewmodel.viewModel
 import other.components.AuthTextField
 import other.components.BackButton
 import other.components.DefaultButton
+import other.components.Nothing
 import other.extension.padding.ExtensionPadding
 import other.extension.size.ConstantSize
 import presentation.aboutuser.components.LinearChart
 import presentation.aboutuser.components.SessionCard
+import presentation.aboutuser.store.Effect
 import presentation.aboutuser.store.Event
 import presentation.aboutuser.viewmodel.AboutUserViewModel
 import theme.ExtendedTheme
@@ -32,13 +37,30 @@ import theme.ExtendedTheme
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun AboutUserPage(onEvent: (Event) -> Unit, aboutUserViewModel: AboutUserViewModel) {
+fun AboutUserPage(navigator: Navigator, userStorage: UserStorage, user: User) {
+
+    val aboutUserViewModel: AboutUserViewModel =
+        viewModel(modelClass = AboutUserViewModel::class) {
+            AboutUserViewModel(
+                userStorage = userStorage,
+                user = user
+            )
+        }
+
     val state = aboutUserViewModel.state.collectAsState()
+
+    LaunchedEffect(key1 = Unit) {
+        aboutUserViewModel.effect.collect { effect ->
+            when (effect) {
+                Effect.BackClicked -> navigator.goBack()
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
             BackButton(
-                onClick = { onEvent(Event.BackButtonClicked) }
+                onClick = { aboutUserViewModel.onEvent(Event.BackButtonClicked) }
             )
         },
         floatingActionButton = {
@@ -49,13 +71,23 @@ fun AboutUserPage(onEvent: (Event) -> Unit, aboutUserViewModel: AboutUserViewMod
                 horizontalAlignment = Alignment.Start
             ) {
                 DefaultButton(
-                    onClick = { onEvent(Event.SaveChanges) },
-                    content = { Text(text = "Сохранить изменения", style = MaterialTheme.typography.bodyMedium) }
+                    onClick = { aboutUserViewModel.onEvent(Event.SaveChanges) },
+                    content = {
+                        Text(
+                            text = "Сохранить изменения",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
                 )
 
                 DefaultButton(
-                    onClick = { onEvent(Event.DeleteUser) },
-                    content = { Text(text = "Удалить пользователя", style = MaterialTheme.typography.bodyMedium) },
+                    onClick = { aboutUserViewModel.onEvent(Event.DeleteUser) },
+                    content = {
+                        Text(
+                            text = "Удалить пользователя",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.errorContainer,
                         contentColor = MaterialTheme.colorScheme.onErrorContainer
@@ -93,10 +125,12 @@ fun AboutUserPage(onEvent: (Event) -> Unit, aboutUserViewModel: AboutUserViewMod
                                 TextField(
                                     value = state.value.user.name,
                                     onValueChange = {
-                                        onEvent(Event.OnNameChanged(name = it))
+                                        aboutUserViewModel.onEvent(Event.OnNameChanged(name = it))
                                     },
                                     modifier = Modifier.wrapContentSize(),
-                                    textStyle = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Black),
+                                    textStyle = MaterialTheme.typography.headlineLarge.copy(
+                                        fontWeight = FontWeight.Black
+                                    ),
                                     colors = TextFieldDefaults.textFieldColors(
                                         containerColor = Color.Transparent
                                     )
@@ -104,10 +138,12 @@ fun AboutUserPage(onEvent: (Event) -> Unit, aboutUserViewModel: AboutUserViewMod
                                 TextField(
                                     value = state.value.user.surname,
                                     onValueChange = {
-                                        onEvent(Event.OnSurnameChanged(surname = it))
+                                        aboutUserViewModel.onEvent(Event.OnSurnameChanged(surname = it))
                                     },
                                     modifier = Modifier.wrapContentSize(),
-                                    textStyle = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Black),
+                                    textStyle = MaterialTheme.typography.headlineLarge.copy(
+                                        fontWeight = FontWeight.Black
+                                    ),
                                     colors = TextFieldDefaults.textFieldColors(
                                         containerColor = Color.Transparent
                                     )
@@ -115,10 +151,16 @@ fun AboutUserPage(onEvent: (Event) -> Unit, aboutUserViewModel: AboutUserViewMod
                                 TextField(
                                     value = state.value.user.patronymic,
                                     onValueChange = {
-                                        onEvent(Event.OnPatronymicChanged(patronymic = it))
+                                        aboutUserViewModel.onEvent(
+                                            Event.OnPatronymicChanged(
+                                                patronymic = it
+                                            )
+                                        )
                                     },
                                     modifier = Modifier.wrapContentSize(),
-                                    textStyle = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Black),
+                                    textStyle = MaterialTheme.typography.headlineLarge.copy(
+                                        fontWeight = FontWeight.Black
+                                    ),
                                     colors = TextFieldDefaults.textFieldColors(
                                         containerColor = Color.Transparent
                                     )
@@ -133,7 +175,7 @@ fun AboutUserPage(onEvent: (Event) -> Unit, aboutUserViewModel: AboutUserViewMod
                                     text = state.value.user.login,
                                     labelHint = "Логин",
                                     onValueChange = {
-                                        onEvent(Event.OnLoginChanged(login = it))
+                                        aboutUserViewModel.onEvent(Event.OnLoginChanged(login = it))
                                     },
                                     modifier = Modifier.fillMaxWidth().weight(1.0f),
                                     isError = state.value.isLoginError
@@ -142,7 +184,7 @@ fun AboutUserPage(onEvent: (Event) -> Unit, aboutUserViewModel: AboutUserViewMod
                                     text = state.value.user.password,
                                     labelHint = "Пароль",
                                     onValueChange = {
-                                        onEvent(Event.OnPasswordChanged(password = it))
+                                        aboutUserViewModel.onEvent(Event.OnPasswordChanged(password = it))
                                     },
                                     modifier = Modifier.fillMaxWidth().weight(1.0f),
                                     isError = state.value.isPasswordError
@@ -178,12 +220,12 @@ fun AboutUserPage(onEvent: (Event) -> Unit, aboutUserViewModel: AboutUserViewMod
                                 isError = state.value.isFilterError,
                                 value = state.value.testNumberFilter,
                                 onValueChange = {
-                                    onEvent(Event.OnFilterChange(it))
+                                    aboutUserViewModel.onEvent(Event.OnFilterChange(it))
                                 },
                                 trailingIcon = {
                                     IconButton(
                                         onClick = {
-                                            onEvent(Event.FilterSessions)
+                                            aboutUserViewModel.onEvent(Event.FilterSessions)
                                         }) {
                                         Icon(
                                             imageVector = Icons.Rounded.Search,
@@ -209,7 +251,10 @@ fun AboutUserPage(onEvent: (Event) -> Unit, aboutUserViewModel: AboutUserViewMod
                             }
                         } else {
                             item {
-                                Box(modifier = Modifier.fillMaxWidth().height(ConstantSize.emptySessionsListHeight)) {
+                                Box(
+                                    modifier = Modifier.fillMaxWidth()
+                                        .height(ConstantSize.emptySessionsListHeight)
+                                ) {
                                     Image(
                                         painter = painterResource("nothing_to_show.png"),
                                         contentDescription = "Изображение - Ничего не найдено по запросу на фильтрацию тестов",
@@ -248,16 +293,7 @@ fun AboutUserPage(onEvent: (Event) -> Unit, aboutUserViewModel: AboutUserViewMod
                                         acceptedLineParams = state.value.selectedChipList
                                     )
                                 else
-                                    Box(
-                                        modifier = Modifier.fillMaxWidth().height(ConstantSize.emptySessionsListHeight)
-                                    ) {
-                                        Image(
-                                            painter = painterResource("nothing_to_show.png"),
-                                            contentDescription = "Изображение - Ничего не найдено по запросу на статистику",
-                                            modifier = Modifier.size(ConstantSize.emptySessionsListSize)
-                                                .align(Alignment.Center)
-                                        )
-                                    }
+                                    Nothing()
 
                                 FlowRow(
                                     horizontalArrangement = ExtensionPadding.mediumHorizontalArrangement,
@@ -265,13 +301,18 @@ fun AboutUserPage(onEvent: (Event) -> Unit, aboutUserViewModel: AboutUserViewMod
                                         .padding(ExtensionPadding.mediumAsymmetricalContentPadding)
                                         .padding(start = ExtensionPadding.largeHorPadding)
                                 ) {
-                                    state.value.selectedChipList.forEachIndexed { index, item ->
+                                    state.value.selectedChipList.forEachIndexed { index, _ ->
                                         var selected by remember { mutableStateOf(index == 0) }
                                         FilterChip(
                                             selected = selected,
                                             onClick = {
                                                 selected = !selected
-                                                onEvent(Event.OnFilterChipClick(index = index, selected = selected))
+                                                aboutUserViewModel.onEvent(
+                                                    Event.OnFilterChipClick(
+                                                        index = index,
+                                                        selected = selected
+                                                    )
+                                                )
                                             },
                                             label = {
                                                 Text(

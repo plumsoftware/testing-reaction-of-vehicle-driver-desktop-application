@@ -13,22 +13,46 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import data.model.regular.user.User
+import domain.storage.UserStorage
+import moe.tlaster.precompose.navigation.Navigator
+import moe.tlaster.precompose.viewmodel.viewModel
 import other.components.BackButton
 import other.components.SearchField
 import other.components.UserButton
 import other.extension.padding.ExtensionPadding
-import presentation.users.store.Action
+import other.extension.route.DesktopRouting
+import presentation.users.store.Effect
 import presentation.users.store.Event
 import presentation.users.viewmodel.UsersViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UsersPage(onEvent: (Event) -> Unit, usersViewModel: UsersViewModel, onAction: suspend (Action) -> Unit) {
+fun UsersPage(navigator: Navigator, userStorage: UserStorage, block: (User) -> Unit = {}) {
+
+    val usersViewModel: UsersViewModel =
+        viewModel(modelClass = UsersViewModel::class) {
+            UsersViewModel(
+                userStorage = userStorage
+            )
+        }
 
     val state = usersViewModel.state.collectAsState()
 
     LaunchedEffect(Unit) {
-        onAction(Action.InitUsers)
+        usersViewModel.onEvent(Event.InitUsers)
+        usersViewModel.effect.collect { effect ->
+            when (effect) {
+                Effect.BackCLicked -> {
+                    navigator.goBack()
+                }
+
+                is Effect.UserCLicked -> {
+                    block.invoke(effect.selectedUser)
+                    navigator.navigate(route = DesktopRouting.aboutuser)
+                }
+            }
+        }
     }
 
     Scaffold(
@@ -41,10 +65,10 @@ fun UsersPage(onEvent: (Event) -> Unit, usersViewModel: UsersViewModel, onAction
                 horizontalArrangement = ExtensionPadding.mediumHorizontalArrangement
             ) {
                 BackButton(
-                    onClick = { onEvent(Event.BackClicked) }
+                    onClick = { usersViewModel.onEvent(Event.BackClicked) }
                 )
                 SearchField(onSearchClick = {
-                    onEvent(Event.OnSearch(query = it))
+                    usersViewModel.onEvent(Event.OnSearch(query = it))
                 })
             }
         },
@@ -58,10 +82,10 @@ fun UsersPage(onEvent: (Event) -> Unit, usersViewModel: UsersViewModel, onAction
             verticalArrangement = ExtensionPadding.largeVerticalArrangementTop,
             horizontalAlignment = Alignment.Start
         ) {
-            itemsIndexed(state.value.searchList) { index, item ->
+            itemsIndexed(state.value.searchList) { _, item ->
                 UserButton(
                     onClick = {
-                        onEvent(Event.OnUserClick(userId = item.id))
+                        usersViewModel.onEvent(Event.OnUserClick(user = item))
                     },
                     text = "${item.surname} ${item.name} ${item.patronymic}"
                 )
