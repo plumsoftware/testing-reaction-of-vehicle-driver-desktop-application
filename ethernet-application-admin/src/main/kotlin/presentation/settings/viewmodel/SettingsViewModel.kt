@@ -1,39 +1,38 @@
 package presentation.settings.viewmodel
 
-import domain.model.regular.settings.Settings
+import data.model.regular.settings.Settings
 import domain.storage.SettingsStorage
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
+import presentation.settings.store.Effect
 import presentation.settings.store.Event
-import presentation.settings.store.Output
 import presentation.settings.store.State
 import java.io.File
-import kotlin.coroutines.CoroutineContext
 
 class SettingsViewModel(
-    private val output: (Output) -> Unit,
     private val settingsStorage: SettingsStorage,
-    coroutineContextIO: CoroutineContext,
 ) : ViewModel() {
-    private val listRoots = File.listRoots().asList()
 
-    val state: MutableStateFlow<State> = MutableStateFlow(State(selectedNetworkDrive = listRoots[0]))
+    val state: MutableStateFlow<State> =
+        MutableStateFlow(State())
+    val effect: MutableSharedFlow<Effect> = MutableSharedFlow()
+
+    private val supervisorCoroutineContext = viewModelScope.coroutineContext + SupervisorJob()
 
     init {
         println("Settings ViewModel created")
-        viewModelScope.launch(coroutineContextIO) {
-            val settings: Settings = settingsStorage.get(CoroutineScope(coroutineContextIO))
+        val listRoots = File.listRoots().asList()
+        viewModelScope.launch(supervisorCoroutineContext) {
+            val settings: Settings =
+                settingsStorage.get(CoroutineScope(context = supervisorCoroutineContext))
 
             state.update {
-
-                /**
-                 *  Initial state for the settings
-                 * */
-
                 it.copy(
                     isDarkTheme = settings.isDarkTheme,
                     settings = settings,
@@ -48,7 +47,9 @@ class SettingsViewModel(
     fun onEvent(event: Event) {
         when (event) {
             Event.BackClicked -> {
-                onOutput(Output.BackClicked)
+                viewModelScope.launch {
+                    effect.emit(Effect.BackClick)
+                }
             }
 
 //            region::Check boxes
@@ -100,9 +101,5 @@ class SettingsViewModel(
                 )
             )
         }
-    }
-
-    private fun onOutput(o: Output) {
-        output(o)
     }
 }

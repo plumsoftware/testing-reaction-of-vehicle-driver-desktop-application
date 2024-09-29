@@ -1,8 +1,10 @@
 package presentation
 
-import presentation.aboutuser.AboutUserPage
-import presentation.aboutuser.viewmodel.AboutUserViewModel
+import AboutUserPage
+import allusers.UsersPage
 import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.res.loadImageBitmap
@@ -12,37 +14,38 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import data.repository.SQLDeLightRepositoryImpl
+import data.model.regular.Mode
 import data.repository.SettingsRepositoryImpl
-import domain.model.regular.tests.ReactionTest
-import domain.model.regular.tests.TrafficLight
-import domain.storage.SQLDeLightStorage
-import domain.storage.SettingsStorage
-import domain.usecase.settings.GetUserSettingsUseCase
-import domain.usecase.settings.SaveUserSettingsUseCase
-import domain.usecase.sqldelight.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
+import data.repository.UserRepositoryImpl
+import domain.repository.UserRepository
 import moe.tlaster.precompose.PreComposeApp
 import moe.tlaster.precompose.navigation.NavHost
 import moe.tlaster.precompose.navigation.rememberNavigator
 import moe.tlaster.precompose.navigation.transition.NavTransition
 import moe.tlaster.precompose.viewmodel.viewModel
-import presentation.aboutuser.store.Event
 import presentation.home.HomePage
 import presentation.home.store.Output
 import presentation.home.viewmodel.HomeViewModel
-import presentation.newuser.NewUserPage
-import presentation.newuser.viewmodel.NewUserViewModel
-import presentation.other.extension.route.DesktopRouting
 import presentation.settings.SettingsPage
-import presentation.settings.viewmodel.SettingsViewModel
-import presentation.theme.AppTheme
-import presentation.users.UsersPage
-import presentation.users.viewmodel.UsersViewModel
-import kotlin.coroutines.CoroutineContext
 
+import domain.storage.SettingsStorage
+import domain.storage.UserStorage
+import domain.usecase.settings.*
+import domain.usecase.sql_database.local.GetUserByLoginAndPasswordUseCase
+import domain.usecase.sql_database.local.user.DeleteUserUseCase
+import domain.usecase.sql_database.local.user.GetAllUsersUseCase
+import domain.usecase.sql_database.local.user.GetSessionsWithUserIdUseCase
+import domain.usecase.sql_database.local.user.InsertNewUserUseCase
+import domain.usecase.sql_database.local.user.IsPasswordUniqueUseCase
+import domain.usecase.sql_database.local.user.UpdateUserUseCase
+import newuser.NewUserPage
+import other.extension.route.DesktopRouting
+import presentation.main.MainViewModel
+import presentation.main.store.Event
+import theme.AppTheme
+
+private lateinit var userRepository: UserRepository
+private lateinit var userStorage: UserStorage
 
 fun main() = run {
 
@@ -51,9 +54,6 @@ fun main() = run {
     application {
 
         val windowState = rememberWindowState(placement = WindowPlacement.Maximized)
-        val reactionTests: List<ReactionTest> = listOf(
-            TrafficLight()
-        )
 
 //        region::Storage
         val settingsRepository = SettingsRepositoryImpl()
@@ -62,22 +62,6 @@ fun main() = run {
             saveUserSettingsUseCase = SaveUserSettingsUseCase(settingsRepository)
         )
 
-//        region::Actions
-        val supervisorJob = SupervisorJob()
-        val coroutineContextIO: CoroutineContext = Dispatchers.IO + supervisorJob
-
-        val settings = settingsStorage.get(scope = CoroutineScope(coroutineContextIO))
-//        endregion
-
-        val sqlDeLightRepository = SQLDeLightRepositoryImpl(networkDrive = settings.networkDrive)
-        val sqlDeLightStorage = SQLDeLightStorage(
-            getAllUsersUseCase = GetAllUsersUseCase(sqlDeLightRepository),
-            getSessionsWithUserIdUseCase = GetSessionsWithUserIdUseCase(sqlDeLightRepository),
-            insertNewUserUseCase = InsertNewUserUseCase(sqlDeLightRepository),
-            updateUserUseCase = UpdateUserUseCase(sqlDeLightRepository),
-            deleteUserUseCase = DeleteUserUseCase(sqlDeLightRepository),
-            isPasswordUniqueUseCase = IsPasswordUniqueUseCase(sqlDeLightRepository)
-        )
 //        endregion
 
         Window(
@@ -86,90 +70,67 @@ fun main() = run {
             title = "Администратор. Тест на реакцию",
             state = windowState,
         ) {
-            AppTheme(useDarkTheme = settings.isDarkTheme) {
-                PreComposeApp {
-                    val navigator = rememberNavigator()
+            PreComposeApp {
+                val navigator = rememberNavigator()
+
+                val mainViewModel: MainViewModel =
+                    viewModel(modelClass = MainViewModel::class) {
+                        MainViewModel(settingsStorage = settingsStorage)
+                    }
+                val mainState = mainViewModel.state.collectAsState()
+
+                LaunchedEffect(key1 = Unit) {
+                    mainViewModel.onEvent(Event.LoadSettings)
+                }
+//                region::Storage
+                if (mainState.value.settings.networkDrive.isNotEmpty()) {
+                    userRepository = UserRepositoryImpl(
+                        mode = Mode.ETHERNET,
+                        directoryPath = mainState.value.settings.networkDrive,
+                        usersDirectory = mainState.value.settings.networkDrive,
+                        sessionsDirectory = mainState.value.settings.networkDrive,
+                    )
+                    userStorage = UserStorage(
+                        getAllUsersUseCase = GetAllUsersUseCase(userRepository),
+                        getSessionsWithUserIdUseCase = GetSessionsWithUserIdUseCase(userRepository),
+                        insertNewUserUseCase = InsertNewUserUseCase(userRepository),
+                        updateUserUseCase = UpdateUserUseCase(userRepository),
+                        deleteUserUseCase = DeleteUserUseCase(userRepository),
+                        isPasswordUniqueUseCase = IsPasswordUniqueUseCase(userRepository),
+                        getUserByLoginAndPasswordUseCase = GetUserByLoginAndPasswordUseCase(
+                            userRepository
+                        )
+                    )
+                }
+//                endregion
+
+                AppTheme(useDarkTheme = mainState.value.settings.isDarkTheme) {
 
 //                    region::View models
-                    val homeViewModel: HomeViewModel = viewModel(modelClass = HomeViewModel::class) {
-                        HomeViewModel(
-                            output = { output ->
-                                when (output) {
-                                    Output.AboutProgramButtonClicked -> {
+                    val homeViewModel: HomeViewModel =
+                        viewModel(modelClass = HomeViewModel::class) {
+                            HomeViewModel(
+                                output = { output ->
+                                    when (output) {
+                                        Output.AboutProgramButtonClicked -> {
 
-                                    }
+                                        }
 
-                                    Output.SettingsButtonClicked -> {
-                                        navigator.navigate(route = DesktopRouting.settings)
-                                    }
+                                        Output.SettingsButtonClicked -> {
+                                            navigator.navigate(route = DesktopRouting.settings)
+                                        }
 
-                                    Output.AddNewUserButtonClicked -> {
-                                        navigator.navigate(route = DesktopRouting.addnewuser)
-                                    }
+                                        Output.AddNewUserButtonClicked -> {
+                                            navigator.navigate(route = DesktopRouting.addnewuser)
+                                        }
 
-                                    Output.UsersButtonClicked -> {
-                                        navigator.navigate(route = DesktopRouting.users)
+                                        Output.UsersButtonClicked -> {
+                                            navigator.navigate(route = DesktopRouting.users)
+                                        }
                                     }
                                 }
-                            }
-                        )
-                    }
-                    val aboutUserViewModel: AboutUserViewModel = viewModel(modelClass = AboutUserViewModel::class) {
-                        AboutUserViewModel(
-                            sqlDeLightStorage = sqlDeLightStorage,
-                            coroutineContextIO = coroutineContextIO,
-                            output = { output ->
-                                when (output) {
-                                    presentation.aboutuser.store.Output.BackButtonClicked -> {
-                                        navigator.popBackStack()
-                                    }
-                                }
-                            }
-                        )
-                    }
-                    val usersViewModel: UsersViewModel = viewModel(modelClass = UsersViewModel::class) {
-                        UsersViewModel(
-                            output = { output ->
-                                when (output) {
-                                    presentation.users.store.Output.BackButtonClicked -> {
-                                        navigator.popBackStack()
-                                    }
-
-                                    is presentation.users.store.Output.OnUserClicked -> {
-                                        aboutUserViewModel.onEvent(Event.ChangeSelectedUser(userId = output.userId))
-                                        navigator.navigate(route = DesktopRouting.aboutuser)
-                                    }
-                                }
-                            },
-                            sqlDeLightStorage = sqlDeLightStorage
-                        )
-                    }
-                    val settingsViewModel: SettingsViewModel = viewModel(modelClass = SettingsViewModel::class) {
-                        SettingsViewModel(
-                            settingsStorage = settingsStorage,
-                            coroutineContextIO = coroutineContextIO,
-                            output = { output ->
-                                when (output) {
-                                    presentation.settings.store.Output.BackClicked -> {
-                                        navigator.popBackStack()
-                                    }
-                                }
-                            }
-                        )
-                    }
-                    val newUserViewModel: NewUserViewModel = viewModel(modelClass = NewUserViewModel::class) {
-                        NewUserViewModel(
-                            sqlDeLightStorage = sqlDeLightStorage,
-                            coroutineContextIO = coroutineContextIO,
-                            output = { output ->
-                                when (output) {
-                                    presentation.newuser.store.Output.BackButtonClicked -> {
-                                        navigator.popBackStack()
-                                    }
-                                }
-                            }
-                        )
-                    }
+                            )
+                        }
 //                    endregion
 
                     NavHost(
@@ -183,31 +144,36 @@ fun main() = run {
                             println("Home page rendered")
                             HomePage(homeViewModel::onEvent)
                         }
-                        scene(route = DesktopRouting.users) {
-                            println("Users page rendered")
-                            UsersPage(
-                                onEvent = usersViewModel::onEvent,
-                                onAction = usersViewModel::onAction,
-                                usersViewModel = usersViewModel
-                            )
-                        }
                         scene(route = DesktopRouting.settings) {
                             println("Settings page rendered")
                             SettingsPage(
-                                onEvent = settingsViewModel::onEvent,
-                                settingsViewModel = settingsViewModel
+                                navigator = navigator,
+                                settingsStorage = settingsStorage,
+                                block = {
+                                    mainViewModel.onEvent(Event.LoadSettings)
+                                }
+                            )
+                        }
+                        scene(route = DesktopRouting.users) {
+                            println("Users page rendered")
+                            UsersPage(
+                                navigator = navigator,
+                                userStorage = userStorage,
+                                block = {
+                                    mainViewModel.onEvent(Event.ChangeSelectedUser(user = it))
+                                }
                             )
                         }
                         scene(route = DesktopRouting.addnewuser) {
                             println("New user page rendered")
                             NewUserPage(
-                                onEvent = newUserViewModel::onEvent,
-                                newUserViewModel = newUserViewModel
+                                navigator = navigator,
+                                userStorage = userStorage
                             )
                         }
                         scene(route = DesktopRouting.aboutuser) {
                             println("About user page created")
-                            AboutUserPage(onEvent = aboutUserViewModel::onEvent, aboutUserViewModel)
+                            AboutUserPage(navigator = navigator, userStorage = userStorage, user = mainState.value.selectedUser)
                         }
 //                    endregion
                     }

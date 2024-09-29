@@ -19,7 +19,6 @@ plugins {
     kotlin("jvm")
     id("org.jetbrains.compose")
     kotlin("plugin.serialization") version "1.9.24"
-    id("app.cash.sqldelight") version "2.0.2"
 }
 
 group = "ru.plumsoftware"
@@ -31,34 +30,15 @@ repositories {
     google()
 }
 
-val sqlLightVersion = "2.0.2"
-
-sqldelight {
-    databases {
-        create("Database") {
-            packageName.set("ru.plumsoftware")
-            schemaOutputDirectory = file("src/main/kotlin/data/sqldelight/databases")
-            verifyMigrations = true
-            deriveSchemaFromMigrations = true
-        }
-    }
-}
-
 dependencies {
-    val apachi_poi = "5.2.3"
     val material3 = "1.2.1"
     val precompose_version = "1.6.0"
     val kotlinx_serialization_json = "1.6.0"
-    val aay_chart_version = "Beta-0.0.5"
 
     implementation(compose.desktop.currentOs)
 
-    implementation("org.apache.poi:poi:${apachi_poi}")
-    implementation("org.apache.poi:poi-ooxml:${apachi_poi}")
     implementation("org.jetbrains.compose.material3:material3-desktop:${material3}")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${kotlinx_serialization_json}")
-
-    api("moe.tlaster:precompose-viewmodel:${precompose_version}")
 
     api(compose.foundation)
     api(compose.animation)
@@ -73,11 +53,18 @@ dependencies {
 
 // api("moe.tlaster:precompose-koin:$precompose_version") // For Koin intergration
 
-//    Database
-    implementation("app.cash.sqldelight:sqlite-driver:$sqlLightVersion")
+//    Modules
+    implementation(project(path = ":local-store-module"))
 
-//    Charts
-    implementation("io.github.thechance101:chart:$aay_chart_version")
+    implementation(project(path = ":authorization-ui-module"))
+    implementation(project(path = ":theme-ui-module"))
+    implementation(project(path = ":add-new-user-ui-module"))
+    implementation(project(path = ":all-users-ui-module"))
+    implementation(project(path = ":privacy-policy-ui-module"))
+    implementation(project(path = ":tests-ui-module"))
+    implementation(project(path = ":about-user-ui-module"))
+    implementation(project(path = ":picker-ui-module"))
+    implementation(project(path = ":test-menu-ui-module"))
 }
 
 compose.desktop {

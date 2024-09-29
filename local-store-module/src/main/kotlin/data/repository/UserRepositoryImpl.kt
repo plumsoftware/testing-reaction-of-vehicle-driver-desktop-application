@@ -4,36 +4,58 @@ import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import data.constant.DatabaseConstants
 import data.constant.GeneralConstants
 import data.model.either.local.LocalEither
+import data.model.regular.Mode
 import domain.repository.UserRepository
 import ru.plumsoftware.Database
 import ru.plumsoftware.users.Users
 import utlis.createFolderIfNotExists
 import data.model.regular.user.User
 import ru.plumsoftware.sessions.Sessions
+import utlis.getSessionsDatabaseDriver
+import utlis.getUsersDatabaseDriver
 
-class UserRepositoryImpl : UserRepository {
+class UserRepositoryImpl(
+    mode: Mode = Mode.SINGLE,
+    directoryPath: String = GeneralConstants.Paths.PATH_TO_SETTINGS_FOLDER,
+    usersDirectory: String = DatabaseConstants.LOCAL_USER_JDBC_DRIVER_NAME,
+    sessionsDirectory: String = DatabaseConstants.LOCAL_SESSION_JDBC_DRIVER_NAME
+) : UserRepository {
+
+    private val usersDatabaseDriver: JdbcSqliteDriver
+    private val sessionsDatabaseDriver: JdbcSqliteDriver
+    private val dir = if (mode == Mode.SINGLE) GeneralConstants.Paths.PATH_TO_SETTINGS_FOLDER else GeneralConstants.Paths.PATH_TO_ROAMING_DATABASE_DIRECTORY(directoryPath)
 
     init {
-        createFolderIfNotExists(directoryPath = GeneralConstants.Paths.PATH_TO_SETTINGS_FOLDER)
+
+        println(dir)
+        createFolderIfNotExists(directoryPath = dir)
+
+        usersDatabaseDriver = if (mode == Mode.ETHERNET) getUsersDatabaseDriver(networkDrive = usersDirectory) else JdbcSqliteDriver(
+            url = DatabaseConstants.LOCAL_USER_JDBC_DRIVER_NAME
+        )
+
+        sessionsDatabaseDriver = if (mode == Mode.ETHERNET) getSessionsDatabaseDriver(networkDrive = sessionsDirectory) else JdbcSqliteDriver(
+            url = DatabaseConstants.LOCAL_SESSION_JDBC_DRIVER_NAME
+        )
 
         val userDatabase =
-            Database(driver = JdbcSqliteDriver(url = DatabaseConstants.LOCAL_USER_JDBC_DRIVER_NAME))
+            Database(driver = usersDatabaseDriver)
         userDatabase.sqldelight_users_schemeQueries.create()
 
         val sessionsDatabase =
-            Database(driver = JdbcSqliteDriver(url = DatabaseConstants.LOCAL_SESSION_JDBC_DRIVER_NAME))
+            Database(driver = sessionsDatabaseDriver)
         sessionsDatabase.sqldelight_users_schemeQueries.create()
     }
 
     override suspend fun getAllUsers(): List<Users> {
         val database =
-            Database(driver = JdbcSqliteDriver(url = DatabaseConstants.LOCAL_USER_JDBC_DRIVER_NAME))
+            Database(driver = usersDatabaseDriver)
         return database.sqldelight_users_schemeQueries.getAllUsers().executeAsList().reversed()
     }
 
     override suspend fun getSessionsWithUserId(id: Long): List<Sessions> {
         val database =
-            Database(driver = JdbcSqliteDriver(url = DatabaseConstants.LOCAL_SESSION_JDBC_DRIVER_NAME))
+            Database(driver = usersDatabaseDriver)
         return database.sqldelight_sessions_schemeQueries.getSessionsWithUserId(user_id = id)
             .executeAsList()
     }
@@ -41,7 +63,7 @@ class UserRepositoryImpl : UserRepository {
     @Throws(Exception::class)
     override suspend fun insertNewUser(user: User) {
         val database =
-            Database(driver = JdbcSqliteDriver(url = DatabaseConstants.LOCAL_USER_JDBC_DRIVER_NAME))
+            Database(driver = usersDatabaseDriver)
         with(user) {
             database.sqldelight_users_schemeQueries.transaction {
                 database.sqldelight_users_schemeQueries.insertNewUser(
@@ -59,7 +81,7 @@ class UserRepositoryImpl : UserRepository {
     override suspend fun getAllPasswords(): List<String> {
 
         val database =
-            Database(driver = JdbcSqliteDriver(url = DatabaseConstants.LOCAL_USER_JDBC_DRIVER_NAME))
+            Database(driver = usersDatabaseDriver)
         val selectAllPasswords =
             database.sqldelight_users_schemeQueries.selectAllPasswords().executeAsList()
 
@@ -68,7 +90,7 @@ class UserRepositoryImpl : UserRepository {
 
     override suspend fun updateUser(user: User) {
         val database =
-            Database(driver = JdbcSqliteDriver(url = DatabaseConstants.LOCAL_USER_JDBC_DRIVER_NAME))
+            Database(driver = usersDatabaseDriver)
         with(user) {
             database.sqldelight_users_schemeQueries.updateUser(
                 user_login = login,
@@ -84,7 +106,7 @@ class UserRepositoryImpl : UserRepository {
 
     override suspend fun deleteUser(id: Long) {
         val database =
-            Database(driver = JdbcSqliteDriver(url = DatabaseConstants.LOCAL_USER_JDBC_DRIVER_NAME))
+            Database(driver = usersDatabaseDriver)
         database.sqldelight_users_schemeQueries.deleteUser(user_id = id)
     }
 
@@ -93,7 +115,7 @@ class UserRepositoryImpl : UserRepository {
         password: String
     ): LocalEither<Exception, List<Users>> {
         val database =
-            Database(driver = JdbcSqliteDriver(url = DatabaseConstants.LOCAL_USER_JDBC_DRIVER_NAME))
+            Database(driver = usersDatabaseDriver)
         try {
             val executeAsList: List<Users> =
                 database.sqldelight_users_schemeQueries.getUserByLoginAndPassword(

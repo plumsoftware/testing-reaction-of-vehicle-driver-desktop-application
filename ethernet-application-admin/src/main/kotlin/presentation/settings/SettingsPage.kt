@@ -8,25 +8,51 @@ import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import presentation.other.components.BackButton
-import presentation.other.extension.padding.ExtensionPadding
-import presentation.other.extension.size.ConstantSize
+import data.model.regular.settings.Settings
+import domain.storage.SettingsStorage
+import moe.tlaster.precompose.navigation.Navigator
+import moe.tlaster.precompose.viewmodel.viewModel
+import other.components.BackButton
+import other.extension.padding.ExtensionPadding
+import other.extension.size.ConstantSize
+import presentation.settings.store.Effect
 import presentation.settings.store.Event
 import presentation.settings.viewmodel.SettingsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsPage(onEvent: (Event) -> Unit, settingsViewModel: SettingsViewModel) {
+fun SettingsPage(
+    navigator: Navigator,
+    settingsStorage: SettingsStorage,
+    block: (Settings) -> Unit = {}
+) {
 
+    val settingsViewModel: SettingsViewModel = viewModel(modelClass = SettingsViewModel::class) {
+        SettingsViewModel(
+            settingsStorage = settingsStorage
+        )
+    }
     val state = settingsViewModel.state.collectAsState().value
+
+    LaunchedEffect(key1 = Unit) {
+        settingsViewModel.effect.collect { effect ->
+            when (effect) {
+                Effect.BackClick -> {
+                    block.invoke(state.settings)
+                    navigator.goBack()
+                }
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
             BackButton(
-                onClick = { onEvent(Event.BackClicked) }
+                onClick = { settingsViewModel.onEvent(Event.BackClicked) }
             )
         },
         modifier = Modifier.fillMaxSize()
@@ -59,7 +85,7 @@ fun SettingsPage(onEvent: (Event) -> Unit, settingsViewModel: SettingsViewModel)
                             horizontalArrangement = ExtensionPadding.mediumHorizontalArrangement
                         ) {
                             Checkbox(checked = state.isDarkTheme, onCheckedChange = {
-                                onEvent(Event.OnCheckboxThemeChanged(isChecked = it))
+                                settingsViewModel.onEvent(Event.OnCheckboxThemeChanged(isChecked = it))
                             })
                             Text(text = "Тёмная тема", style = MaterialTheme.typography.bodyMedium)
                         }
@@ -74,7 +100,10 @@ fun SettingsPage(onEvent: (Event) -> Unit, settingsViewModel: SettingsViewModel)
                     verticalArrangement = ExtensionPadding.mediumVerticalArrangementTop,
                     horizontalAlignment = Alignment.Start
                 ) {
-                    Text(text = "Специальные настройки", style = MaterialTheme.typography.headlineSmall)
+                    Text(
+                        text = "Специальные настройки",
+                        style = MaterialTheme.typography.headlineSmall
+                    )
                     OutlinedCard(
                         modifier = Modifier
                             .fillMaxWidth(),
@@ -92,14 +121,18 @@ fun SettingsPage(onEvent: (Event) -> Unit, settingsViewModel: SettingsViewModel)
                         ) {
                             DropdownMenu(
                                 expanded = state.dropdownMenuNetworkDriveExpanded,
-                                onDismissRequest = { onEvent(Event.CollapseDropDownMenuNetworkDrive) },
+                                onDismissRequest = { settingsViewModel.onEvent(Event.CollapseDropDownMenuNetworkDrive) },
                                 modifier = Modifier.background(color = MaterialTheme.colorScheme.background)
                             ) {
                                 state.listRoots.forEachIndexed { _, file ->
                                     DropdownMenuItem(
                                         onClick = {
-                                            onEvent(Event.SelectDropDownMenuNetworkDriveItem(item = file))
-                                            onEvent(Event.CollapseDropDownMenuNetworkDrive)
+                                            settingsViewModel.onEvent(
+                                                Event.SelectDropDownMenuNetworkDriveItem(
+                                                    item = file
+                                                )
+                                            )
+                                            settingsViewModel.onEvent(Event.CollapseDropDownMenuNetworkDrive)
                                         },
                                     ) {
                                         Text(
@@ -110,13 +143,16 @@ fun SettingsPage(onEvent: (Event) -> Unit, settingsViewModel: SettingsViewModel)
                                     }
                                 }
                             }
-                            Button(onClick = { onEvent(Event.ExpandDropDownMenuNetworkDrive) }) {
+                            Button(onClick = { settingsViewModel.onEvent(Event.ExpandDropDownMenuNetworkDrive) }) {
                                 Text(
                                     text = state.selectedNetworkDrive.absolutePath,
                                     style = MaterialTheme.typography.bodyMedium
                                 )
                             }
-                            Text(text = "Выберите сетевой диск", style = MaterialTheme.typography.bodyMedium)
+                            Text(
+                                text = "Выберите сетевой диск",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
                         }
                     }
                 }
