@@ -29,7 +29,7 @@ fun TestFinishedComponent(
         style = MaterialTheme.typography.bodyMedium
     )
     Text(
-        text = "Ваш униклаьный id $id",
+        text = "Ваш уникальный id $id",
         style = MaterialTheme.typography.bodyMedium
     )
 }

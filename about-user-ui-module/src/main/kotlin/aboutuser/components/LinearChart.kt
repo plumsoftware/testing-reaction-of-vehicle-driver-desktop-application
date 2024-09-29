@@ -1,4 +1,4 @@
-package presentation.aboutuser.components
+package aboutuser.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,7 +14,13 @@ import com.aay.compose.lineChart.model.LineParameters
 import com.aay.compose.lineChart.model.LineType
 import data.model.dto.database.SessionDTO
 import theme.ExtendedTheme
-import utils.*
+import utils.toLineChartData
+import utils.toLineChartData1
+import utils.toLineChartData2
+import utils.toLineChartData3
+import utils.toSemiDate
+import utils.x
+import utils.y
 
 @Composable
 fun LinearChart(list: List<SessionDTO>, acceptedLineParams: List<Boolean>) {

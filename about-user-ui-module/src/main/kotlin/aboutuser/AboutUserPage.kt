@@ -1,5 +1,3 @@
-package presentation.aboutuser
-
 import androidx.compose.animation.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -27,11 +25,11 @@ import other.components.DefaultButton
 import other.components.Nothing
 import other.extension.padding.ExtensionPadding
 import other.extension.size.ConstantSize
-import presentation.aboutuser.components.LinearChart
-import presentation.aboutuser.components.SessionCard
-import presentation.aboutuser.store.Effect
-import presentation.aboutuser.store.Event
-import presentation.aboutuser.viewmodel.AboutUserViewModel
+import aboutuser.components.LinearChart
+import aboutuser.components.SessionCard
+import aboutuser.store.Effect
+import aboutuser.store.Event
+import aboutuser.viewmodel.AboutUserViewModel
 import theme.ExtendedTheme
 
 

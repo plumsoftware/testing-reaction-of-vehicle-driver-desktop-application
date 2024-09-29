@@ -1,4 +1,4 @@
-package presentation.aboutuser.viewmodel
+package aboutuser.viewmodel
 
 import data.model.dto.database.SessionDTO
 import data.model.either.AppEither
@@ -13,9 +13,9 @@ import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
-import presentation.aboutuser.store.Effect
-import presentation.aboutuser.store.Event
-import presentation.aboutuser.store.State
+import aboutuser.store.Effect
+import aboutuser.store.Event
+import aboutuser.store.State
 
 class AboutUserViewModel(
     private val userStorage: UserStorage,

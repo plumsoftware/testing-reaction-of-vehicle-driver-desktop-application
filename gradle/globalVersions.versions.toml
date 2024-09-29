@@ -1,9 +1,13 @@
 [versions]
 precompose = "1.6.0"
+aayChart = "Beta-0.0.5"
 
 [libraries]
 precompose-viewmodel = {module = "moe.tlaster:precompose-viewmodel", version.ref = "precompose"}
 precompose = {module = "moe.tlaster:precompose", version.ref = "precompose"}
+
+#Chart
+chart = {module = "io.github.thechance101:chart", version.ref = "aayChart"}
 
 [plugins]
 

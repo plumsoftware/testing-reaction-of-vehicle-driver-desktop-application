@@ -1,4 +1,4 @@
-package presentation.aboutuser.store
+package aboutuser.store
 
 import data.model.dto.database.SessionDTO
 import data.model.either.AppEither

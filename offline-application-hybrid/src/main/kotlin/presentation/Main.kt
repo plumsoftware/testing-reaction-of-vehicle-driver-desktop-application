@@ -1,5 +1,6 @@
 package presentation
 
+import AboutUserPage
 import allusers.UsersPage
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.LaunchedEffect
@@ -46,7 +47,6 @@ import presentation.home.HomePage
 import presentation.home.viewmodel.HomeViewModel
 import theme.AppTheme
 import other.extension.route.DesktopRouting
-import presentation.aboutuser.AboutUserPage
 import presentation.main.MainViewModel
 import presentation.main.store.Event
 import privacypolicy.PrivacyPolicy

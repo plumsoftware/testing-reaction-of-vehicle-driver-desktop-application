@@ -1,4 +1,4 @@
-package presentation.aboutuser.store
+package aboutuser.store
 
 sealed class Event {
     data class ChangeSelectedUser(val userId: Long) : Event()
