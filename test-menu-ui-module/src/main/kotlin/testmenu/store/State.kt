@@ -1,4 +1,4 @@
-package presentation.testmenu.store
+package testmenu.store
 
 import model.tests.ReactionTest
 

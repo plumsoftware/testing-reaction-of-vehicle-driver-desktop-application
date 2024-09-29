@@ -1,4 +1,4 @@
-package presentation.testmenu
+package testmenu
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -14,9 +14,9 @@ import moe.tlaster.precompose.viewmodel.viewModel
 import other.components.BackButton
 import other.extension.padding.ExtensionPadding
 import other.extension.size.ConstantSize
-import presentation.testmenu.store.Effect
-import presentation.testmenu.store.Event
-import presentation.testmenu.viewmodel.TestMenuViewModel
+import testmenu.store.Effect
+import testmenu.store.Event
+import testmenu.viewmodel.TestMenuViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

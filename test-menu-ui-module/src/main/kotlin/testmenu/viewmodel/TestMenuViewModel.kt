@@ -1,16 +1,14 @@
-package presentation.testmenu.viewmodel
+package testmenu.viewmodel
 
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import model.tests.TrafficLight
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
-import presentation.testmenu.store.Effect
-import presentation.testmenu.store.Event
-import presentation.testmenu.store.Output
-import presentation.testmenu.store.State
+import testmenu.store.Effect
+import testmenu.store.Event
+import testmenu.store.State
 
 class TestMenuViewModel : ViewModel() {
 

@@ -51,15 +51,17 @@ dependencies {
 // api("moe.tlaster:precompose-koin:$precompose_version") // For Koin intergration
 
 //    Modules
+    implementation(project(path = ":local-store-module"))
+
     implementation(project(path = ":authorization-ui-module"))
     implementation(project(path = ":theme-ui-module"))
-    implementation(project(path = ":local-store-module"))
     implementation(project(path = ":add-new-user-ui-module"))
     implementation(project(path = ":all-users-ui-module"))
     implementation(project(path = ":privacy-policy-ui-module"))
     implementation(project(path = ":tests-ui-module"))
     implementation(project(path = ":about-user-ui-module"))
     implementation(project(path = ":picker-ui-module"))
+    implementation(project(path = ":test-menu-ui-module"))
 }
 
 compose.desktop {

@@ -51,7 +51,7 @@ import presentation.main.MainViewModel
 import presentation.main.store.Event
 import privacypolicy.PrivacyPolicy
 import presentation.settings.SettingsPage
-import presentation.testmenu.TestMenu
+import testmenu.TestMenu
 import tests.traffic_light_test.TrafficLightTest
 
 fun main() = run {
