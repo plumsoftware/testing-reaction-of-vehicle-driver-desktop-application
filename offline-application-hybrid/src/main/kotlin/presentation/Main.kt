@@ -52,7 +52,7 @@ import presentation.main.store.Event
 import privacypolicy.PrivacyPolicy
 import presentation.settings.SettingsPage
 import presentation.testmenu.TestMenu
-import presentation.tests.traffic_light_test.TrafficLightTest
+import tests.traffic_light_test.TrafficLightTest
 
 fun main() = run {
 

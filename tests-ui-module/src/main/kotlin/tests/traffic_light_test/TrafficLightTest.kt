@@ -1,4 +1,4 @@
-package presentation.tests.traffic_light_test
+package tests.traffic_light_test
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -10,8 +10,6 @@ import data.model.dto.test.TestDTO
 import data.model.regular.settings.Settings
 import domain.storage.SessionStorage
 import domain.storage.WorkbookStorage
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
 import moe.tlaster.precompose.navigation.Navigator
 import moe.tlaster.precompose.viewmodel.viewModel
 import other.components.BackButton
@@ -19,11 +17,9 @@ import other.extension.padding.ExtensionPadding
 import other.extension.size.ConstantSize
 import other.components.TestFinishedComponent
 import other.components.TestProccessComponent
-import other.extension.route.DesktopRouting
-import presentation.tests.traffic_light_test.store.Effect
-import presentation.tests.traffic_light_test.store.Event
-import presentation.tests.traffic_light_test.store.State
-import presentation.tests.traffic_light_test.viewmodel.TrafficLightTestViewModel
+import tests.traffic_light_test.store.Effect
+import tests.traffic_light_test.store.Event
+import tests.traffic_light_test.viewmodel.TrafficLightTestViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

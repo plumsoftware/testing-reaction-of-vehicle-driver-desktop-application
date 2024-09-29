@@ -1,4 +1,4 @@
-package presentation.tests.traffic_light_test.viewmodel
+package tests.traffic_light_test.viewmodel
 
 import data.model.dto.test.TestDTO
 import data.model.dto.database.SessionDTO
@@ -12,9 +12,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
-import presentation.tests.traffic_light_test.store.Effect
-import presentation.tests.traffic_light_test.store.Event
-import presentation.tests.traffic_light_test.store.State
+import tests.traffic_light_test.store.Effect
+import tests.traffic_light_test.store.Event
+import tests.traffic_light_test.store.State
 import java.util.Calendar
 import kotlin.math.sqrt
 import kotlin.random.Random

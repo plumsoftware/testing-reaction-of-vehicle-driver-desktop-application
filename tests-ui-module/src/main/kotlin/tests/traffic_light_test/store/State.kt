@@ -1,7 +1,6 @@
-package presentation.tests.traffic_light_test.store
+package tests.traffic_light_test.store
 
 import data.model.dto.test.TestDTO
-import data.model.regular.tests.TestMode
 
 data class State(
     val startTimerTime: Int = 10,
