@@ -11,11 +11,10 @@ repositories {
 
 dependencies {
     implementation(project(":local-store-module"))
-    val material3 = "1.2.1"
 
     implementation(compose.desktop.currentOs)
 
-    implementation("org.jetbrains.compose.material3:material3-desktop:${material3}")
+    implementation(globalVersions.material3)
 
 //    JUnit
     testImplementation("org.junit.jupiter:junit-jupiter:5.7.1")
