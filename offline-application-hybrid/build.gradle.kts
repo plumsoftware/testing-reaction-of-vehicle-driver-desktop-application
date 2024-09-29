@@ -59,6 +59,7 @@ dependencies {
     implementation(project(path = ":theme-ui-module"))
     implementation(project(path = ":local-store-module"))
     implementation(project(path = ":add-new-user-ui-module"))
+    implementation(project(path = ":all-users-ui-module"))
 }
 
 compose.desktop {

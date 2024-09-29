@@ -1,4 +1,4 @@
-package presentation.users.viewmodel
+package allusers.viewmodel
 
 import data.model.regular.user.User
 import domain.storage.UserStorage
@@ -9,9 +9,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
-import presentation.users.store.Effect
-import presentation.users.store.Event
-import presentation.users.store.State
+import allusers.store.Effect
+import allusers.store.Event
+import allusers.store.State
 
 class UsersViewModel(
     private val userStorage: UserStorage,

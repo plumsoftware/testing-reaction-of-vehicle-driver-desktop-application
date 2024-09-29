@@ -1,4 +1,4 @@
-package presentation.users
+package allusers
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,9 +22,9 @@ import other.components.SearchField
 import other.components.UserButton
 import other.extension.padding.ExtensionPadding
 import other.extension.route.DesktopRouting
-import presentation.users.store.Effect
-import presentation.users.store.Event
-import presentation.users.viewmodel.UsersViewModel
+import allusers.store.Effect
+import allusers.store.Event
+import allusers.viewmodel.UsersViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

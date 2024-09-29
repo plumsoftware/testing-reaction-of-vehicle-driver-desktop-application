@@ -1,4 +1,4 @@
-package presentation.users.store
+package allusers.store
 
 import data.model.regular.user.User
 
