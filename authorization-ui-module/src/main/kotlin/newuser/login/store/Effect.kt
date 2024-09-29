@@ -1,4 +1,4 @@
-package authorization.login.store
+package newuser.login.store
 
 import data.model.dto.test.TestDTO
 

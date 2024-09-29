@@ -12,7 +12,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import authorization.login.Login
+import newuser.login.Login
 import data.repository.SessionRepositoryImpl_
 import data.repository.SettingsRepositoryImpl
 import data.repository.UserRepositoryImpl

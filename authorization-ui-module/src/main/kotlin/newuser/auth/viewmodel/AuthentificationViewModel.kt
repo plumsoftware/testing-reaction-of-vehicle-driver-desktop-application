@@ -1,11 +1,11 @@
-package authorization.auth.viewmodel
+package newuser.auth.viewmodel
 
-import authorization.auth.store.Effect
+import newuser.auth.store.Effect
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import moe.tlaster.precompose.viewmodel.ViewModel
-import authorization.auth.store.Event
-import authorization.auth.store.State
+import newuser.auth.store.Event
+import newuser.auth.store.State
 import data.model.regular.user.User
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch

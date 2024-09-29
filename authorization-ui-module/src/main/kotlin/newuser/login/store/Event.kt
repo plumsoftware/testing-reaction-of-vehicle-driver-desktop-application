@@ -1,4 +1,4 @@
-package authorization.login.store
+package newuser.login.store
 
 import data.model.regular.user.DrivingLicenseCategory
 import data.model.regular.user.Interval

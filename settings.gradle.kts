@@ -12,6 +12,14 @@ pluginManagement {
     }
 }
 
+dependencyResolutionManagement {
+    versionCatalogs {
+        create("globalVersions") {
+            from(files("gradle/globalVersions.versions.toml"))
+        }
+    }
+}
+
 rootProject.name = "testing-reaction-of-vehicle-driver-desktop-application"
 
 include(":offline-application-hybrid")
@@ -22,10 +30,4 @@ include(":local-store-module")
 include(":cryptography-module")
 include(":authorization-ui-module")
 include(":theme-ui-module")
-dependencyResolutionManagement {
-    versionCatalogs {
-        create("globalVersions") {
-            from(files("gradle/globalVersions.versions.toml"))
-        }
-    }
-}
+include(":add-new-user-ui-module")

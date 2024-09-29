@@ -1,4 +1,4 @@
-package authorization.auth.store
+package newuser.auth.store
 
 sealed class Event {
     data object BackCLicked : Event()

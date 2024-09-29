@@ -1,13 +1,13 @@
-package authorization.login.viewmodel
+package newuser.login.viewmodel
 
-import authorization.login.store.Effect
+import newuser.login.store.Effect
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
-import authorization.login.store.Event
-import authorization.login.store.State
+import newuser.login.store.Event
+import newuser.login.store.State
 import data.model.dto.test.TestDTO
 import data.model.either.local.LocalEither
 import data.model.regular.user.DrivingLicenseCategory

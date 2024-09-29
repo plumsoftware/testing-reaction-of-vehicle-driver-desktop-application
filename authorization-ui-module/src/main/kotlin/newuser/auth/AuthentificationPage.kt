@@ -1,4 +1,4 @@
-package authorization.auth
+package newuser.auth
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,11 +8,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import authorization.auth.store.Effect
+import newuser.auth.store.Effect
 import other.components.BackButton
 import other.extension.padding.ExtensionPadding
-import authorization.auth.store.Event
-import authorization.auth.viewmodel.AuthorizationViewModel
+import newuser.auth.store.Event
+import newuser.auth.viewmodel.AuthorizationViewModel
 import moe.tlaster.precompose.navigation.Navigator
 import moe.tlaster.precompose.viewmodel.viewModel
 import other.components.AuthTextField

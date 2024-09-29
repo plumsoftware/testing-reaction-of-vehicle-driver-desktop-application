@@ -1,4 +1,4 @@
-package authorization.login
+package newuser.login
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
@@ -10,9 +10,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import authorization.login.store.Effect
-import authorization.login.store.Event
-import authorization.login.viewmodel.LoginViewModel
+import newuser.login.store.Effect
+import newuser.login.store.Event
+import newuser.login.viewmodel.LoginViewModel
 import data.constant.TestConstants
 import data.model.dto.test.TestDTO
 import data.model.regular.user.DrivingLicenseCategory
