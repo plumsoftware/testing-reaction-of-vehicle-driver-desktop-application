@@ -31,7 +31,6 @@ repositories {
 }
 
 dependencies {
-    val apachi_poi = "5.2.3"
     val material3 = "1.2.1"
     val precompose_version = "1.6.0"
     val kotlinx_serialization_json = "1.6.0"
@@ -59,6 +58,7 @@ dependencies {
     implementation(project(path = ":authorization-ui-module"))
     implementation(project(path = ":theme-ui-module"))
     implementation(project(path = ":local-store-module"))
+    implementation(project(path = ":add-new-user-ui-module"))
 }
 
 compose.desktop {

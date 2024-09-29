@@ -16,4 +16,5 @@ rootProject.name = "offline-application-hybrid"
 
 include(":authorization-ui-module")
 include(":theme-ui-module")
+include(":add-new-user-ui-module")
 include(":local-store-module")

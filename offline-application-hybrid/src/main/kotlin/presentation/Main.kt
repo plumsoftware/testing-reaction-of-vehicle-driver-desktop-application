@@ -40,6 +40,7 @@ import moe.tlaster.precompose.navigation.NavHost
 import moe.tlaster.precompose.navigation.rememberNavigator
 import moe.tlaster.precompose.navigation.transition.NavTransition
 import moe.tlaster.precompose.viewmodel.viewModel
+import newuser.NewUserPage
 import presentation.home.HomePage
 import presentation.home.viewmodel.HomeViewModel
 import theme.AppTheme
@@ -47,7 +48,6 @@ import other.extension.route.DesktopRouting
 import presentation.aboutuser.AboutUserPage
 import presentation.main.MainViewModel
 import presentation.main.store.Event
-import presentation.newuser.NewUserPage
 import presentation.privacypolicy.PrivacyPolicy
 import presentation.privacypolicy.viewmodel.PrivacyPolicyViewModel
 import presentation.settings.SettingsPage
