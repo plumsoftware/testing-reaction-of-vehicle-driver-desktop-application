@@ -21,4 +21,6 @@ include(":all-users-ui-module")
 include(":privacy-policy-ui-module")
 include(":tests-ui-module")
 include(":about-user-ui-module")
+include(":picker-ui-module")
+
 include(":local-store-module")

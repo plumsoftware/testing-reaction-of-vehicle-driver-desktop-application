@@ -59,6 +59,7 @@ dependencies {
     implementation(project(path = ":privacy-policy-ui-module"))
     implementation(project(path = ":tests-ui-module"))
     implementation(project(path = ":about-user-ui-module"))
+    implementation(project(path = ":picker-ui-module"))
 }
 
 compose.desktop {
