@@ -1,2 +1,4 @@
-Чтобы сделать исполняемый файл в терминале нажно набрать ```./gradlew :runDistributable```
-Больше есть вот в этой документации https://github.com/JetBrains/compose-multiplatform/blob/master/tutorials/Native_distributions_and_local_execution/README.md#basic-usage
+ ![логитип приложения](https://github.com/plumsoftware/desktop-application/blob/develop/docs/logo.png?raw=true)
+# Тестирование реакции водителя АТС
+Desktop приложения для определения времени реакции водителя на опредлённый раздражитель, которая представляет собой клиентскую часть (приложение с тестами) и часть адмистратора (приложение для контролем за пользователями и тестовыми сессиями).
+Основная ценность разработки - снижение рисков ДТП.
