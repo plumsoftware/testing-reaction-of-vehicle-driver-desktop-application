@@ -1,6 +1,5 @@
 package data.repository
 
-import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import data.constant.DatabaseConstants
 import data.constant.GeneralConstants
@@ -10,20 +9,45 @@ import ru.plumsoftware.sessions.GetLastSessionId
 import ru.plumsoftware.sessions.Sessions
 import utlis.createFolderIfNotExists
 import data.model.dto.database.SessionDTO
+import data.model.regular.Mode
 import data.model.regular.user.DrivingLicenseCategory
 import data.model.regular.user.Interval
+import utlis.getSessionsDatabaseDriver
+import utlis.getUsersDatabaseDriver
 
-class SessionRepositoryImpl_ : SessionRepository {
+class SessionRepositoryImpl_(
+    mode: Mode = Mode.SINGLE,
+    directoryPath: String = GeneralConstants.Paths.PATH_TO_SETTINGS_FOLDER,
+    usersDirectory: String = DatabaseConstants.LOCAL_USER_JDBC_DRIVER_NAME,
+    sessionsDirectory: String = DatabaseConstants.LOCAL_SESSION_JDBC_DRIVER_NAME
+) : SessionRepository {
+
+    private val usersDatabaseDriver: JdbcSqliteDriver
+    private val sessionsDatabaseDriver: JdbcSqliteDriver
+    private val dir = if (mode == Mode.SINGLE) GeneralConstants.Paths.PATH_TO_SETTINGS_FOLDER else GeneralConstants.Paths.PATH_TO_ROAMING_DATABASE_DIRECTORY(directoryPath)
+
 
     init {
-        createFolderIfNotExists(directoryPath = GeneralConstants.Paths.PATH_TO_LOCAL_SQL_FOLDER)
-        val driver: SqlDriver = JdbcSqliteDriver(DatabaseConstants.LOCAL_SESSION_JDBC_DRIVER_NAME)
-        val database = Database(driver = driver)
-        database.sqldelight_sessions_schemeQueries.create()
+        createFolderIfNotExists(directoryPath = dir)
+        usersDatabaseDriver = if (mode == Mode.ETHERNET) getUsersDatabaseDriver(networkDrive = usersDirectory) else JdbcSqliteDriver(
+            url = DatabaseConstants.LOCAL_USER_JDBC_DRIVER_NAME
+        )
+
+        sessionsDatabaseDriver = if (mode == Mode.ETHERNET) getSessionsDatabaseDriver(networkDrive = sessionsDirectory) else JdbcSqliteDriver(
+            url = DatabaseConstants.LOCAL_SESSION_JDBC_DRIVER_NAME
+        )
+
+        val userDatabase =
+            Database(driver = usersDatabaseDriver)
+        userDatabase.sqldelight_users_schemeQueries.create()
+
+        val sessionsDatabase =
+            Database(driver = sessionsDatabaseDriver)
+        sessionsDatabase.sqldelight_users_schemeQueries.create()
     }
 
     override suspend fun getAllSessionDtoFromDatabase(): List<SessionDTO> {
-        val driver: SqlDriver = JdbcSqliteDriver(DatabaseConstants.LOCAL_SESSION_JDBC_DRIVER_NAME)
+        val driver = usersDatabaseDriver
         val database = Database(driver = driver)
         val executeAsList: List<Sessions> = database.sqldelight_sessions_schemeQueries.selectAllSessions().executeAsList()
 
@@ -54,7 +78,7 @@ class SessionRepositoryImpl_ : SessionRepository {
     }
 
     override suspend fun insertOrAbortNewSession(sessionDTO: SessionDTO) {
-        val driver: SqlDriver = JdbcSqliteDriver(DatabaseConstants.LOCAL_SESSION_JDBC_DRIVER_NAME)
+        val driver = sessionsDatabaseDriver
         val database = Database(driver = driver)
         with(sessionDTO) {
             database.sqldelight_sessions_schemeQueries.transaction {
@@ -80,7 +104,7 @@ class SessionRepositoryImpl_ : SessionRepository {
     }
 
     override suspend fun getLastSessionId(): Long {
-        val driver: SqlDriver = JdbcSqliteDriver(DatabaseConstants.LOCAL_SESSION_JDBC_DRIVER_NAME)
+        val driver = sessionsDatabaseDriver
         val database = Database(driver = driver)
         val executeAsList: List<GetLastSessionId> = database.sqldelight_sessions_schemeQueries.getLastSessionId().executeAsList()
         return executeAsList[0].MAX ?: 0L
