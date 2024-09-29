@@ -49,8 +49,7 @@ import other.extension.route.DesktopRouting
 import presentation.aboutuser.AboutUserPage
 import presentation.main.MainViewModel
 import presentation.main.store.Event
-import presentation.privacypolicy.PrivacyPolicy
-import presentation.privacypolicy.viewmodel.PrivacyPolicyViewModel
+import privacypolicy.PrivacyPolicy
 import presentation.settings.SettingsPage
 import presentation.testmenu.TestMenu
 import presentation.tests.traffic_light_test.TrafficLightTest
@@ -116,7 +115,6 @@ fun main() = run {
                     mainViewModel.onEvent(Event.LoadSettings)
                 }
 
-
                 val homeViewModel: HomeViewModel =
                     viewModel(modelClass = HomeViewModel::class) {
                         HomeViewModel(
@@ -141,17 +139,6 @@ fun main() = run {
                                     presentation.home.store.Output.UsersButtonClicked -> {
                                         navigator.navigate(route = DesktopRouting.users)
                                     }
-                                }
-                            }
-                        )
-                    }
-
-                val privacyPolicyViewModel =
-                    viewModel(modelClass = PrivacyPolicyViewModel::class) {
-                        PrivacyPolicyViewModel(
-                            output = { output ->
-                                when (output) {
-                                    presentation.privacypolicy.store.Output.BackButtonClicked -> navigator.popBackStack()
                                 }
                             }
                         )
@@ -232,7 +219,7 @@ fun main() = run {
 
 //                        region::Privacy policy
                         scene(route = DesktopRouting.privacyPolicy) {
-                            PrivacyPolicy(onEvent = privacyPolicyViewModel::onEvent)
+                            PrivacyPolicy()
                         }
 //                        endregion
 

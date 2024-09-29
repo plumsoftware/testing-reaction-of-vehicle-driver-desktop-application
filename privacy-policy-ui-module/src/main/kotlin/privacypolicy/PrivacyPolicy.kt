@@ -1,4 +1,4 @@
-package presentation.privacypolicy
+package privacypolicy
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -8,20 +8,29 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import moe.tlaster.precompose.viewmodel.viewModel
 import other.components.BackButton
 import other.extension.padding.ExtensionPadding
-import presentation.privacypolicy.store.Event
-import utils.privacyPolicyFormatter
+import privacypolicy.store.Event
+import privacypolicy.viewmodel.PrivacyPolicyViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PrivacyPolicy(onEvent: (Event) -> Unit) {
+fun PrivacyPolicy() {
+
+    val privacyPolicyViewModel =
+        viewModel(modelClass = PrivacyPolicyViewModel::class) {
+            PrivacyPolicyViewModel()
+        }
+    val state = privacyPolicyViewModel.state.collectAsState().value
+
     Scaffold(
         topBar = {
             BackButton(
-                onClick = { onEvent(Event.BackCLicked) }
+                onClick = { privacyPolicyViewModel.onEvent(Event.BackCLicked) }
             )
         },
         modifier = Modifier.fillMaxSize()
@@ -35,7 +44,7 @@ fun PrivacyPolicy(onEvent: (Event) -> Unit) {
         ) {
             item {
                 Text(
-                    text = privacyPolicyFormatter(),
+                    text = state.privacyPolicyText,
                     style = MaterialTheme.typography.bodyMedium
                 )
             }

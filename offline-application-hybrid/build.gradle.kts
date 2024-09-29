@@ -60,6 +60,7 @@ dependencies {
     implementation(project(path = ":local-store-module"))
     implementation(project(path = ":add-new-user-ui-module"))
     implementation(project(path = ":all-users-ui-module"))
+    implementation(project(path = ":privacy-policy-ui-module"))
 }
 
 compose.desktop {

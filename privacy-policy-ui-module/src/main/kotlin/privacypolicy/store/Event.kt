@@ -1,4 +1,4 @@
-package presentation.privacypolicy.store
+package privacypolicy.store
 
 sealed class Event {
     data object BackCLicked : Event()
