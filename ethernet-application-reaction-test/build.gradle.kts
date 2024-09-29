@@ -19,8 +19,6 @@ val macExtraPlistKeys: String
 plugins {
     kotlin("jvm")
     id("org.jetbrains.compose")
-    kotlin("plugin.serialization") version "1.9.24"
-    id("app.cash.sqldelight") version "2.0.2"
 }
 
 group = "ru.plumsoftware"
@@ -32,33 +30,13 @@ repositories {
     google()
 }
 
-val sqlLightVersion = "2.0.2"
-
-sqldelight {
-    databases {
-        create("Database") {
-            packageName.set("ru.plumsoftware.sessions")
-            schemaOutputDirectory = file("src/main/kotlin/data/sqldelight/databases")
-            verifyMigrations = true
-            deriveSchemaFromMigrations = true
-        }
-    }
-}
-
 dependencies {
-    val apachi_poi = "5.2.3"
     val material3 = "1.2.1"
     val precompose_version = "1.6.0"
-    val kotlinx_serialization_json = "1.6.0"
 
     implementation(compose.desktop.currentOs)
 
-    implementation("org.apache.poi:poi:${apachi_poi}")
-    implementation("org.apache.poi:poi-ooxml:${apachi_poi}")
     implementation("org.jetbrains.compose.material3:material3-desktop:${material3}")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${kotlinx_serialization_json}")
-
-    api("moe.tlaster:precompose-viewmodel:${precompose_version}")
 
     api(compose.foundation)
     api(compose.animation)
@@ -71,14 +49,19 @@ dependencies {
     implementation("org.slf4j:slf4j-simple:1.7.36")
     implementation("org.apache.logging.log4j:log4j-to-slf4j:2.8.2")
 
-// api("moe.tlaster:precompose-koin:$precompose_version") // For Koin intergration
-
-//    Database
-    implementation("app.cash.sqldelight:sqlite-driver:$sqlLightVersion")
-
 
 //    Modules
+    implementation(project(path = ":local-store-module"))
+
     implementation(project(path = ":authorization-ui-module"))
+    implementation(project(path = ":theme-ui-module"))
+    implementation(project(path = ":add-new-user-ui-module"))
+    implementation(project(path = ":all-users-ui-module"))
+    implementation(project(path = ":privacy-policy-ui-module"))
+    implementation(project(path = ":tests-ui-module"))
+    implementation(project(path = ":about-user-ui-module"))
+    implementation(project(path = ":picker-ui-module"))
+    implementation(project(path = ":test-menu-ui-module"))
 }
 
 compose.desktop {

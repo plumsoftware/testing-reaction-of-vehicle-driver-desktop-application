@@ -5,10 +5,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import presentation.other.components.BackButton
-import presentation.other.components.DefaultButton
+import other.components.DefaultButton
+import other.extension.padding.ExtensionPadding
 import presentation.home.store.Event
-import presentation.other.extension.padding.ExtensionPadding.mediumVerticalArrangement
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -19,7 +18,7 @@ fun HomePage(onEvent: (Event) -> Unit) {
         Column(
             modifier = Modifier
                 .fillMaxSize(),
-            verticalArrangement = mediumVerticalArrangement,
+            verticalArrangement = ExtensionPadding.mediumVerticalArrangement,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             DefaultButton(

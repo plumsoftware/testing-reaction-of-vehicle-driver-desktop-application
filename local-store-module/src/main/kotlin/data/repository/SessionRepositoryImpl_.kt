@@ -26,7 +26,6 @@ class SessionRepositoryImpl_(
     private val sessionsDatabaseDriver: JdbcSqliteDriver
     private val dir = if (mode == Mode.SINGLE) GeneralConstants.Paths.PATH_TO_SETTINGS_FOLDER else GeneralConstants.Paths.PATH_TO_ROAMING_DATABASE_DIRECTORY(directoryPath)
 
-
     init {
         createFolderIfNotExists(directoryPath = dir)
         usersDatabaseDriver = if (mode == Mode.ETHERNET) getUsersDatabaseDriver(networkDrive = usersDirectory) else JdbcSqliteDriver(
@@ -36,6 +35,7 @@ class SessionRepositoryImpl_(
         sessionsDatabaseDriver = if (mode == Mode.ETHERNET) getSessionsDatabaseDriver(networkDrive = sessionsDirectory) else JdbcSqliteDriver(
             url = DatabaseConstants.LOCAL_SESSION_JDBC_DRIVER_NAME
         )
+        println(dir)
 
         val userDatabase =
             Database(driver = usersDatabaseDriver)
@@ -43,7 +43,7 @@ class SessionRepositoryImpl_(
 
         val sessionsDatabase =
             Database(driver = sessionsDatabaseDriver)
-        sessionsDatabase.sqldelight_users_schemeQueries.create()
+        sessionsDatabase.sqldelight_sessions_schemeQueries.create()
     }
 
     override suspend fun getAllSessionDtoFromDatabase(): List<SessionDTO> {

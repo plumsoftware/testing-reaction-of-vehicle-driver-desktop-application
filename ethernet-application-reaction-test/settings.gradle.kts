@@ -14,4 +14,14 @@ pluginManagement {
 }
 
 rootProject.name = "ethernet-application-reaction-test"
+
 include(":authorization-ui-module")
+include(":theme-ui-module")
+include(":add-new-user-ui-module")
+include(":all-users-ui-module")
+include(":privacy-policy-ui-module")
+include(":tests-ui-module")
+include(":about-user-ui-module")
+include(":picker-ui-module")
+
+include(":local-store-module")

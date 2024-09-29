@@ -1,6 +1,7 @@
 package presentation
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.BitmapPainter
@@ -11,13 +12,13 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import newuser.auth.AuthorizationPage
-import data.repository.SessionRepositoryImpl
+import data.model.regular.Mode
+import data.repository.SessionRepositoryImpl_
 import data.repository.SettingsRepositoryImpl
 import data.repository.UserRepositoryImpl
 import data.repository.WorkbookRepositoryImpl
-import domain.model.regular.tests.TrafficLight
-import domain.model.regular.tests.ReactionTest
+import domain.repository.SessionRepository
+import domain.repository.UserRepository
 import domain.storage.SessionStorage
 import domain.storage.SettingsStorage
 import domain.storage.UserStorage
@@ -26,33 +27,39 @@ import domain.usecase.settings.GetUserSettingsUseCase
 import domain.usecase.settings.SaveUserSettingsUseCase
 import domain.usecase.sql_database.local.GetAllSessionsDtoFromDatabaseUseCase
 import domain.usecase.sql_database.local.GetLastSessionIdUseCase
+import domain.usecase.sql_database.local.GetUserByLoginAndPasswordUseCase
 import domain.usecase.sql_database.local.InsertOrAbortNewSessionUseCase
-import domain.usecase.sql_database.roaming.GetUserByLoginAndPasswordUseCase
-import domain.usecase.sql_database.roaming.InsertOrAbortNewSessionToRoamingDatabaseUseCase
+import domain.usecase.sql_database.local.user.DeleteUserUseCase
+import domain.usecase.sql_database.local.user.GetAllUsersUseCase
+import domain.usecase.sql_database.local.user.GetSessionsWithUserIdUseCase
+import domain.usecase.sql_database.local.user.InsertNewUserUseCase
+import domain.usecase.sql_database.local.user.IsPasswordUniqueUseCase
+import domain.usecase.sql_database.local.user.UpdateUserUseCase
 import domain.usecase.workbook.CreateWorkbookIfNotExistsUseCase
 import domain.usecase.workbook.WriteDataToWorkbookUseCase
-import kotlinx.coroutines.*
+import newuser.auth.AuthorizationPage
 import moe.tlaster.precompose.PreComposeApp
 import moe.tlaster.precompose.navigation.NavHost
 import moe.tlaster.precompose.navigation.rememberNavigator
 import moe.tlaster.precompose.navigation.transition.NavTransition
 import moe.tlaster.precompose.viewmodel.viewModel
-import presentation.authorization.login.Login
-import presentation.authorization.login.viewmodel.LoginViewModel
+import newuser.login.Login
+import other.extension.route.DesktopRouting
 import presentation.home.HomePage
 import presentation.home.store.Output
 import presentation.home.viewmodel.HomeViewModel
 import presentation.main.MainViewModel
-import presentation.other.extension.route.DesktopRouting
+import presentation.main.store.Event
 import presentation.settings.SettingsPage
-import presentation.settings.viewmodel.SettingsViewModel
-import presentation.testmenu.TestMenu
-import presentation.testmenu.viewmodel.TestMenuViewModel
-import presentation.tests.traffic_light_test.TrafficLightTest
-import presentation.tests.traffic_light_test.store.Event
-import presentation.tests.traffic_light_test.viewmodel.TrafficLightTestViewModel
-import presentation.theme.AppTheme
-import kotlin.coroutines.CoroutineContext
+import testmenu.TestMenu
+import tests.traffic_light_test.TrafficLightTest
+import theme.AppTheme
+
+private lateinit var userRepository: UserRepository
+private lateinit var userStorage: UserStorage
+
+private lateinit var sessionRepository: SessionRepository
+private lateinit var sessionStorage: SessionStorage
 
 fun main() = run {
 
@@ -60,9 +67,6 @@ fun main() = run {
 
     application {
         val windowState = rememberWindowState(placement = WindowPlacement.Maximized)
-        val reactionTests: List<ReactionTest> = listOf(
-            TrafficLight()
-        )
 
 //        region::Storage
         val settingsRepository = SettingsRepositoryImpl()
@@ -77,137 +81,86 @@ fun main() = run {
         )
 //        endregion
 
-//        region::Actions
-        val supervisorJob = SupervisorJob()
-        val coroutineContextIO: CoroutineContext = Dispatchers.IO + supervisorJob
-
-        val settings = settingsStorage.get(scope = CoroutineScope(coroutineContextIO))
-//        endregion
-
-//        region::Storage
-        val userRepository = UserRepositoryImpl(netDriver = settings.networkDrive)
-        val userStorage = UserStorage(
-            getUserByLoginAndPasswordUseCase = GetUserByLoginAndPasswordUseCase(userRepository)
-        )
-        val sessionRepository = SessionRepositoryImpl(netDriver = settings.networkDrive)
-        val sessionStorage = SessionStorage(
-            getAllSessionsDtoFromDatabaseUseCase = GetAllSessionsDtoFromDatabaseUseCase(sessionRepository),
-            insertOrAbortNewSessionUseCase = InsertOrAbortNewSessionUseCase(sessionRepository),
-            getLastSessionIdUseCase = GetLastSessionIdUseCase(sessionRepository),
-            insertOrAbortNewSessionToRoamingDatabaseUseCase = InsertOrAbortNewSessionToRoamingDatabaseUseCase(
-                sessionRepository
-            )
-        )
-//        endregion
-
         Window(
             onCloseRequest = ::exitApplication,
             icon = BitmapPainter(useResource("main_icon.png", ::loadImageBitmap)),
             title = "Тест на рекацию",
             state = windowState,
         ) {
-            AppTheme(useDarkTheme = settings.isDarkTheme) {
-                PreComposeApp {
+            PreComposeApp {
+                val navigator = rememberNavigator()
+
+                val mainViewModel: MainViewModel =
+                    viewModel(modelClass = MainViewModel::class) {
+                        MainViewModel(settingsStorage = settingsStorage)
+                    }
+                val mainState = mainViewModel.state.collectAsState()
+
+                LaunchedEffect(key1 = Unit) {
+                    mainViewModel.onEvent(Event.LoadSettings)
+                }
+
+//                region::Storage
+                if (mainState.value.settings.networkDrive.isNotEmpty()) {
+                    userRepository = UserRepositoryImpl(
+                        mode = Mode.ETHERNET,
+                        directoryPath = mainState.value.settings.networkDrive,
+                        usersDirectory = mainState.value.settings.networkDrive,
+                        sessionsDirectory = mainState.value.settings.networkDrive,
+                    )
+                    sessionRepository = SessionRepositoryImpl_(
+                        mode = Mode.ETHERNET,
+                        directoryPath = mainState.value.settings.networkDrive,
+                        usersDirectory = mainState.value.settings.networkDrive,
+                        sessionsDirectory = mainState.value.settings.networkDrive,
+                    )
+                    userStorage = UserStorage(
+                        getAllUsersUseCase = GetAllUsersUseCase(userRepository),
+                        getSessionsWithUserIdUseCase = GetSessionsWithUserIdUseCase(userRepository),
+                        insertNewUserUseCase = InsertNewUserUseCase(userRepository),
+                        updateUserUseCase = UpdateUserUseCase(userRepository),
+                        deleteUserUseCase = DeleteUserUseCase(userRepository),
+                        isPasswordUniqueUseCase = IsPasswordUniqueUseCase(userRepository),
+                        getUserByLoginAndPasswordUseCase = GetUserByLoginAndPasswordUseCase(
+                            userRepository
+                        )
+                    )
+                    sessionStorage = SessionStorage(
+                        getAllSessionsDtoFromDatabaseUseCase = GetAllSessionsDtoFromDatabaseUseCase(
+                            sessionRepository = sessionRepository
+                        ),
+                        insertOrAbortNewSessionUseCase = InsertOrAbortNewSessionUseCase(
+                            sessionRepository = sessionRepository
+                        ),
+                        getLastSessionIdUseCase = GetLastSessionIdUseCase(sessionRepository = sessionRepository)
+                    )
+                }
+
+//                endregion
+
+                AppTheme(useDarkTheme = mainState.value.settings.isDarkTheme) {
 
 //                    region::View models
-                    val navigator = rememberNavigator()
-                    val testMenuViewModel: TestMenuViewModel
-                    var trafficLightTestViewModel: TrafficLightTestViewModel? = null
+                    val homeViewModel: HomeViewModel =
+                        viewModel(modelClass = HomeViewModel::class) {
+                            HomeViewModel(
+                                output = { output ->
+                                    when (output) {
+                                        Output.AboutProgramButtonClicked -> {
 
-                    val mainViewModel: MainViewModel = viewModel(modelClass = MainViewModel::class) {
-                        MainViewModel()
-                    }
-                    val homeViewModel: HomeViewModel = viewModel(modelClass = HomeViewModel::class) {
-                        HomeViewModel(
-                            output = { output ->
-                                when (output) {
-                                    Output.AboutProgramButtonClicked -> {
+                                        }
 
-                                    }
+                                        Output.SettingsButtonClicked -> {
+                                            navigator.navigate(route = DesktopRouting.settings)
+                                        }
 
-                                    Output.SettingsButtonClicked -> {
-                                        navigator.navigate(route = DesktopRouting.settings)
-                                    }
-
-                                    Output.TestsButtonClicked -> {
-                                        navigator.navigate(route = DesktopRouting.login)
+                                        Output.TestsButtonClicked -> {
+                                            navigator.navigate(route = DesktopRouting.login)
+                                        }
                                     }
                                 }
-                            }
-                        )
-                    }
-                    testMenuViewModel = viewModel(modelClass = TestMenuViewModel::class) {
-                        TestMenuViewModel(
-                            output = { output ->
-                                when (output) {
-                                    is presentation.testmenu.store.Output.TestClicked -> {
-                                        trafficLightTestViewModel?.onEvent(Event.InitTestMode(testMode = output.testMode))
-                                        navigator.navigate(route = output.route)
-                                    }
-
-                                    presentation.testmenu.store.Output.BackButtonClicked -> {
-                                        navigator.goBack()
-                                    }
-                                }
-                            }
-                        )
-                    }
-//                    val authorizationViewModel: AuthorizationViewModel =
-//                        viewModel(modelClass = AuthorizationViewModel::class) {
-//                            AuthorizationViewModel(
-//                                output = { output ->
-//                                    when (output) {
-//                                        presentation.authorization.auth.store.Output.BackButtonClicked -> {
-//                                            navigator.goBack()
-//                                        }
-//                                    }
-//                                }
-//                            )
-//                        }
-                    val settingsViewModel: SettingsViewModel = viewModel(modelClass = SettingsViewModel::class) {
-                        SettingsViewModel(
-                            settingsStorage = settingsStorage,
-                            coroutineContextIO = coroutineContextIO,
-                            output = { output ->
-                                when (output) {
-                                    presentation.settings.store.Output.BackClicked -> navigator.goBack()
-                                }
-                            }
-                        )
-                    }
-                    val loginViewModel: LoginViewModel = viewModel(modelClass = LoginViewModel::class) {
-                        LoginViewModel(
-                            output = { output ->
-                                when (output) {
-                                    presentation.authorization.login.store.Output.BackButtonClicked -> navigator.goBack()
-
-                                    is presentation.authorization.login.store.Output.OpenTestMenu -> {
-                                        testMenuViewModel.onEvent(presentation.testmenu.store.Event.ChangeUser(user = output.testDTO.user))
-                                        trafficLightTestViewModel?.onEvent(Event.InitStartData(testDTO = output.testDTO))
-                                        navigator.navigate(route = DesktopRouting.testmenu)
-                                    }
-                                }
-                            },
-                            userStorage = userStorage
-                        )
-                    }
-                    trafficLightTestViewModel = viewModel(modelClass = TrafficLightTestViewModel::class) {
-                        TrafficLightTestViewModel(
-                            workbookStorage = workBookStorage,
-                            dataFormats = settings.dataFormats,
-                            localFolderToTable = settings.localFolderToTable,
-                            output = { output ->
-                                when (output) {
-                                    presentation.tests.traffic_light_test.store.Output.BackButtonClicked -> {
-                                        navigator.navigate(route = DesktopRouting.home)
-                                    }
-                                }
-                            },
-                            actions = mainViewModel.trafficLightActions,
-                            sessionStorage = sessionStorage
-                        )
-                    }
-//                    endregion
+                            )
+                        }
 
                     NavHost(
                         navigator = navigator,
@@ -222,7 +175,17 @@ fun main() = run {
                         }
                         scene(route = DesktopRouting.testmenu) {
                             println("Test menu page rendered")
-                            TestMenu(testMenuViewModel::onEvent, reactionTests, testMenuViewModel)
+                            TestMenu(
+                                navigator = navigator,
+                                testDto = mainState.value.testDTO,
+                                block = {
+                                    mainViewModel.onEvent(
+                                        Event.ChangeTestDto(
+                                            testDto = it
+                                        )
+                                    )
+                                }
+                            )
                         }
                         scene(route = DesktopRouting.auth) {
                             println("Authorization page rendered")
@@ -230,13 +193,26 @@ fun main() = run {
                         }
                         scene(route = DesktopRouting.settings) {
                             println("Settings page rendered")
-                            SettingsPage(settingsViewModel::onEvent, settingsViewModel.state)
+                            SettingsPage(
+                                navigator = navigator,
+                                settingsStorage = settingsStorage,
+                                block = {
+                                    mainViewModel.onEvent(Event.LoadSettings)
+                                }
+                            )
                         }
                         scene(route = DesktopRouting.login) {
                             println("Login page rendered")
                             Login(
-                                onEvent = loginViewModel::onEvent,
-                                state = loginViewModel.state.collectAsState(),
+                                navigator = navigator,
+                                userStorage = userStorage,
+                                block = {
+                                    mainViewModel.onEvent(
+                                        Event.ChangeTestDto(
+                                            testDto = it
+                                        )
+                                    )
+                                }
                             )
                         }
 //                        endregion
@@ -244,13 +220,12 @@ fun main() = run {
 //                        region::Tests
                         scene(route = DesktopRouting.trafficLight) {
                             println("TrafficLightTest page rendered")
-//                            trafficLightTestViewModel.collectActions()
                             TrafficLightTest(
-                                trafficLightTestViewModel::onEvent,
-                                trafficLightTestViewModel.state,
-                                getAverage = trafficLightTestViewModel::getAverage,
-                                getStdDeviation = trafficLightTestViewModel::getStdDeviation,
-                                mainViewModel::onEvent
+                                workBookStorage = workBookStorage,
+                                settings = mainState.value.settings,
+                                testDTO = mainState.value.testDTO,
+                                sessionStorage = sessionStorage,
+                                navigator = navigator
                             )
                         }
 //                        endregion
