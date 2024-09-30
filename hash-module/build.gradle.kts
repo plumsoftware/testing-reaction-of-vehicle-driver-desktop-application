@@ -9,6 +9,6 @@ repositories {
 }
 
 dependencies {
-    implementation(project.dependencies.platform("dev.whyoleg.cryptography:cryptography-bom:0.3.1"))
+    implementation(project.dependencies.platform(globalVersions.hash))
     implementation("dev.whyoleg.cryptography:cryptography-core")
 }

@@ -17,7 +17,7 @@ dependencies {
     implementation(globalVersions.material3)
 
 //    JUnit
-    testImplementation("org.junit.jupiter:junit-jupiter:5.7.1")
+    testImplementation(globalVersions.junit)
     testImplementation(kotlin("test"))
 }
 

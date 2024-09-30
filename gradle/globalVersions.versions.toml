@@ -1,20 +1,66 @@
 [versions]
+kotlin = "1.9.24"
+
 precompose = "1.6.0"
 
 aayChart = "Beta-0.0.5"
 
 material3 = "1.2.1"
 
+junit = "5.7.1"
+
+serializationJson = "1.6.0"
+
+slf4j = "1.7.36"
+apacheSlf4j = "2.8.2"
+
+apache = "5.2.3"
+
+sqdelight = "2.0.2"
+
+coroutines = "1.9.0"
+
+hash = "0.3.1"
+
 [libraries]
 #Precompose
-precompose-viewmodel = {module = "moe.tlaster:precompose-viewmodel", version.ref = "precompose"}
-precompose = {module = "moe.tlaster:precompose", version.ref = "precompose"}
+precompose-viewmodel = { module = "moe.tlaster:precompose-viewmodel", version.ref = "precompose" }
+precompose = { module = "moe.tlaster:precompose", version.ref = "precompose" }
+precompose-molecule = { module = "moe.tlaster:precompose-molecule", version.ref = "precompose" }
 
 #Material
-material3 = { module = "org.jetbrains.compose.material3:material3-desktop", version.ref = "material3"}
+material3 = { module = "org.jetbrains.compose.material3:material3-desktop", version.ref = "material3" }
+
+#JUnit
+junit = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
 
 #Chart
-chart = {module = "io.github.thechance101:chart", version.ref = "aayChart"}
+chart = { module = "io.github.thechance101:chart", version.ref = "aayChart" }
+
+#Serialization
+serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serializationJson" }
+
+#Logging
+slf4j-log = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
+apache-slf4j-log = { module = "org.apache.logging.log4j:log4j-to-slf4j", version.ref = "apacheSlf4j" }
+
+#Apache
+apache-poi = { module = "org.apache.poi:poi", version.ref = "apache" }
+apache-ooxml = { module = "org.apache.poi:poi-ooxml", version.ref = "apache" }
+
+#SQDelight
+sqdelight = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqdelight" }
+
+#Coroutines
+kotlin-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+
+#Hash
+hash = {module = "dev.whyoleg.cryptography:cryptography-bom", version.ref = "hash"}
 
 [plugins]
+#Serialization
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+
+#SQDelight
+sqdelight = { id = "app.cash.sqldelight", version.ref = "sqdelight" }
 

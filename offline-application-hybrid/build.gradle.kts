@@ -18,7 +18,7 @@ val macExtraPlistKeys: String
 plugins {
     kotlin("jvm")
     id("org.jetbrains.compose")
-    kotlin("plugin.serialization") version "1.9.24"
+    alias(globalVersions.plugins.kotlin.serialization)
 }
 
 group = "ru.plumsoftware"
@@ -31,24 +31,18 @@ repositories {
 }
 
 dependencies {
-    val material3 = "1.2.1"
-    val precompose_version = "1.6.0"
-    val kotlinx_serialization_json = "1.6.0"
-
     implementation(compose.desktop.currentOs)
 
-    implementation("org.jetbrains.compose.material3:material3-desktop:${material3}")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${kotlinx_serialization_json}")
+    implementation(globalVersions.material3)
+    implementation(globalVersions.serialization.json)
 
-    api("moe.tlaster:precompose:$precompose_version")
-    api("moe.tlaster:precompose-molecule:$precompose_version") // For Molecule intergration
-    api("moe.tlaster:precompose-viewmodel:$precompose_version") // For ViewModel intergration
+    api(globalVersions.precompose)
+    api(globalVersions.precompose.molecule) // For Molecule intergration
+    api(globalVersions.precompose.viewmodel) // For ViewModel intergration
 
 //    Log
-    implementation("org.slf4j:slf4j-simple:1.7.36")
-    implementation("org.apache.logging.log4j:log4j-to-slf4j:2.8.2")
-
-// api("moe.tlaster:precompose-koin:$precompose_version") // For Koin intergration
+    implementation(globalVersions.slf4j.log)
+    implementation(globalVersions.apache.slf4j.log)
 
 //    Modules
     implementation(project(path = ":local-store-module"))
