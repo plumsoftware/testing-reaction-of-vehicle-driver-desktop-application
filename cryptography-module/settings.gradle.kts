@@ -10,4 +10,6 @@ pluginManagement {
     }
 }
 
-rootProject.name = "cryptography-module"
+rootProject.name = "config-module"
+
+include (":config-module")

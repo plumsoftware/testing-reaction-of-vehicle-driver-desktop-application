@@ -2,6 +2,7 @@ package data.repository
 
 import HashRepositoryImpl
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
+import data.CryptographyRepositoryImpl
 import data.constant.DatabaseConstants
 import data.constant.GeneralConstants
 import data.model.either.local.LocalEither
@@ -23,6 +24,8 @@ class UserRepositoryImpl(
 ) : UserRepository {
 
     private val hashRepository = HashRepositoryImpl()
+    private val cryptographyRepository = CryptographyRepositoryImpl()
+
     private val usersDatabaseDriver: JdbcSqliteDriver
     private val sessionsDatabaseDriver: JdbcSqliteDriver
     private val dir = if (mode == Mode.SINGLE) GeneralConstants.Paths.PATH_TO_SETTINGS_FOLDER else GeneralConstants.Paths.PATH_TO_ROAMING_DATABASE_DIRECTORY(directoryPath)
