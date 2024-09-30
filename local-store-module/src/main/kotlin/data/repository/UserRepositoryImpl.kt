@@ -1,5 +1,6 @@
 package data.repository
 
+import HashRepositoryImpl
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import data.constant.DatabaseConstants
 import data.constant.GeneralConstants
@@ -21,6 +22,7 @@ class UserRepositoryImpl(
     sessionsDirectory: String = DatabaseConstants.LOCAL_SESSION_JDBC_DRIVER_NAME
 ) : UserRepository {
 
+    private val hashRepository = HashRepositoryImpl()
     private val usersDatabaseDriver: JdbcSqliteDriver
     private val sessionsDatabaseDriver: JdbcSqliteDriver
     private val dir = if (mode == Mode.SINGLE) GeneralConstants.Paths.PATH_TO_SETTINGS_FOLDER else GeneralConstants.Paths.PATH_TO_ROAMING_DATABASE_DIRECTORY(directoryPath)
@@ -62,11 +64,13 @@ class UserRepositoryImpl(
     override suspend fun insertNewUser(user: User) {
         val database =
             Database(driver = usersDatabaseDriver)
+        val passwordHash = hashRepository.hash(text = user.password)
+        val loginHash = hashRepository.hash(text = user.login)
         with(user) {
             database.sqldelight_users_schemeQueries.transaction {
                 database.sqldelight_users_schemeQueries.insertNewUser(
-                    user_login = login,
-                    user_password = password,
+                    user_login = loginHash,
+                    user_password = passwordHash,
                     user_name = name,
                     user_surname = surname,
                     user_patronymic = patronymic,
@@ -89,10 +93,12 @@ class UserRepositoryImpl(
     override suspend fun updateUser(user: User) {
         val database =
             Database(driver = usersDatabaseDriver)
+        val passwordHash = hashRepository.hash(text = user.password)
+        val loginHash = hashRepository.hash(text = user.login)
         with(user) {
             database.sqldelight_users_schemeQueries.updateUser(
-                user_login = login,
-                user_password = password,
+                user_login = loginHash,
+                user_password = passwordHash,
                 user_name = name,
                 user_surname = surname,
                 user_patronymic = patronymic,
@@ -114,15 +120,16 @@ class UserRepositoryImpl(
     ): LocalEither<Exception, List<Users>> {
         val database =
             Database(driver = usersDatabaseDriver)
+        val passwordHash = hashRepository.hash(text = password)
+        val loginHash = hashRepository.hash(text = login)
         try {
             val executeAsList: List<Users> =
                 database.sqldelight_users_schemeQueries.getUserByLoginAndPassword(
-                    user_login = login,
-                    user_password = password
+                    user_login = loginHash,
+                    user_password = passwordHash
                 ).executeAsList()
 
             return LocalEither.Data(executeAsList)
-
         } catch (e: Exception) {
             return LocalEither.Exception(e)
         }

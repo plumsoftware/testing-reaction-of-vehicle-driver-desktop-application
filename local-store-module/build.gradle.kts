@@ -34,4 +34,7 @@ dependencies {
 
 //    Coroutines
     implementation(globalVersions.kotlin.coroutines)
+
+//    Modules
+    implementation(project(path = ":hash-module"))
 }
