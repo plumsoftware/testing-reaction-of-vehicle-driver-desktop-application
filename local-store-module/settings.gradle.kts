@@ -13,3 +13,5 @@ pluginManagement {
 }
 
 rootProject.name = "local-store-module"
+
+include(":hash-module")

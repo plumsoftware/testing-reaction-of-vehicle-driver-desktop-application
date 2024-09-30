@@ -170,7 +170,7 @@ fun AboutUserPage(navigator: Navigator, userStorage: UserStorage, user: User) {
                                 modifier = Modifier.fillMaxWidth().wrapContentHeight()
                             ) {
                                 AuthTextField(
-                                    text = state.value.user.login,
+                                    text = "",
                                     labelHint = "Логин",
                                     onValueChange = {
                                         aboutUserViewModel.onEvent(Event.OnLoginChanged(login = it))
@@ -179,7 +179,7 @@ fun AboutUserPage(navigator: Navigator, userStorage: UserStorage, user: User) {
                                     isError = state.value.isLoginError
                                 )
                                 AuthTextField(
-                                    text = state.value.user.password,
+                                    text = "",
                                     labelHint = "Пароль",
                                     onValueChange = {
                                         aboutUserViewModel.onEvent(Event.OnPasswordChanged(password = it))
