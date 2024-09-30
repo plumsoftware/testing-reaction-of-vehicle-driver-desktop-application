@@ -1,7 +1,7 @@
 plugins {
     kotlin("jvm")
-    id("app.cash.sqldelight") version ("2.0.2")
-    kotlin("plugin.serialization") version ("1.9.24")
+    alias(globalVersions.plugins.sqdelight)
+    alias(globalVersions.plugins.kotlin.serialization)
 }
 
 repositories {
@@ -9,8 +9,6 @@ repositories {
     maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     google()
 }
-
-val sqlLightVersion = extra["sqldelight.version"] as String
 
 sqldelight {
     databases {
@@ -24,19 +22,16 @@ sqldelight {
 }
 
 dependencies {
-    implementation("app.cash.sqldelight:sqlite-driver:$sqlLightVersion")
-
-    val apachi_poi = "5.2.3"
-    val kotlinx_serialization_json = "1.6.0"
-    val kotlinx_corutines = "1.9.0"
-
 //    Excel
-    implementation("org.apache.poi:poi:${apachi_poi}")
-    implementation("org.apache.poi:poi-ooxml:${apachi_poi}")
+    implementation(globalVersions.apache.poi)
+    implementation(globalVersions.apache.ooxml)
 
 //    Serialization
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${kotlinx_serialization_json}")
+    implementation(globalVersions.serialization.json)
+
+//    SQDelight
+    implementation(globalVersions.sqdelight)
 
 //    Coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_corutines")
+    implementation(globalVersions.kotlin.coroutines)
 }

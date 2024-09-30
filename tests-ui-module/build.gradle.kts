@@ -10,11 +10,9 @@ repositories {
 }
 
 dependencies {
-    val material3 = "1.2.1"
-
     implementation(compose.desktop.currentOs)
 
-    implementation("org.jetbrains.compose.material3:material3-desktop:${material3}")
+    implementation(globalVersions.material3)
 
 //    Precompose
     api(globalVersions.precompose.viewmodel)
