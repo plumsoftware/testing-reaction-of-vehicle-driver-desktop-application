@@ -30,17 +30,19 @@ import aboutuser.components.SessionCard
 import aboutuser.store.Effect
 import aboutuser.store.Event
 import aboutuser.viewmodel.AboutUserViewModel
+import domain.storage.SessionStorage
 import theme.ExtendedTheme
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun AboutUserPage(navigator: Navigator, userStorage: UserStorage, user: User) {
+fun AboutUserPage(navigator: Navigator, userStorage: UserStorage, sessionStorage: SessionStorage, user: User) {
 
     val aboutUserViewModel: AboutUserViewModel =
         viewModel(modelClass = AboutUserViewModel::class) {
             AboutUserViewModel(
                 userStorage = userStorage,
+                sessionStorage = sessionStorage,
                 user = user
             )
         }
@@ -53,6 +55,10 @@ fun AboutUserPage(navigator: Navigator, userStorage: UserStorage, user: User) {
                 Effect.BackClicked -> navigator.goBack()
             }
         }
+    }
+
+    LaunchedEffect(key1 = Unit) {
+        aboutUserViewModel.onEvent(Event.InitSessions)
     }
 
     Scaffold(

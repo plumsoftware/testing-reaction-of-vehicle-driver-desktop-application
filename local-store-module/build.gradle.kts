@@ -37,4 +37,5 @@ dependencies {
 
 //    Modules
     implementation(project(path = ":hash-module"))
+    implementation(project(path = ":cryptography-module"))
 }

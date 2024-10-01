@@ -2,6 +2,7 @@ package data.repository
 
 import HashRepositoryImpl
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
+import data.CryptographyRepositoryImpl
 import data.constant.DatabaseConstants
 import data.constant.GeneralConstants
 import data.model.either.local.LocalEither
@@ -11,7 +12,6 @@ import ru.plumsoftware.Database
 import ru.plumsoftware.users.Users
 import utlis.createFolderIfNotExists
 import data.model.regular.user.User
-import ru.plumsoftware.sessions.Sessions
 import utlis.getSessionsDatabaseDriver
 import utlis.getUsersDatabaseDriver
 
@@ -23,20 +23,27 @@ class UserRepositoryImpl(
 ) : UserRepository {
 
     private val hashRepository = HashRepositoryImpl()
+    private val cryptographyRepository = CryptographyRepositoryImpl()
+
     private val usersDatabaseDriver: JdbcSqliteDriver
     private val sessionsDatabaseDriver: JdbcSqliteDriver
-    private val dir = if (mode == Mode.SINGLE) GeneralConstants.Paths.PATH_TO_SETTINGS_FOLDER else GeneralConstants.Paths.PATH_TO_ROAMING_DATABASE_DIRECTORY(directoryPath)
+    private val dir =
+        if (mode == Mode.SINGLE) GeneralConstants.Paths.PATH_TO_SETTINGS_FOLDER else GeneralConstants.Paths.PATH_TO_ROAMING_DATABASE_DIRECTORY(
+            directoryPath
+        )
 
     init {
         createFolderIfNotExists(directoryPath = dir)
 
-        usersDatabaseDriver = if (mode == Mode.ETHERNET) getUsersDatabaseDriver(networkDrive = usersDirectory) else JdbcSqliteDriver(
-            url = DatabaseConstants.LOCAL_USER_JDBC_DRIVER_NAME
-        )
+        usersDatabaseDriver =
+            if (mode == Mode.ETHERNET) getUsersDatabaseDriver(networkDrive = usersDirectory) else JdbcSqliteDriver(
+                url = DatabaseConstants.LOCAL_USER_JDBC_DRIVER_NAME
+            )
 
-        sessionsDatabaseDriver = if (mode == Mode.ETHERNET) getSessionsDatabaseDriver(networkDrive = sessionsDirectory) else JdbcSqliteDriver(
-            url = DatabaseConstants.LOCAL_SESSION_JDBC_DRIVER_NAME
-        )
+        sessionsDatabaseDriver =
+            if (mode == Mode.ETHERNET) getSessionsDatabaseDriver(networkDrive = sessionsDirectory) else JdbcSqliteDriver(
+                url = DatabaseConstants.LOCAL_SESSION_JDBC_DRIVER_NAME
+            )
 
         val userDatabase =
             Database(driver = usersDatabaseDriver)
@@ -50,14 +57,16 @@ class UserRepositoryImpl(
     override suspend fun getAllUsers(): List<Users> {
         val database =
             Database(driver = usersDatabaseDriver)
-        return database.sqldelight_users_schemeQueries.getAllUsers().executeAsList().reversed()
-    }
-
-    override suspend fun getSessionsWithUserId(id: Long): List<Sessions> {
-        val database =
-            Database(driver = usersDatabaseDriver)
-        return database.sqldelight_sessions_schemeQueries.getSessionsWithUserId(user_id = id)
-            .executeAsList()
+        val userList =
+            database.sqldelight_users_schemeQueries.getAllUsers().executeAsList().reversed()
+                .map {
+                    val user_name = decode(text = it.user_name)
+                    val user_surname = decode(text = it.user_surname)
+                    val user_patronymic = decode(text = it.user_patronymic ?: "")
+                    val user_gender = cryptographyRepository.encode(text = it.gender)
+                    it.copy(user_name = user_name, user_surname = user_surname, user_patronymic = user_patronymic, gender = user_gender)
+                }
+        return userList
     }
 
     @Throws(Exception::class)
@@ -65,16 +74,16 @@ class UserRepositoryImpl(
         val database =
             Database(driver = usersDatabaseDriver)
         val passwordHash = hashRepository.hash(text = user.password)
-        val loginHash = hashRepository.hash(text = user.login)
-        with(user) {
+        val encodedGender = cryptographyRepository.encode(user.gender.toString())
+        with(encodeUser(user = user)) {
             database.sqldelight_users_schemeQueries.transaction {
                 database.sqldelight_users_schemeQueries.insertNewUser(
-                    user_login = loginHash,
+                    user_login = login,
                     user_password = passwordHash,
                     user_name = name,
                     user_surname = surname,
                     user_patronymic = patronymic,
-                    gender = gender.toString(),
+                    gender = encodedGender,
                 )
             }
         }
@@ -94,15 +103,16 @@ class UserRepositoryImpl(
         val database =
             Database(driver = usersDatabaseDriver)
         val passwordHash = hashRepository.hash(text = user.password)
-        val loginHash = hashRepository.hash(text = user.login)
-        with(user) {
+        val encodedUser = encodeUser(user = user)
+        val encodedGender = cryptographyRepository.encode(user.gender.toString())
+        with(encodedUser) {
             database.sqldelight_users_schemeQueries.updateUser(
-                user_login = loginHash,
+                user_login = login,
                 user_password = passwordHash,
                 user_name = name,
                 user_surname = surname,
                 user_patronymic = patronymic,
-                gender = gender.toString(),
+                gender = encodedGender,
                 user_id = id
             )
         }
@@ -121,11 +131,10 @@ class UserRepositoryImpl(
         val database =
             Database(driver = usersDatabaseDriver)
         val passwordHash = hashRepository.hash(text = password)
-        val loginHash = hashRepository.hash(text = login)
         try {
             val executeAsList: List<Users> =
                 database.sqldelight_users_schemeQueries.getUserByLoginAndPassword(
-                    user_login = loginHash,
+                    user_login = login,
                     user_password = passwordHash
                 ).executeAsList()
 
@@ -133,5 +142,21 @@ class UserRepositoryImpl(
         } catch (e: Exception) {
             return LocalEither.Exception(e)
         }
+    }
+
+    private suspend inline fun encodeUser(user: User): User {
+        val encodedName = cryptographyRepository.encode(text = user.name)
+        val encodedSurname = cryptographyRepository.encode(text = user.surname)
+        val encodedPatronymic = cryptographyRepository.encode(text = user.patronymic)
+
+        return user.copy(
+            name = encodedName,
+            surname = encodedSurname,
+            patronymic = encodedPatronymic
+        )
+    }
+
+    private suspend inline fun decode(text: String): String {
+        return cryptographyRepository.decode(text = text)
     }
 }

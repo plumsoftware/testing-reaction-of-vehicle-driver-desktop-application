@@ -10,9 +10,6 @@ repositories {
 }
 
 dependencies {
-    implementation(project(path = ":config-module"))
-}
-
-tasks.test {
-    useJUnitPlatform()
+//    Serialization
+    implementation(globalVersions.serialization.json)
 }

@@ -29,6 +29,7 @@ include(":ethernet-application-admin")
 include(":hash-module")
 include(":local-store-module")
 include(":cryptography-module")
+include(":config-module")
 
 include(":authorization-ui-module")
 include(":theme-ui-module")

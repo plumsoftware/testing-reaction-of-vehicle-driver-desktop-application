@@ -67,7 +67,6 @@ fun main() = run {
         val userRepository = UserRepositoryImpl()
         val userStorage = UserStorage(
             getAllUsersUseCase = GetAllUsersUseCase(userRepository),
-            getSessionsWithUserIdUseCase = GetSessionsWithUserIdUseCase(userRepository),
             insertNewUserUseCase = InsertNewUserUseCase(userRepository),
             updateUserUseCase = UpdateUserUseCase(userRepository),
             deleteUserUseCase = DeleteUserUseCase(userRepository),
@@ -91,6 +90,7 @@ fun main() = run {
             getAllSessionsDtoFromDatabaseUseCase = GetAllSessionsDtoFromDatabaseUseCase(
                 sessionRepository
             ),
+            getSessionsWithUserIdUseCase = GetSessionsWithUserIdUseCase(sessionRepository),
             insertOrAbortNewSessionUseCase = InsertOrAbortNewSessionUseCase(sessionRepository)
         )
 //        endregion
@@ -213,7 +213,12 @@ fun main() = run {
                         }
                         scene(route = DesktopRouting.aboutuser) {
                             println("About user page created")
-                            AboutUserPage(navigator = navigator, userStorage = userStorage, user = mainState.value.selectedUser)
+                            AboutUserPage(
+                                navigator = navigator,
+                                userStorage = userStorage,
+                                sessionStorage = sessionStorage,
+                                user = mainState.value.selectedUser
+                            )
                         }
 //                        endregion
 
