@@ -64,7 +64,8 @@ class UserRepositoryImpl(
                     val user_name = decode(text = it.user_name)
                     val user_surname = decode(text = it.user_surname)
                     val user_patronymic = decode(text = it.user_patronymic ?: "")
-                    it.copy(user_name = user_name, user_surname = user_surname, user_patronymic = user_patronymic)
+                    val user_gender = cryptographyRepository.encode(text = it.gender)
+                    it.copy(user_name = user_name, user_surname = user_surname, user_patronymic = user_patronymic, gender = user_gender)
                 }
         return userList
     }
@@ -81,6 +82,7 @@ class UserRepositoryImpl(
         val database =
             Database(driver = usersDatabaseDriver)
         val passwordHash = hashRepository.hash(text = user.password)
+        val encodedGender = cryptographyRepository.encode(user.gender.toString())
         with(encodeUser(user = user)) {
             database.sqldelight_users_schemeQueries.transaction {
                 database.sqldelight_users_schemeQueries.insertNewUser(
@@ -89,7 +91,7 @@ class UserRepositoryImpl(
                     user_name = name,
                     user_surname = surname,
                     user_patronymic = patronymic,
-                    gender = gender.toString(),
+                    gender = encodedGender,
                 )
             }
         }
@@ -109,14 +111,16 @@ class UserRepositoryImpl(
         val database =
             Database(driver = usersDatabaseDriver)
         val passwordHash = hashRepository.hash(text = user.password)
-        with(encodeUser(user = user)) {
+        val encodedUser = encodeUser(user = user)
+        val encodedGender = cryptographyRepository.encode(user.gender.toString())
+        with(encodeUser(user = encodedUser)) {
             database.sqldelight_users_schemeQueries.updateUser(
                 user_login = login,
                 user_password = passwordHash,
                 user_name = name,
                 user_surname = surname,
                 user_patronymic = patronymic,
-                gender = gender.toString(),
+                gender = encodedGender,
                 user_id = id
             )
         }
