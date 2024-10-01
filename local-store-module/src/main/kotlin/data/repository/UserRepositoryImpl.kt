@@ -12,7 +12,6 @@ import ru.plumsoftware.Database
 import ru.plumsoftware.users.Users
 import utlis.createFolderIfNotExists
 import data.model.regular.user.User
-import ru.plumsoftware.sessions.Sessions
 import utlis.getSessionsDatabaseDriver
 import utlis.getUsersDatabaseDriver
 
@@ -70,13 +69,6 @@ class UserRepositoryImpl(
         return userList
     }
 
-    override suspend fun getSessionsWithUserId(id: Long): List<Sessions> {
-        val database =
-            Database(driver = usersDatabaseDriver)
-        return database.sqldelight_sessions_schemeQueries.getSessionsWithUserId(user_id = id)
-            .executeAsList()
-    }
-
     @Throws(Exception::class)
     override suspend fun insertNewUser(user: User) {
         val database =
@@ -113,7 +105,7 @@ class UserRepositoryImpl(
         val passwordHash = hashRepository.hash(text = user.password)
         val encodedUser = encodeUser(user = user)
         val encodedGender = cryptographyRepository.encode(user.gender.toString())
-        with(encodeUser(user = encodedUser)) {
+        with(encodedUser) {
             database.sqldelight_users_schemeQueries.updateUser(
                 user_login = login,
                 user_password = passwordHash,

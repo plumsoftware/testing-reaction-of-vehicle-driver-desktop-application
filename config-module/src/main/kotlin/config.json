@@ -1,7 +1,0 @@
-{
-  "cryptography": {
-    "secret_key": "050297ca78ea1a653337d6e304a9e94a",
-    "algorithm": "AES",
-    "transformation": "AES/ECB/PKCS5Padding"
-  }
-}

@@ -15,9 +15,12 @@ import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import data.model.regular.Mode
+import data.repository.SessionRepositoryImpl_
 import data.repository.SettingsRepositoryImpl
 import data.repository.UserRepositoryImpl
+import domain.repository.SessionRepository
 import domain.repository.UserRepository
+import domain.storage.SessionStorage
 import moe.tlaster.precompose.PreComposeApp
 import moe.tlaster.precompose.navigation.NavHost
 import moe.tlaster.precompose.navigation.rememberNavigator
@@ -31,7 +34,10 @@ import presentation.settings.SettingsPage
 import domain.storage.SettingsStorage
 import domain.storage.UserStorage
 import domain.usecase.settings.*
+import domain.usecase.sql_database.local.GetAllSessionsDtoFromDatabaseUseCase
+import domain.usecase.sql_database.local.GetLastSessionIdUseCase
 import domain.usecase.sql_database.local.GetUserByLoginAndPasswordUseCase
+import domain.usecase.sql_database.local.InsertOrAbortNewSessionUseCase
 import domain.usecase.sql_database.local.user.DeleteUserUseCase
 import domain.usecase.sql_database.local.user.GetAllUsersUseCase
 import domain.usecase.sql_database.local.user.GetSessionsWithUserIdUseCase
@@ -46,6 +52,8 @@ import theme.AppTheme
 
 private lateinit var userRepository: UserRepository
 private lateinit var userStorage: UserStorage
+private lateinit var sessionRepository: SessionRepository
+private lateinit var sessionStorage: SessionStorage
 
 fun main() = run {
 
@@ -92,7 +100,6 @@ fun main() = run {
                     )
                     userStorage = UserStorage(
                         getAllUsersUseCase = GetAllUsersUseCase(userRepository),
-                        getSessionsWithUserIdUseCase = GetSessionsWithUserIdUseCase(userRepository),
                         insertNewUserUseCase = InsertNewUserUseCase(userRepository),
                         updateUserUseCase = UpdateUserUseCase(userRepository),
                         deleteUserUseCase = DeleteUserUseCase(userRepository),
@@ -100,6 +107,18 @@ fun main() = run {
                         getUserByLoginAndPasswordUseCase = GetUserByLoginAndPasswordUseCase(
                             userRepository
                         )
+                    )
+
+                    sessionRepository = SessionRepositoryImpl_(
+                        mode = Mode.ETHERNET,
+                        directoryPath = mainState.value.settings.networkDrive,
+                        sessionsDirectory = mainState.value.settings.networkDrive,
+                    )
+                    sessionStorage = SessionStorage(
+                        getAllSessionsDtoFromDatabaseUseCase = GetAllSessionsDtoFromDatabaseUseCase(sessionRepository),
+                        insertOrAbortNewSessionUseCase = InsertOrAbortNewSessionUseCase(sessionRepository),
+                        getSessionsWithUserIdUseCase = GetSessionsWithUserIdUseCase(sessionRepository),
+                        getLastSessionIdUseCase = GetLastSessionIdUseCase(sessionRepository)
                     )
                 }
 //                endregion
@@ -173,7 +192,12 @@ fun main() = run {
                         }
                         scene(route = DesktopRouting.aboutuser) {
                             println("About user page created")
-                            AboutUserPage(navigator = navigator, userStorage = userStorage, user = mainState.value.selectedUser)
+                            AboutUserPage(
+                                navigator = navigator,
+                                userStorage = userStorage,
+                                sessionStorage = sessionStorage,
+                                user = mainState.value.selectedUser
+                            )
                         }
 //                    endregion
                     }

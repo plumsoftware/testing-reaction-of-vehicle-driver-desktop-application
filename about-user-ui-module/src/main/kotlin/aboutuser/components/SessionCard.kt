@@ -142,13 +142,13 @@ fun SessionCard(sessionDTO: SessionDTO) {
 }
 
 private fun getEnd(sessionDTO: SessionDTO): String {
-    val end = if (sessionDTO.experience > 4) {
+    val end = if (sessionDTO.experience.toInt() > 4) {
         "лет"
     } else {
-        if (sessionDTO.experience == 0) {
+        if (sessionDTO.experience.toInt() == 0) {
             "лет"
         } else {
-            if (sessionDTO.experience == 1) {
+            if (sessionDTO.experience.toInt() == 1) {
                 "год"
             } else {
                 "года"

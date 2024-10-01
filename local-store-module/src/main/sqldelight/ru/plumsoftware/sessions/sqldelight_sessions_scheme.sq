@@ -12,8 +12,8 @@ CREATE TABLE IF NOT EXISTS Sessions (
     standard_deviation REAL NOT NULL,
     count INTEGER NOT NULL,
     errors INTEGER NOT NULL,
-    experience INTEGER NOT NULL,
-    user_age INTEGER NOT NULL,
+    experience TEXT NOT NULL,
+    user_age TEXT NOT NULL,
     driving_license_category TEXT NOT NULL,
     signal_interval TEXT NOT NULL
 );

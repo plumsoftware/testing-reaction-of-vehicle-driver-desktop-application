@@ -185,7 +185,7 @@ class TrafficLightTestViewModel(
         )
         val sessionDTO = SessionDTO(
             sessionId = 0,
-            userId = testDTO.user.id.toLong(),
+            userId = testDTO.user.id,
             testId = testDTO.testMode?.id!!,
             testYear = calendarForGetDate.get(Calendar.YEAR),
             testMonth = calendarForGetDate.get(Calendar.MONTH),
@@ -196,8 +196,8 @@ class TrafficLightTestViewModel(
             standardDeviation = getStdDeviation(),
             count = testDTO.count,
             errors = testDTO.errorsCount!!,
-            experience = testDTO.user.experience,
-            userAge = testDTO.user.age,
+            experience = testDTO.user.experience.toString(),
+            userAge = testDTO.user.age.toString(),
             drivingLicenseCategory = testDTO.user.drivingLicenseCategory,
             signalInterval = testDTO.interval
         )

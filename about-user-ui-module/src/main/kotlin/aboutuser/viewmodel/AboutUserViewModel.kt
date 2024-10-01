@@ -16,9 +16,11 @@ import moe.tlaster.precompose.viewmodel.viewModelScope
 import aboutuser.store.Effect
 import aboutuser.store.Event
 import aboutuser.store.State
+import domain.storage.SessionStorage
 
 class AboutUserViewModel(
     private val userStorage: UserStorage,
+    private val sessionStorage: SessionStorage,
     user: User,
 ) : ViewModel() {
 
@@ -27,28 +29,11 @@ class AboutUserViewModel(
     private val supervisorCoroutineContext = viewModelScope.coroutineContext + SupervisorJob()
 
     init {
-        println("About user page created")
+        println("About user page rendered")
     }
 
     fun onEvent(event: Event) {
         when (event) {
-            is Event.ChangeSelectedUser -> {
-                viewModelScope.launch(context = supervisorCoroutineContext) {
-                    val sessions: List<SessionDTO> = userStorage.getSessions(userId = event.userId)
-                    val user = userStorage.getAllUsers().find { it.id == event.userId }
-                        ?: User.empty()
-                    state.update {
-                        it.copy(
-                            user = user,
-                            sessions = sessions,
-                            filteredSessionsList = sessions,
-                            login = user.login,
-                            password = user.password
-                        )
-                    }
-                }
-            }
-
             Event.BackButtonClicked -> {
                 clearState()
                 viewModelScope.launch {
@@ -114,6 +99,13 @@ class AboutUserViewModel(
                     it.copy(
                         selectedChipList = list
                     )
+                }
+            }
+
+            Event.InitSessions -> {
+                viewModelScope.launch(context = supervisorCoroutineContext) {
+                    val sessions: List<SessionDTO> = sessionStorage.getSessionsWithUserId(userId = state.value.user.id)
+                    state.update { it.copy(sessions = sessions, filteredSessionsList = sessions) }
                 }
             }
         }

@@ -111,12 +111,10 @@ fun main() = run {
                     sessionRepository = SessionRepositoryImpl_(
                         mode = Mode.ETHERNET,
                         directoryPath = mainState.value.settings.networkDrive,
-                        usersDirectory = mainState.value.settings.networkDrive,
                         sessionsDirectory = mainState.value.settings.networkDrive,
                     )
                     userStorage = UserStorage(
                         getAllUsersUseCase = GetAllUsersUseCase(userRepository),
-                        getSessionsWithUserIdUseCase = GetSessionsWithUserIdUseCase(userRepository),
                         insertNewUserUseCase = InsertNewUserUseCase(userRepository),
                         updateUserUseCase = UpdateUserUseCase(userRepository),
                         deleteUserUseCase = DeleteUserUseCase(userRepository),
@@ -131,6 +129,9 @@ fun main() = run {
                         ),
                         insertOrAbortNewSessionUseCase = InsertOrAbortNewSessionUseCase(
                             sessionRepository = sessionRepository
+                        ),
+                        getSessionsWithUserIdUseCase = GetSessionsWithUserIdUseCase(
+                            sessionRepository
                         ),
                         getLastSessionIdUseCase = GetLastSessionIdUseCase(sessionRepository = sessionRepository)
                     )

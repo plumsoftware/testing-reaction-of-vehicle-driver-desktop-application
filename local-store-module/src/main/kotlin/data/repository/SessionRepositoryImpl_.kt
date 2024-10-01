@@ -1,6 +1,7 @@
 package data.repository
 
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
+import data.CryptographyRepositoryImpl
 import data.constant.DatabaseConstants
 import data.constant.GeneralConstants
 import domain.repository.SessionRepository
@@ -13,33 +14,24 @@ import data.model.regular.Mode
 import data.model.regular.user.DrivingLicenseCategory
 import data.model.regular.user.Interval
 import utlis.getSessionsDatabaseDriver
-import utlis.getUsersDatabaseDriver
 
 class SessionRepositoryImpl_(
     mode: Mode = Mode.SINGLE,
     directoryPath: String = GeneralConstants.Paths.PATH_TO_SETTINGS_FOLDER,
-    usersDirectory: String = DatabaseConstants.LOCAL_USER_JDBC_DRIVER_NAME,
     sessionsDirectory: String = DatabaseConstants.LOCAL_SESSION_JDBC_DRIVER_NAME
 ) : SessionRepository {
 
-    private val usersDatabaseDriver: JdbcSqliteDriver
+    private val cryptographyRepository = CryptographyRepositoryImpl()
+
     private val sessionsDatabaseDriver: JdbcSqliteDriver
     private val dir = if (mode == Mode.SINGLE) GeneralConstants.Paths.PATH_TO_SETTINGS_FOLDER else GeneralConstants.Paths.PATH_TO_ROAMING_DATABASE_DIRECTORY(directoryPath)
 
     init {
         createFolderIfNotExists(directoryPath = dir)
-        usersDatabaseDriver = if (mode == Mode.ETHERNET) getUsersDatabaseDriver(networkDrive = usersDirectory) else JdbcSqliteDriver(
-            url = DatabaseConstants.LOCAL_USER_JDBC_DRIVER_NAME
-        )
 
         sessionsDatabaseDriver = if (mode == Mode.ETHERNET) getSessionsDatabaseDriver(networkDrive = sessionsDirectory) else JdbcSqliteDriver(
             url = DatabaseConstants.LOCAL_SESSION_JDBC_DRIVER_NAME
         )
-        println(dir)
-
-        val userDatabase =
-            Database(driver = usersDatabaseDriver)
-        userDatabase.sqldelight_users_schemeQueries.create()
 
         val sessionsDatabase =
             Database(driver = sessionsDatabaseDriver)
@@ -47,12 +39,18 @@ class SessionRepositoryImpl_(
     }
 
     override suspend fun getAllSessionDtoFromDatabase(): List<SessionDTO> {
-        val driver = usersDatabaseDriver
+        val driver = sessionsDatabaseDriver
         val database = Database(driver = driver)
         val executeAsList: List<Sessions> = database.sqldelight_sessions_schemeQueries.selectAllSessions().executeAsList()
 
         val list: List<SessionDTO> = executeAsList.map {
             with(it) {
+
+                val decodedExperience = cryptographyRepository.decode(text = experience)
+                val decodedAge = cryptographyRepository.decode(text = user_age)
+                val decodedDrivingLicence =
+                    cryptographyRepository.decode(text = driving_license_category)
+
                 SessionDTO(
                     sessionId = session_id,
                     userId = user_id,
@@ -66,14 +64,13 @@ class SessionRepositoryImpl_(
                     standardDeviation = standard_deviation,
                     count = count.toInt(),
                     errors = errors.toInt(),
-                    experience = experience.toInt(),
-                    userAge = user_age.toInt(),
-                    drivingLicenseCategory = DrivingLicenseCategory.valueOf(driving_license_category),
+                    experience = decodedExperience,
+                    userAge = decodedAge,
+                    drivingLicenseCategory = DrivingLicenseCategory.valueOf(decodedDrivingLicence),
                     signalInterval = Interval.fromString(signal_interval)
                 )
             }
         }
-
         return list
     }
 
@@ -81,6 +78,11 @@ class SessionRepositoryImpl_(
         val driver = sessionsDatabaseDriver
         val database = Database(driver = driver)
         with(sessionDTO) {
+
+            val encodedExperience = cryptographyRepository.encode(text = experience.toLong().toString())
+            val encodedAge = cryptographyRepository.encode(text = userAge.toLong().toString())
+            val encodedDrivingLicence = cryptographyRepository.encode(text = drivingLicenseCategory.toString())
+
             database.sqldelight_sessions_schemeQueries.transaction {
                 database.sqldelight_sessions_schemeQueries.insertOrAbortNewSession(
                     userId,
@@ -94,13 +96,49 @@ class SessionRepositoryImpl_(
                     standardDeviation,
                     count.toLong(),
                     errors.toLong(),
-                    experience.toLong(),
-                    userAge.toLong(),
-                    drivingLicenseCategory.toString(),
+                    encodedExperience,
+                    encodedAge,
+                    encodedDrivingLicence,
                     signalInterval.toString()
                 )
             }
         }
+    }
+
+    override suspend fun getSessionsWithUserId(id: Long): List<SessionDTO> {
+        val database =
+            Database(driver = sessionsDatabaseDriver)
+        val executeAsList = database.sqldelight_sessions_schemeQueries.getSessionsWithUserId(user_id = id)
+            .executeAsList()
+
+        val list: List<SessionDTO> = executeAsList.map {
+            with(it) {
+
+                val decodedExperience = cryptographyRepository.decode(text = experience)
+                val decodedAge = cryptographyRepository.decode(text = user_age)
+                val decodedDrivingLicence = cryptographyRepository.decode(text = driving_license_category)
+
+                SessionDTO(
+                    sessionId = session_id,
+                    userId = user_id,
+                    testId = test_id,
+                    testYear = test_year.toInt(),
+                    testMonth = test_month.toInt(),
+                    testDay = test_day.toInt(),
+                    testHourOfDay24h = test_hour_of_day_24h.toInt(),
+                    testMinuteOfHour = test_minute_of_hour.toInt(),
+                    averageValue = average_value,
+                    standardDeviation = standard_deviation,
+                    count = count.toInt(),
+                    errors = errors.toInt(),
+                    experience = decodedExperience,
+                    userAge = decodedAge,
+                    drivingLicenseCategory = DrivingLicenseCategory.valueOf(decodedDrivingLicence),
+                    signalInterval = Interval.fromString(signal_interval)
+                )
+            }
+        }
+        return list
     }
 
     override suspend fun getLastSessionId(): Long {
