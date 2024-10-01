@@ -9,6 +9,5 @@ inline fun getConfig() : Config {
     }
     val jsonString = configFile.readText()
     val config: Config = Json{ignoreUnknownKeys = true}.decodeFromString<Config>(jsonString)
-    println(config.toString())
     return config
 }

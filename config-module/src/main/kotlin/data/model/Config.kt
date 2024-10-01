@@ -5,5 +5,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Config(
-    @SerialName("secret_key") val secretKey: String = ""
+    @SerialName("cryptography") val cryptography: Cryptography = Cryptography()
 )

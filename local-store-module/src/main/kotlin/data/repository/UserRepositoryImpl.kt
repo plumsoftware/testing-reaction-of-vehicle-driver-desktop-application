@@ -7,8 +7,6 @@ import data.constant.DatabaseConstants
 import data.constant.GeneralConstants
 import data.model.either.local.LocalEither
 import data.model.regular.Mode
-import data.model.regular.user.DrivingLicenseCategory
-import data.model.regular.user.Gender
 import domain.repository.UserRepository
 import ru.plumsoftware.Database
 import ru.plumsoftware.users.Users
@@ -63,29 +61,10 @@ class UserRepositoryImpl(
         val userList =
             database.sqldelight_users_schemeQueries.getAllUsers().executeAsList().reversed()
                 .map {
-                    val decodedUser = decodeUser(
-                        user = User(
-                            id = it.user_id,
-                            name = it.user_name,
-                            surname = it.user_surname,
-                            patronymic = it.user_patronymic ?: "",
-                            age = -1,
-                            gender = Gender.EMPTY,
-                            drivingLicenseCategory = DrivingLicenseCategory.Empty,
-                            experience = -1,
-                            login = it.user_login,
-                            password = it.user_password
-                        )
-                    )
-                    return@map Users(
-                        user_id = decodedUser.id,
-                        user_login = decodedUser.login,
-                        user_password = decodedUser.password,
-                        user_name = decodedUser.name,
-                        user_surname = decodedUser.surname,
-                        user_patronymic = decodedUser.patronymic,
-                        gender = decodedUser.gender.toString()
-                    )
+                    val user_name = decode(text = it.user_name)
+                    val user_surname = decode(text = it.user_surname)
+                    val user_patronymic = decode(text = it.user_patronymic ?: "")
+                    it.copy(user_name = user_name, user_surname = user_surname, user_patronymic = user_patronymic)
                 }
         return userList
     }
@@ -181,15 +160,7 @@ class UserRepositoryImpl(
         )
     }
 
-    private suspend inline fun decodeUser(user: User): User {
-        val decodedName = cryptographyRepository.decode(text = user.name)
-        val decodedSurname = cryptographyRepository.decode(text = user.surname)
-        val decodedPatronymic = cryptographyRepository.decode(text = user.patronymic)
-
-        return user.copy(
-            name = decodedName,
-            surname = decodedSurname,
-            patronymic = decodedPatronymic
-        )
+    private suspend inline fun decode(text: String): String {
+        return cryptographyRepository.decode(text = text)
     }
 }

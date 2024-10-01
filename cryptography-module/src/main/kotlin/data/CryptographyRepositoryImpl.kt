@@ -10,11 +10,11 @@ class CryptographyRepositoryImpl : CryptographyRepository {
 
     private var config: Config = getConfig()
 
-    private val ALGORITHM = "AES"
-    private val TRANSFORMATION = "AES/ECB/PKCS5Padding"
+    private val ALGORITHM = config.cryptography.algorithm
+    private val TRANSFORMATION = config.cryptography.transformation
 
     override suspend fun encode(text: String): String {
-        val secretKey = generateSecretKey(key = config.secretKey)
+        val secretKey = generateSecretKey(key = config.cryptography.secretKey)
         val cipher = Cipher.getInstance(TRANSFORMATION)
         cipher.init(Cipher.ENCRYPT_MODE, secretKey)
         val encryptedBytes = cipher.doFinal(text.toByteArray())
@@ -22,7 +22,7 @@ class CryptographyRepositoryImpl : CryptographyRepository {
     }
 
     override suspend fun decode(text: String): String {
-        val secretKey = generateSecretKey(key = config.secretKey)
+        val secretKey = generateSecretKey(key = config.cryptography.secretKey)
         val cipher = Cipher.getInstance(TRANSFORMATION)
         cipher.init(Cipher.DECRYPT_MODE, secretKey)
         val decryptedBytes = cipher.doFinal(text.hexToByteArray())
