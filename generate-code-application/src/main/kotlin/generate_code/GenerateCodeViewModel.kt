@@ -1,6 +1,7 @@
 package generate_code
 
 import data.generateSecretKey
+import data.generateUniqueNumber
 import generate_code.store.Event
 import generate_code.store.State
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,6 +24,7 @@ class GenerateCodeViewModel : ViewModel() {
                     state.update {
                         it.copy(
                             code = generateSecretKey(keySize = intKeySize),
+                            number = generateUniqueNumber(),
                             enabled = false,
                             isError = false
                         )

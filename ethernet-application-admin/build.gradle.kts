@@ -55,6 +55,7 @@ dependencies {
     implementation(project(path = ":about-user-ui-module"))
     implementation(project(path = ":picker-ui-module"))
     implementation(project(path = ":test-menu-ui-module"))
+    implementation(project(path = ":about-app-ui-module"))
 }
 
 compose.desktop {
