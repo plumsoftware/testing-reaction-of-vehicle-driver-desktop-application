@@ -21,6 +21,7 @@ fun DefaultButton(content: @Composable() (RowScope.() -> Unit), onClick: () -> U
             .wrapContentHeight(),
         shape = MaterialTheme.shapes.medium, contentPadding = ExtensionPadding.mediumAsymmetricalContentPadding,
         colors = colors,
-        content = content
+        content = content,
+        enabled = enabled
     )
 }

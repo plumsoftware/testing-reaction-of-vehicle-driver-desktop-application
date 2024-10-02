@@ -12,6 +12,10 @@ object DesktopRouting {
     const val users = "/users"
     const val aboutuser = "/aboutuser"
 
+//    region::Code
+    const val generateCode = "/generateCode"
+//    endregion
+
 //    region::Tests
     const val trafficLight = "/trafficLight"
 //    endregion
