@@ -17,7 +17,7 @@ class HomeViewModel(
     fun onEvent(event: Event) {
         when (event) {
             Event.AboutProgramButtonClicked -> {
-
+                onOutput(o = Output.AboutProgramButtonClicked)
             }
 
             Event.SettingsButtonClicked -> {
