@@ -23,5 +23,6 @@ include(":privacy-policy-ui-module")
 include(":tests-ui-module")
 include(":about-user-ui-module")
 include(":picker-ui-module")
+include(":about-app-ui-module")
 
 include(":local-store-module")

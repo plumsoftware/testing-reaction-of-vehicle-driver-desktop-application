@@ -55,7 +55,7 @@ fun HomePage(onEvent: (Event) -> Unit) {
             )
             DefaultButton(
                 onClick = {
-                    onEvent(Event.TestsButtonClicked)
+                    onEvent(Event.AboutProgramButtonClicked)
                 },
                 content = {
                     Text(text = "О программе", style = MaterialTheme.typography.headlineMedium)

@@ -1,5 +1,6 @@
 package presentation
 
+import about_app.AboutAppPage
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -148,7 +149,7 @@ fun main() = run {
                                 output = { output ->
                                     when (output) {
                                         Output.AboutProgramButtonClicked -> {
-
+                                            navigator.navigate(route = DesktopRouting.aboutapp)
                                         }
 
                                         Output.SettingsButtonClicked -> {
@@ -215,6 +216,10 @@ fun main() = run {
                                     )
                                 }
                             )
+                        }
+                        scene(route = DesktopRouting.aboutapp) {
+                            println("About app page rendered")
+                            AboutAppPage(navigator = navigator)
                         }
 //                        endregion
 

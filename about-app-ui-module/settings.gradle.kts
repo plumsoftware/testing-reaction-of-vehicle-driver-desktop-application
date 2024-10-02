@@ -12,16 +12,6 @@ pluginManagement {
     }
 }
 
-rootProject.name = "ethernet-application-admin"
-
-include(":authorization-ui-module")
+rootProject.name = "about-app-ui-module"
 include(":theme-ui-module")
-include(":add-new-user-ui-module")
-include(":all-users-ui-module")
-include(":privacy-policy-ui-module")
-include(":tests-ui-module")
-include(":about-user-ui-module")
-include(":picker-ui-module")
-include(":about-app-ui-module")
-
-include(":local-store-module")
+include(":config-module")

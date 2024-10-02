@@ -3,7 +3,9 @@ package generate_code
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -75,6 +77,21 @@ fun GenerateCodePage() {
                     isError = state.value.isError
                 )
             }
+            OutlinedTextField(
+                modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+                value = state.value.number ?: "",
+                onValueChange = {},
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    containerColor = Color.Transparent,
+                ),
+                label = {
+                    Text(text = "Номер программы", style = MaterialTheme.typography.bodySmall)
+                },
+                textStyle = MaterialTheme.typography.bodyMedium,
+                maxLines = 1,
+                shape = MaterialTheme.shapes.medium,
+                isError = state.value.isError
+            )
             DefaultButton(
                 content = {
                     Text(
