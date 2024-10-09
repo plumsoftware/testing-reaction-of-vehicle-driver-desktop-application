@@ -1,4 +1,4 @@
-package tests.traffic_light_test
+package tests.traffic_light_test_choice_reaction
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -17,13 +17,13 @@ import other.extension.padding.ExtensionPadding
 import other.extension.size.ConstantSize
 import other.components.TestFinishedComponent
 import other.components.TestProccessComponent
-import tests.traffic_light_test.store.Effect
-import tests.traffic_light_test.store.Event
-import tests.traffic_light_test.viewmodel.TrafficLightTestViewModel
+import tests.traffic_light_test_choice_reaction.store.Effect
+import tests.traffic_light_test_choice_reaction.store.Event
+import tests.traffic_light_test_choice_reaction.viewmodel.TrafficLightTestChoiceReactionViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TrafficLightTest(
+fun TrafficLightTestChoiceReaction(
     workBookStorage: WorkbookStorage,
     settings: Settings,
     testDTO: TestDTO,
@@ -31,9 +31,9 @@ fun TrafficLightTest(
     navigator: Navigator
 ) {
 
-    val trafficLightTestViewModel =
-        viewModel(modelClass = TrafficLightTestViewModel::class) {
-            TrafficLightTestViewModel(
+    val trafficLightTestChoiceReactionViewModel =
+        viewModel(modelClass = TrafficLightTestChoiceReactionViewModel::class) {
+            TrafficLightTestChoiceReactionViewModel(
                 workbookStorage = workBookStorage,
                 settings = settings,
                 testDTO = testDTO,
@@ -41,10 +41,10 @@ fun TrafficLightTest(
             )
         }
 
-    val state = trafficLightTestViewModel.state.collectAsState().value
+    val state = trafficLightTestChoiceReactionViewModel.state.collectAsState().value
 
     LaunchedEffect(key1 = Unit) {
-        trafficLightTestViewModel.effect.collect { effect->
+        trafficLightTestChoiceReactionViewModel.effect.collect { effect->
             when (effect) {
                 Effect.BackClicked -> {
                     navigator.goBack()
@@ -54,13 +54,13 @@ fun TrafficLightTest(
     }
 
     LaunchedEffect(key1 = Unit) {
-        trafficLightTestViewModel.onEvent(Event.StartTimer)
+        trafficLightTestChoiceReactionViewModel.onEvent(Event.StartTimer)
     }
 
     Scaffold(
         topBar = {
             BackButton(
-                onClick = { trafficLightTestViewModel.onEvent(Event.BackCLicked) }
+                onClick = { trafficLightTestChoiceReactionViewModel.onEvent(Event.BackCLicked) }
             )
         },
         modifier = Modifier.fillMaxSize()
@@ -75,8 +75,8 @@ fun TrafficLightTest(
             if (state.userClicked == state.testDTO.count)
                 with(state) {
                     TestFinishedComponent(
-                        getAverage = trafficLightTestViewModel::getAverage,
-                        getStdDeviation = trafficLightTestViewModel::getStdDeviation,
+                        getAverage = trafficLightTestChoiceReactionViewModel::getAverage,
+                        getStdDeviation = trafficLightTestChoiceReactionViewModel::getStdDeviation,
                         count = testDTO.count,
                         errors = errors,
                         id = testDTO.user.id
@@ -106,7 +106,7 @@ fun TrafficLightTest(
                 ) {
                     Button(
                         onClick = {
-                            trafficLightTestViewModel.onEvent(
+                            trafficLightTestChoiceReactionViewModel.onEvent(
                                 Event.OnTrafficLightLampButtonClicked(
                                     clickedLampIndex = 0
                                 )
@@ -120,7 +120,7 @@ fun TrafficLightTest(
                     ) {}
                     Button(
                         onClick = {
-                            trafficLightTestViewModel.onEvent(
+                            trafficLightTestChoiceReactionViewModel.onEvent(
                                 Event.OnTrafficLightLampButtonClicked(
                                     clickedLampIndex = 1
                                 )
@@ -134,7 +134,7 @@ fun TrafficLightTest(
                     ) {}
                     Button(
                         onClick = {
-                            trafficLightTestViewModel.onEvent(
+                            trafficLightTestChoiceReactionViewModel.onEvent(
                                 Event.OnTrafficLightLampButtonClicked(
                                     clickedLampIndex = 2
                                 )

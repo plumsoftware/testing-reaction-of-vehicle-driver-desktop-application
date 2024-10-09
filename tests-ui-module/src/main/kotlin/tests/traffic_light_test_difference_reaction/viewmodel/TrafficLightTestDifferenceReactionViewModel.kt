@@ -1,10 +1,11 @@
-package tests.traffic_light_test.viewmodel
+package tests.traffic_light_test_difference_reaction.viewmodel
 
 import data.model.dto.test.TestDTO
 import data.model.dto.database.SessionDTO
 import data.model.regular.settings.Settings
 import domain.storage.SessionStorage
 import domain.storage.WorkbookStorage
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,14 +13,15 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
-import tests.traffic_light_test.store.Effect
-import tests.traffic_light_test.store.Event
-import tests.traffic_light_test.store.State
+import tests.traffic_light_test_difference_reaction.store.Effect
+import tests.traffic_light_test_difference_reaction.store.Event
+import tests.traffic_light_test_difference_reaction.store.State
 import java.util.Calendar
 import kotlin.math.sqrt
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.seconds
 
-class TrafficLightTestViewModel(
+class TrafficLightTestDifferenceReactionViewModel(
     private val workbookStorage: WorkbookStorage,
     settings: Settings,
     testDTO: TestDTO,
@@ -35,6 +37,8 @@ class TrafficLightTestViewModel(
     )
     val effect = MutableSharedFlow<Effect>()
 
+    private lateinit var timerBetweenSignals: Job
+
     init {
         println("Traffic light Test ViewModel created")
     }
@@ -49,12 +53,14 @@ class TrafficLightTestViewModel(
 
             is Event.OnTrafficLightLampButtonClicked -> {
 
-                registerUserReactionTime()
-                registerErrors(event.clickedLampIndex)
+                timerBetweenSignals.cancel()
 
-                if (state.value.userClicked != state.value.testDTO.count)
+                registerUserReactionTime()
+                registerErrors()
+
+                if (state.value.userClicked != state.value.testDTO.count) {
                     generateRandomInterval()
-                else {
+                } else {
                     stopTest()
                     viewModelScope.launch {
                         preRegisterDataDatabaseCompile()
@@ -68,7 +74,7 @@ class TrafficLightTestViewModel(
                 viewModelScope.launch {
                     clearStartData()
                     while (state.value.startTimerTime > 0) {
-                        delay(1000)
+                        delay(1.seconds)
                         val temp = state.value.startTimerTime - 1
                         state.update {
                             it.copy(
@@ -78,6 +84,7 @@ class TrafficLightTestViewModel(
                     }
                     if (state.value.startTimerTime == 0) {
                         generateRandomSignal()
+                        startTimerBetweenSignals()
                     }
                     println("Count is ${state.value.testDTO.count}")
                 }
@@ -86,26 +93,57 @@ class TrafficLightTestViewModel(
     }
 
     private fun generateRandomSignal() {
-        if (state.value.startTimerTime == 0) {
-            val currentIndex = Random.nextInt(0, 3)
+        val currentIndex = Random.nextInt(0, 3)
 
-            val calendar: Calendar = Calendar.getInstance()
-            calendar.timeInMillis = System.currentTimeMillis()
+        val calendar: Calendar = Calendar.getInstance()
+        calendar.timeInMillis = System.currentTimeMillis()
 
-            state.update {
-                it.copy(
-                    currentLampIndex = currentIndex,
-                    start = calendar.timeInMillis
-                )
-            }
-            println("==================")
-            println(
-                "Signal was shown at ${calendar.get(Calendar.HOUR_OF_DAY)}:${calendar.get(Calendar.MINUTE)}:${
-                    calendar.get(
-                        Calendar.SECOND
-                    )
-                }"
+        state.update {
+            it.copy(
+                currentLampIndex = currentIndex,
+                start = calendar.timeInMillis
             )
+        }
+        println("==================")
+        println(
+            "Signal was shown at ${calendar.get(Calendar.HOUR_OF_DAY)}:${calendar.get(Calendar.MINUTE)}:${
+                calendar.get(
+                    Calendar.SECOND
+                )
+            }"
+        )
+
+    }
+
+    private fun startTimerBetweenSignals() {
+        if (state.value.userClicked != state.value.testDTO.count) {
+            timerBetweenSignals = viewModelScope.launch {
+                var timer = 2
+                while (timer != 0) {
+                    delay(1.seconds)
+                    timer--
+                }
+                if (state.value.currentLampIndex == 2)
+                    state.update {
+                        it.copy(
+                            errors = state.value.errors + 1
+                        )
+                    }
+
+                state.update {
+                    it.copy(
+                        userClicked = state.value.userClicked + 1
+                    )
+                }
+                generateRandomInterval()
+            }
+        } else {
+            stopTest()
+            viewModelScope.launch {
+                preRegisterDataDatabaseCompile()
+                registerDataInDatabase()
+            }
+            println("Test is finished")
         }
     }
 
@@ -129,12 +167,13 @@ class TrafficLightTestViewModel(
 
                 delay(intervalSignal)
                 generateRandomSignal()
+                startTimerBetweenSignals()
             }
         }
     }
 
-    private fun registerErrors(clickedLampIndex: Int) {
-        if (state.value.currentLampIndex != clickedLampIndex) {
+    private fun registerErrors() {
+        if (state.value.currentLampIndex != 2) {
             state.update {
                 it.copy(errors = state.value.errors + 1)
             }
