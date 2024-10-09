@@ -2,6 +2,7 @@ package other.components.test
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.runtime.Composable
@@ -24,13 +25,14 @@ fun GasPedalButton(onClick: () -> Unit) {
     var isPressed by remember { mutableStateOf(false) }
 
     val modifier = Modifier
+        .size(width = 200.dp, height = 310.dp)
         .onPointerEvent(PointerEventType.Press) {
             isPressed = true
         }
         .onPointerEvent(PointerEventType.Release) {
             isPressed = false
         }
-        .scale(if (isPressed) 0.9f else 1f)
+        .scale(if (isPressed) 0.75f else 1f)
         .padding(8.dp)
 
     IconButton(

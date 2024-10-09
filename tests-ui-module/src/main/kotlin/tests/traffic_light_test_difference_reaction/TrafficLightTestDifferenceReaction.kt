@@ -103,7 +103,6 @@ fun TrafficLightTestDifferenceReaction(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = ExtensionPadding.mediumHorizontalArrangementCenter
                 ) {
-
                     GasPedalButton {
                         trafficLightTestViewModel.onEvent(Event.OnTrafficLightLampButtonClicked)
                     }
