@@ -1,4 +1,4 @@
-package tests.traffic_light_test.store
+package tests.traffic_light_test_difference_reaction.store
 
 import data.model.dto.test.TestDTO
 

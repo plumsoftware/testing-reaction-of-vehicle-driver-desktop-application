@@ -53,7 +53,8 @@ import presentation.main.store.Event
 import privacypolicy.PrivacyPolicy
 import presentation.settings.SettingsPage
 import testmenu.TestMenu
-import tests.traffic_light_test.TrafficLightTest
+import tests.traffic_light_test_choice_reaction.TrafficLightTestChoiceReaction
+import tests.traffic_light_test_difference_reaction.TrafficLightTestDifferenceReaction
 
 fun main() = run {
 
@@ -234,9 +235,19 @@ fun main() = run {
 //                        endregion
 
 //                        region::Tests
-                        scene(route = DesktopRouting.trafficLight) {
-                            println("TrafficLightTest page rendered")
-                            TrafficLightTest(
+                        scene(route = DesktopRouting.trafficLightChoiceReaction) {
+                            println("TrafficLightTestChoiceReaction page rendered")
+                            TrafficLightTestChoiceReaction(
+                                workBookStorage = workBookStorage,
+                                settings = mainState.value.settings,
+                                testDTO = mainState.value.testDTO,
+                                sessionStorage = sessionStorage,
+                                navigator = navigator
+                            )
+                        }
+                        scene(route = DesktopRouting.trafficLightDifferenceReaction) {
+                            println("TrafficLightTestDifferenceReaction page rendered")
+                            TrafficLightTestDifferenceReaction(
                                 workBookStorage = workBookStorage,
                                 settings = mainState.value.settings,
                                 testDTO = mainState.value.testDTO,

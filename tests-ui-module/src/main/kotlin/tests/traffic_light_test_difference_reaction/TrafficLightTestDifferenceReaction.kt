@@ -1,11 +1,10 @@
-package tests.traffic_light_test
+package tests.traffic_light_test_difference_reaction
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import data.model.dto.test.TestDTO
 import data.model.regular.settings.Settings
 import domain.storage.SessionStorage
@@ -14,16 +13,16 @@ import moe.tlaster.precompose.navigation.Navigator
 import moe.tlaster.precompose.viewmodel.viewModel
 import other.components.BackButton
 import other.extension.padding.ExtensionPadding
-import other.extension.size.ConstantSize
 import other.components.TestFinishedComponent
 import other.components.TestProccessComponent
-import tests.traffic_light_test.store.Effect
-import tests.traffic_light_test.store.Event
-import tests.traffic_light_test.viewmodel.TrafficLightTestViewModel
+import other.components.test.GasPedalButton
+import tests.traffic_light_test_difference_reaction.store.Effect
+import tests.traffic_light_test_difference_reaction.store.Event
+import tests.traffic_light_test_difference_reaction.viewmodel.TrafficLightTestDifferenceReactionViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TrafficLightTest(
+fun TrafficLightTestDifferenceReaction(
     workBookStorage: WorkbookStorage,
     settings: Settings,
     testDTO: TestDTO,
@@ -32,8 +31,8 @@ fun TrafficLightTest(
 ) {
 
     val trafficLightTestViewModel =
-        viewModel(modelClass = TrafficLightTestViewModel::class) {
-            TrafficLightTestViewModel(
+        viewModel(modelClass = TrafficLightTestDifferenceReactionViewModel::class) {
+            TrafficLightTestDifferenceReactionViewModel(
                 workbookStorage = workBookStorage,
                 settings = settings,
                 testDTO = testDTO,
@@ -104,48 +103,9 @@ fun TrafficLightTest(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = ExtensionPadding.mediumHorizontalArrangementCenter
                 ) {
-                    Button(
-                        onClick = {
-                            trafficLightTestViewModel.onEvent(
-                                Event.OnTrafficLightLampButtonClicked(
-                                    clickedLampIndex = 0
-                                )
-                            )
-                        },
-                        modifier = Modifier.size(ConstantSize.trafficLightLampButtonSize),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Red
-                        ),
-                        shape = MaterialTheme.shapes.small
-                    ) {}
-                    Button(
-                        onClick = {
-                            trafficLightTestViewModel.onEvent(
-                                Event.OnTrafficLightLampButtonClicked(
-                                    clickedLampIndex = 1
-                                )
-                            )
-                        },
-                        modifier = Modifier.size(ConstantSize.trafficLightLampButtonSize),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Yellow
-                        ),
-                        shape = MaterialTheme.shapes.small
-                    ) {}
-                    Button(
-                        onClick = {
-                            trafficLightTestViewModel.onEvent(
-                                Event.OnTrafficLightLampButtonClicked(
-                                    clickedLampIndex = 2
-                                )
-                            )
-                        },
-                        modifier = Modifier.size(ConstantSize.trafficLightLampButtonSize),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Green
-                        ),
-                        shape = MaterialTheme.shapes.small
-                    ) {}
+                    GasPedalButton {
+                        trafficLightTestViewModel.onEvent(Event.OnTrafficLightLampButtonClicked)
+                    }
                 }
 //            endregion
             }

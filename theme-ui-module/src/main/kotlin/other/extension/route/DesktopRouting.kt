@@ -19,6 +19,7 @@ object DesktopRouting {
 //    endregion
 
 //    region::Tests
-    const val trafficLight = "/trafficLight"
+    const val trafficLightChoiceReaction = "/trafficLight_choiceReaction"
+    const val trafficLightDifferenceReaction = "/trafficLight_differenceReaction"
 //    endregion
 }
