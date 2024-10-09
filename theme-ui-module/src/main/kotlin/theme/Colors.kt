@@ -105,6 +105,11 @@ val md_theme_light_grid_color = Color(0xFF837469)
 val md_theme_dark_grid_color = Color(0xFF9e8e81)
 //endregion
 
+//region::Constant colors
+val trafficLightColor = Color(0xFF2F4859)
+val trafficLightBranchColor = Color(0xFF293B44)
+//endregion
+
 @Immutable
 data class ExtendedColors(
     val successContainer: Color,
