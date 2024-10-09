@@ -98,6 +98,7 @@ fun TrafficLightTest(
 //            region::Buttons
                 Row(
                     modifier = Modifier
+                        .weight(1.0f)
                         .fillMaxWidth()
                         .padding(ExtensionPadding.smallAsymmetricalContentPadding),
                     verticalAlignment = Alignment.CenterVertically,

@@ -8,7 +8,10 @@ object ConstantSize {
 
     val regularBorderWidth = 2.dp
 
-    val trafficLightLampSize = DpSize(74.dp, 74.dp)
+    val trafficLightBoxSize = DpSize(width = 120.dp, height = 120.dp)
+    val trafficLightPaddingHor = 46.dp
+    val trafficLightPaddingVer = 32.dp
+    val trafficLightLampSize = DpSize(80.dp, 80.dp)
     val trafficLightLampButtonSize = DpSize(200.dp, 80.dp)
 
     val dividerStatisticHeight = 4.dp
