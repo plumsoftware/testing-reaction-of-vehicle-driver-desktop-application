@@ -17,4 +17,12 @@ object ConstantSize {
     val dividerStatisticHeight = 4.dp
     val emptySessionsListHeight = 100.dp
     val emptySessionsListSize = DpSize(width = 74.dp, height = 74.dp)
+
+    object Road {
+        val roadSideWidth = 240.dp
+        val sky1Height = 140.dp
+        val solidWhiteLineHeight = 10.dp
+        val roadMarkerSize = DpSize(width = 10.dp, height = 20.dp)
+        val roadMarkerWidth = 10.dp
+    }
 }
