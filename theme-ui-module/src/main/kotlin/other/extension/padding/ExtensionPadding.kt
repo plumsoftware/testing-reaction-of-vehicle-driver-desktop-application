@@ -45,4 +45,8 @@ object ExtensionPadding {
         Arrangement.spacedBy(space = mediumItemSpacing, alignment = Alignment.Start)
     val mediumHorizontalArrangementCenter =
         Arrangement.spacedBy(space = mediumItemSpacing, alignment = Alignment.CenterHorizontally)
+
+    object Road {
+        val roadMarkerPaddingTop = 150.dp
+    }
 }
