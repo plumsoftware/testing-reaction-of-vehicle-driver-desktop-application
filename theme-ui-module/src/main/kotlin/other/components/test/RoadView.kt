@@ -56,9 +56,13 @@ fun RoadView() {
                 horizontalArrangement = Arrangement.End
             ) {
                 //Left line
-                Row(modifier = Modifier.weight(0.5f)) {
-                    Row(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
-                        Box(modifier = Modifier.weight(0.5f))
+                Box(modifier = Modifier.weight(0.5f)) {
+//                    Row(modifier = Modifier.fillMaxSize()) {
+                    Row(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+//                            Box(modifier = Modifier)
                         Column(modifier = Modifier.fillMaxHeight()) {
                             repeat(50) {
                                 Box(
@@ -68,8 +72,9 @@ fun RoadView() {
                                 Spacer(modifier = Modifier.height(height = 10.dp))
                             }
                         }
-                        Box(modifier = Modifier.weight(0.5f))
+//                        Box(modifier = Modifier.weight(0.5f))
                     }
+//                    }
                 }
 
                 //Two solid
@@ -89,20 +94,26 @@ fun RoadView() {
                 }
 
                 //Right line
-                Column(modifier = Modifier.weight(0.5f)) {
-                    Box(modifier = Modifier.fillMaxWidth().height(ConstantSize.Road.solidWhiteLineHeight).background(Color.White))
-                    Row(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
-                        Box(modifier = Modifier.weight(0.5f))
-                        Column(modifier = Modifier.fillMaxHeight()) {
-                            repeat(50) {
-                                Box(
-                                    modifier = Modifier.size(ConstantSize.Road.roadMarkerSize)
-                                        .background(Color.White)
-                                )
-                                Spacer(modifier = Modifier.height(height = 10.dp))
+                Box(modifier = Modifier.weight(0.5f)) {
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        Box(
+                            modifier = Modifier.fillMaxWidth()
+                                .height(ConstantSize.Road.solidWhiteLineHeight)
+                                .background(Color.White)
+                        )
+                        Row(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
+                            Box(modifier = Modifier.weight(0.5f))
+                            Column(modifier = Modifier.fillMaxHeight()) {
+                                repeat(50) {
+                                    Box(
+                                        modifier = Modifier.size(ConstantSize.Road.roadMarkerSize)
+                                            .background(Color.White)
+                                    )
+                                    Spacer(modifier = Modifier.height(height = 10.dp))
+                                }
                             }
+                            Box(modifier = Modifier.weight(0.5f))
                         }
-                        Box(modifier = Modifier.weight(0.5f))
                     }
                 }
             }
