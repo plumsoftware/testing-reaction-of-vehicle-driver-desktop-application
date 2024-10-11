@@ -1,6 +1,7 @@
 package other.components.test
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,13 +15,21 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import other.extension.padding.ExtensionPadding
 import other.extension.size.ConstantSize
+import theme.RoadColor
+
 
 @Composable
 fun RoadView() {
@@ -42,7 +51,7 @@ fun RoadView() {
                 modifier = Modifier
                     .width(ConstantSize.Road.roadSideWidth)
                     .fillMaxHeight()
-                    .background(Color.DarkGray)
+                    .background(RoadColor.roadSide)
             )
 
             //Road
@@ -57,12 +66,10 @@ fun RoadView() {
             ) {
                 //Left line
                 Box(modifier = Modifier.weight(0.5f)) {
-//                    Row(modifier = Modifier.fillMaxSize()) {
                     Row(
                         modifier = Modifier.fillMaxSize(),
                         horizontalArrangement = Arrangement.Center
                     ) {
-//                            Box(modifier = Modifier)
                         Column(modifier = Modifier.fillMaxHeight()) {
                             repeat(50) {
                                 Box(
@@ -72,9 +79,7 @@ fun RoadView() {
                                 Spacer(modifier = Modifier.height(height = 10.dp))
                             }
                         }
-//                        Box(modifier = Modifier.weight(0.5f))
                     }
-//                    }
                 }
 
                 //Two solid
@@ -112,20 +117,35 @@ fun RoadView() {
                                     Spacer(modifier = Modifier.height(height = 10.dp))
                                 }
                             }
-                            Box(modifier = Modifier.weight(0.5f))
+                            Box(
+                                modifier = Modifier.weight(0.5f).fillMaxHeight()
+                                    .padding(horizontal = ExtensionPadding.Road.carTopSideViewPadding)
+                            ) {
+                                //For car
+                                Image(
+                                    painter = painterResource("car_top_side_view.png"),
+                                    contentDescription = "Машина на дороге",
+                                    modifier = Modifier
+                                        .rotate(degrees = 90.0f)
+                                        .wrapContentSize()
+                                        .align(Alignment.BottomCenter)
+                                )
+                            }
                         }
                     }
                 }
             }
-
 
             // Обочина справа
             Box(
                 modifier = Modifier
                     .width(ConstantSize.Road.roadSideWidth)
                     .fillMaxHeight()
-                    .background(Color.DarkGray)
-            )
+                    .background(RoadColor.roadSide)
+            ) {
+                //Traffic light
+                SmallTrafficLightTopSideView(modifier = Modifier.rotate(90.0f))
+            }
         }
     }
 }

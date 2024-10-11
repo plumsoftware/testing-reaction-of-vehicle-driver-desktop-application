@@ -108,6 +108,10 @@ val md_theme_dark_grid_color = Color(0xFF9e8e81)
 //region::Constant colors
 val trafficLightColor = Color(0xFF2F4859)
 val trafficLightBranchColor = Color(0xFF293B44)
+
+object RoadColor {
+    val roadSide = Color(0xFFb0b8c1)
+}
 //endregion
 
 @Immutable

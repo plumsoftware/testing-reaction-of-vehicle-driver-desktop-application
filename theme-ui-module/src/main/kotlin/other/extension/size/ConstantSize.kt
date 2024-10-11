@@ -24,5 +24,13 @@ object ConstantSize {
         val solidWhiteLineHeight = 10.dp
         val roadMarkerSize = DpSize(width = 10.dp, height = 20.dp)
         val roadMarkerWidth = 10.dp
+
+        val trafficLight = DpSize(50.dp, 50.dp)
+
+        val trafficLightBranchSize = DpSize(width = 20.dp, height = 50.dp)
+    }
+
+    object Car {
+        val trafficLightTestByRoadWithRedLightCarTopSideViewSize = DpSize(width = 50.dp, height = 50.dp)
     }
 }
