@@ -49,6 +49,6 @@ object ExtensionPadding {
     object Road {
         val roadMarkerPaddingTop = 70.dp
 
-        val carTopSideViewPadding = 50.dp
+        val carTopSideViewPadding = 0.dp
     }
 }

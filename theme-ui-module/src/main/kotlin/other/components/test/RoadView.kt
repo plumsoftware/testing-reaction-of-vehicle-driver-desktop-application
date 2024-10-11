@@ -16,13 +16,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -39,99 +35,67 @@ fun RoadView() {
             .background(Color.LightGray)
     ) {
         // Дорога
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             // Обочина слева
             Box(
                 modifier = Modifier
-                    .width(ConstantSize.Road.roadSideWidth)
-                    .fillMaxHeight()
+                    .height(ConstantSize.Road.roadSideWidth)
+                    .fillMaxWidth()
                     .background(RoadColor.roadSide)
-            )
+            ) {
+                //Traffic light
+                SmallTrafficLightTopSideView()
+            }
 
             //Road
-            Row(
+            Column(
                 modifier = Modifier
-                    .padding(top = ExtensionPadding.Road.roadMarkerPaddingTop)
+                    .padding(start = ExtensionPadding.Road.roadMarkerPaddingTop)
                     .weight(1f)
                     .background(Color.LightGray)
                     .fillMaxSize(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.End
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Top
             ) {
-                //Left line
-                Box(modifier = Modifier.weight(0.5f)) {
-                    Row(
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Column(modifier = Modifier.fillMaxHeight()) {
-                            repeat(50) {
+                //Road line
+                Row(modifier = Modifier.fillMaxSize()) {
+                    Box(
+                        modifier = Modifier.fillMaxHeight()
+                            .width(ConstantSize.Road.solidWhiteLineHeight)
+                            .background(Color.White)
+                    )
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        Box(
+                            modifier = Modifier
+                                .weight(0.5f)
+                                .fillMaxWidth()
+                                .padding(vertical = ExtensionPadding.Road.carTopSideViewPadding)
+                        ) {
+                            //For car
+                            Image(
+                                painter = painterResource("car_top_side_view.png"),
+                                contentDescription = "Машина на дороге",
+                                modifier = Modifier
+                                    .wrapContentSize()
+                                    .align(Alignment.CenterEnd)
+                            )
+                        }
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            repeat(100) {
                                 Box(
                                     modifier = Modifier.size(ConstantSize.Road.roadMarkerSize)
                                         .background(Color.White)
                                 )
-                                Spacer(modifier = Modifier.height(height = 10.dp))
+                                Spacer(modifier = Modifier.width(width = 10.dp))
                             }
                         }
-                    }
-                }
-
-                //Two solid
-                Row(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                ) {
-                    repeat(2) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxHeight()
-                                .width(ConstantSize.Road.roadMarkerWidth)
-                                .background(Color.White)
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                    }
-                }
-
-                //Right line
-                Box(modifier = Modifier.weight(0.5f)) {
-                    Column(modifier = Modifier.fillMaxSize()) {
-                        Box(
-                            modifier = Modifier.fillMaxWidth()
-                                .height(ConstantSize.Road.solidWhiteLineHeight)
-                                .background(Color.White)
-                        )
-                        Row(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
-                            Box(modifier = Modifier.weight(0.5f))
-                            Column(modifier = Modifier.fillMaxHeight()) {
-                                repeat(50) {
-                                    Box(
-                                        modifier = Modifier.size(ConstantSize.Road.roadMarkerSize)
-                                            .background(Color.White)
-                                    )
-                                    Spacer(modifier = Modifier.height(height = 10.dp))
-                                }
-                            }
-                            Box(
-                                modifier = Modifier.weight(0.5f).fillMaxHeight()
-                                    .padding(horizontal = ExtensionPadding.Road.carTopSideViewPadding)
-                            ) {
-                                //For car
-                                Image(
-                                    painter = painterResource("car_top_side_view.png"),
-                                    contentDescription = "Машина на дороге",
-                                    modifier = Modifier
-                                        .rotate(degrees = 90.0f)
-                                        .wrapContentSize()
-                                        .align(Alignment.BottomCenter)
-                                )
-                            }
-                        }
+                        Box(modifier = Modifier.weight(0.5f))
                     }
                 }
             }
@@ -139,13 +103,10 @@ fun RoadView() {
             // Обочина справа
             Box(
                 modifier = Modifier
-                    .width(ConstantSize.Road.roadSideWidth)
-                    .fillMaxHeight()
+                    .height(ConstantSize.Road.roadSideWidth)
+                    .fillMaxWidth()
                     .background(RoadColor.roadSide)
-            ) {
-                //Traffic light
-                SmallTrafficLightTopSideView(modifier = Modifier.rotate(90.0f))
-            }
+            )
         }
     }
 }

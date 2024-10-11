@@ -38,16 +38,16 @@ fun SmallTrafficLightTopSideView(
         while (true) {
             // Red light
             redLightState = true
-            delay(2000)
+            delay(1000)
             redLightState = false
 
             // Yellow light
             yellowLightState = true
-            delay(2000)
+            delay(1000)
             yellowLightState = false
 
             // Green light
-            delay(2000)
+            delay(1000)
         }
     }
 

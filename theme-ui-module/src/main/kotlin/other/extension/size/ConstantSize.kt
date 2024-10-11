@@ -22,7 +22,7 @@ object ConstantSize {
         val roadSideWidth = 240.dp
         val sky1Height = 140.dp
         val solidWhiteLineHeight = 10.dp
-        val roadMarkerSize = DpSize(width = 10.dp, height = 20.dp)
+        val roadMarkerSize = DpSize(width = 20.dp, height = 10.dp)
         val roadMarkerWidth = 10.dp
 
         val trafficLight = DpSize(50.dp, 50.dp)
