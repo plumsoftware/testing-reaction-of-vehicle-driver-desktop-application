@@ -3,6 +3,7 @@ package testmenu.viewmodel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import model.tests.CarStopByRedLightSimpleReaction
 import model.tests.TrafficLightChoiceReaction
 import model.tests.TrafficLightDifferenceReaction
 import moe.tlaster.precompose.viewmodel.ViewModel
@@ -17,7 +18,8 @@ class TestMenuViewModel : ViewModel() {
         State(
             reactionTests = listOf(
                 TrafficLightChoiceReaction(),
-                TrafficLightDifferenceReaction()
+                TrafficLightDifferenceReaction(),
+                CarStopByRedLightSimpleReaction()
             )
         )
     )

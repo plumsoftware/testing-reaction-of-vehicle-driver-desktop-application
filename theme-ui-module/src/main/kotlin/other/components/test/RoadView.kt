@@ -28,7 +28,7 @@ import theme.RoadColor
 
 
 @Composable
-fun RoadView() {
+fun RoadView(onClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -50,7 +50,7 @@ fun RoadView() {
                     .background(RoadColor.roadSide)
             ) {
                 //Traffic light
-                SmallTrafficLightTopSideView()
+//                SmallTrafficLightTopSideView(currentLampIndex = currentLampIndex)
             }
 
             //Road
@@ -106,7 +106,9 @@ fun RoadView() {
                     .height(ConstantSize.Road.roadSideWidth)
                     .fillMaxWidth()
                     .background(RoadColor.roadSide)
-            )
+            ) {
+                StopPedalButton(onClick = onClick, modifier = Modifier.align(Alignment.Center))
+            }
         }
     }
 }
@@ -114,5 +116,5 @@ fun RoadView() {
 @Preview
 @Composable
 private fun RoadViewPreview() {
-    RoadView()
+    RoadView({})
 }

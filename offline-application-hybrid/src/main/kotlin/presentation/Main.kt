@@ -53,6 +53,7 @@ import presentation.main.store.Event
 import privacypolicy.PrivacyPolicy
 import presentation.settings.SettingsPage
 import testmenu.TestMenu
+import tests.car_stop_by_red_light_simple_reaction.CarStopByRedLightSimpleReaction
 import tests.traffic_light_test_choice_reaction.TrafficLightTestChoiceReaction
 import tests.traffic_light_test_difference_reaction.TrafficLightTestDifferenceReaction
 
@@ -248,6 +249,16 @@ fun main() = run {
                         scene(route = DesktopRouting.trafficLightDifferenceReaction) {
                             println("TrafficLightTestDifferenceReaction page rendered")
                             TrafficLightTestDifferenceReaction(
+                                workBookStorage = workBookStorage,
+                                settings = mainState.value.settings,
+                                testDTO = mainState.value.testDTO,
+                                sessionStorage = sessionStorage,
+                                navigator = navigator
+                            )
+                        }
+                        scene(route = DesktopRouting.carStopByRedLightSimpleReaction) {
+                            println("CarStopByRedLightSimpleReaction page rendered")
+                            CarStopByRedLightSimpleReaction(
                                 workBookStorage = workBookStorage,
                                 settings = mainState.value.settings,
                                 testDTO = mainState.value.testDTO,
