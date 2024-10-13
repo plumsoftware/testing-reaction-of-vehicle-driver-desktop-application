@@ -24,10 +24,11 @@ import androidx.compose.ui.unit.dp
 fun StopPedalButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
     var isPressed by remember { mutableStateOf(false) }
 
-    val modifier = Modifier
+    val modifier_ = Modifier
         .size(width = 200.dp, height = 310.dp)
         .onPointerEvent(PointerEventType.Press) {
             isPressed = true
+            onClick.invoke()
         }
         .onPointerEvent(PointerEventType.Release) {
             isPressed = false
@@ -37,8 +38,8 @@ fun StopPedalButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
         .then(modifier)
 
     IconButton(
-        modifier = modifier,
-        onClick = onClick,
+        modifier = modifier_,
+        onClick = {},
         colors = IconButtonDefaults.iconButtonColors(
             containerColor = Color.Transparent,
             contentColor = Color.Transparent

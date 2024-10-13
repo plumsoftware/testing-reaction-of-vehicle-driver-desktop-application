@@ -260,7 +260,6 @@ fun main() = run {
                             println("CarStopByRedLightSimpleReaction page rendered")
                             CarStopByRedLightSimpleReaction(
                                 workBookStorage = workBookStorage,
-                                settings = mainState.value.settings,
                                 testDTO = mainState.value.testDTO,
                                 sessionStorage = sessionStorage,
                                 navigator = navigator

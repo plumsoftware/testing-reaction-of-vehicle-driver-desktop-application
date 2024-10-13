@@ -12,5 +12,9 @@ data class State(
     val testDTO: TestDTO = TestDTO(),
 
     val startCountDownTimer: Int = 10,
-    val intervalSignal: Long = 0L
+    val intervalSignal: Long = 0L,
+    val testIsFinished: Boolean = false,
+    val isAnimPlaying: Boolean = false,
+    val currentDistance: Float = 0f,
+    val finalDistance: Float = 1400f,
 )

@@ -1,11 +1,5 @@
 package other.components.test
 
-import androidx.compose.animation.core.CubicBezierEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -24,7 +18,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,29 +29,10 @@ import theme.RoadColor
 
 
 @Composable
-fun RoadView(onClick: () -> Unit, animationPlaying: Boolean) {
-
-    val animation = rememberInfiniteTransition()
-    val progress by animation.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = if (animationPlaying) {
-            infiniteRepeatable(
-                animation = tween(
-                    durationMillis = 5000,
-                    easing = CubicBezierEasing(0f, 0f, 0.2f, 1f)
-                ),
-                repeatMode = RepeatMode.Restart
-            )
-        } else {
-            infiniteRepeatable(
-                tween(durationMillis = 500, easing = CubicBezierEasing(0f, 0f, 0.2f, 1f))
-            )
-        }
-    )
-
-    val imageX = progress.times(1000f).dp
-
+fun RoadView(
+    onClick: () -> Unit,
+    offsetX: Float
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -112,7 +86,7 @@ fun RoadView(onClick: () -> Unit, animationPlaying: Boolean) {
                                 painter = painterResource("car_top_side_view.png"),
                                 contentDescription = "Машина на дороге",
                                 modifier = Modifier
-                                    .offset(x = imageX.times(-1))
+                                    .offset(x = -offsetX.dp)
                                     .wrapContentSize()
                                     .align(Alignment.CenterEnd)
                             )
@@ -147,5 +121,5 @@ fun RoadView(onClick: () -> Unit, animationPlaying: Boolean) {
 @Preview
 @Composable
 private fun RoadViewPreview() {
-    RoadView({}, animationPlaying = false)
+    RoadView(onClick = {}, offsetX = 500f)
 }
