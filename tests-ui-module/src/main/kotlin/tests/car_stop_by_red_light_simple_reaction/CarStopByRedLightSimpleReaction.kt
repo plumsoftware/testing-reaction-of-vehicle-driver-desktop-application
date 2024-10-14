@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import data.model.dto.test.TestDTO
+import data.model.regular.settings.Settings
 import domain.storage.SessionStorage
 import domain.storage.WorkbookStorage
 import moe.tlaster.precompose.navigation.Navigator
@@ -29,6 +30,7 @@ import tests.car_stop_by_red_light_simple_reaction.viewmodel.CarStopByRedLightSi
 
 @Composable
 fun CarStopByRedLightSimpleReaction(
+    settings: Settings,
     workBookStorage: WorkbookStorage,
     testDTO: TestDTO,
     sessionStorage: SessionStorage,
@@ -37,6 +39,7 @@ fun CarStopByRedLightSimpleReaction(
     val viewModel: CarStopByRedLightSimpleReactionViewModel =
         viewModel(modelClass = CarStopByRedLightSimpleReactionViewModel::class) {
             CarStopByRedLightSimpleReactionViewModel(
+                settings = settings,
                 testDTO = testDTO,
                 workBookStorage = workBookStorage,
                 sessionStorage = sessionStorage
