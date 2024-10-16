@@ -2,7 +2,7 @@ package aboutuser.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -64,7 +64,7 @@ fun LinearChart(list: List<SessionDTO>, acceptedLineParams: List<Boolean>) {
         }
     }
 
-    Box(modifier = Modifier.size(width = 600.dp, height = 550.dp)) {
+    Box(modifier = Modifier.height(height = 550.dp)) {
         LineChart(
             modifier = Modifier.fillMaxWidth(),
             linesParameters = lineParametersToShow,
@@ -81,8 +81,7 @@ fun LinearChart(list: List<SessionDTO>, acceptedLineParams: List<Boolean>) {
             showXAxis = true,
             showYAxis = true,
             legendPosition = LegendPosition.BOTTOM,
-            descriptionStyle = MaterialTheme.typography.titleMedium.copy(color = MaterialTheme.colorScheme.onBackground),
-
+            descriptionStyle = MaterialTheme.typography.titleMedium.copy(color = MaterialTheme.colorScheme.onBackground)
             )
     }
 }
