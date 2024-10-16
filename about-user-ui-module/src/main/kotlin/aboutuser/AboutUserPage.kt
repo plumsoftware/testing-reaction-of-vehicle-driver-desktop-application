@@ -202,6 +202,68 @@ fun AboutUserPage(navigator: Navigator, userStorage: UserStorage, sessionStorage
                     }
 
                     item {
+                        Spacer(modifier = Modifier.padding(ExtensionPadding.smallVerPadding))
+                    }
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            verticalArrangement = ExtensionPadding.mediumVerticalArrangementTop,
+                        ) {
+                            Text(
+                                text = "Статистика",
+                                style = MaterialTheme.typography.headlineMedium,
+                                modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+                                textAlign = TextAlign.Start,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = ExtensionPadding.mediumHorizontalArrangement,
+                                modifier = Modifier.fillMaxWidth().wrapContentHeight()
+                                    .padding(ExtensionPadding.mediumAsymmetricalContentPadding)
+                            ) {
+                                if (state.value.sessions.isNotEmpty())
+                                    LinearChart(
+                                        list = state.value.sessions.take(30),
+                                        acceptedLineParams = state.value.selectedChipList
+                                    )
+                                else
+                                    Nothing()
+                            }
+                            FlowRow(
+                                horizontalArrangement = ExtensionPadding.mediumHorizontalArrangement,
+                                modifier = Modifier.fillMaxWidth().wrapContentHeight()
+                                    .padding(ExtensionPadding.mediumAsymmetricalContentPadding)
+                                    .padding(start = ExtensionPadding.largeHorPadding)
+                            ) {
+                                state.value.selectedChipList.forEachIndexed { index, _ ->
+                                    var selected by remember { mutableStateOf(index == 0) }
+                                    FilterChip(
+                                        selected = selected,
+                                        onClick = {
+                                            selected = !selected
+                                            aboutUserViewModel.onEvent(
+                                                Event.OnFilterChipClick(
+                                                    index = index,
+                                                    selected = selected
+                                                )
+                                            )
+                                        },
+                                        label = {
+                                            Text(
+                                                text = UIConstants.lineChartParams[index],
+                                                style = MaterialTheme.typography.bodyMedium
+                                            )
+                                        },
+                                        shape = MaterialTheme.shapes.medium
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    item {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = ExtensionPadding.mediumHorizontalArrangement,
@@ -248,6 +310,9 @@ fun AboutUserPage(navigator: Navigator, userStorage: UserStorage, sessionStorage
                             )
                         }
                     }
+                    item {
+                        Spacer(modifier = Modifier.padding(ExtensionPadding.smallVerPadding))
+                    }
                     with(state.value.filteredSessionsList) {
                         if (this.isNotEmpty()) {
                             itemsIndexed(this) { _, item ->
@@ -265,68 +330,6 @@ fun AboutUserPage(navigator: Navigator, userStorage: UserStorage, sessionStorage
                                         modifier = Modifier.size(ConstantSize.emptySessionsListSize)
                                             .align(Alignment.Center)
                                     )
-                                }
-                            }
-                        }
-                    }
-                    item {
-                        Spacer(modifier = Modifier.padding(ExtensionPadding.smallVerPadding))
-                    }
-                    item {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize(),
-                            verticalArrangement = ExtensionPadding.mediumVerticalArrangementTop,
-                        ) {
-                            Text(
-                                text = "Статистика",
-                                style = MaterialTheme.typography.headlineMedium,
-                                modifier = Modifier.fillMaxWidth().wrapContentHeight(),
-                                textAlign = TextAlign.Start,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = ExtensionPadding.mediumHorizontalArrangement,
-                                modifier = Modifier.fillMaxWidth().wrapContentHeight()
-                                    .padding(ExtensionPadding.mediumAsymmetricalContentPadding)
-                            ) {
-                                if (state.value.sessions.isNotEmpty())
-                                    LinearChart(
-                                        list = state.value.sessions.take(30),
-                                        acceptedLineParams = state.value.selectedChipList
-                                    )
-                                else
-                                    Nothing()
-
-                                FlowRow(
-                                    horizontalArrangement = ExtensionPadding.mediumHorizontalArrangement,
-                                    modifier = Modifier.fillMaxWidth().wrapContentHeight()
-                                        .padding(ExtensionPadding.mediumAsymmetricalContentPadding)
-                                        .padding(start = ExtensionPadding.largeHorPadding)
-                                ) {
-                                    state.value.selectedChipList.forEachIndexed { index, _ ->
-                                        var selected by remember { mutableStateOf(index == 0) }
-                                        FilterChip(
-                                            selected = selected,
-                                            onClick = {
-                                                selected = !selected
-                                                aboutUserViewModel.onEvent(
-                                                    Event.OnFilterChipClick(
-                                                        index = index,
-                                                        selected = selected
-                                                    )
-                                                )
-                                            },
-                                            label = {
-                                                Text(
-                                                    text = UIConstants.lineChartParams[index],
-                                                    style = MaterialTheme.typography.bodyMedium
-                                                )
-                                            },
-                                            shape = MaterialTheme.shapes.medium
-                                        )
-                                    }
                                 }
                             }
                         }

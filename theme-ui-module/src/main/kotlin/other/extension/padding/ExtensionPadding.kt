@@ -10,11 +10,11 @@ object ExtensionPadding {
     private val mediumItemSpacing = 18.dp
     private val largeItemSpacing = 32.dp
 
-    private val mediumHorPadding = 22.dp
-    private val smallHorPadding = 16.dp
+    val mediumHorPadding = 22.dp
+    val smallHorPadding = 16.dp
     val largeHorPadding = 26.dp
     val emptySessionsListSize = 22.dp
-    private val mediumVerPadding = 18.dp
+    val mediumVerPadding = 18.dp
     val smallVerPadding = 14.dp
     val largeVerPadding = 24.dp
 

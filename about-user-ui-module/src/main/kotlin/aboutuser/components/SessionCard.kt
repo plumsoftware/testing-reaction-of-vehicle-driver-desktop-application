@@ -1,8 +1,10 @@
 package aboutuser.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDropDown
@@ -10,10 +12,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import data.model.dto.database.SessionDTO
 import other.extension.padding.ExtensionPadding
 import other.extension.size.ConstantSize
@@ -39,14 +43,26 @@ fun SessionCard(sessionDTO: SessionDTO) {
 
     Column(
         modifier = Modifier
-            .wrapContentWidth(),
+            .wrapContentWidth()
+            .clip(shape = MaterialTheme.shapes.medium)
+            .border(
+                width = if (isExpanded) 4.dp else 0.dp,
+                color = if (isExpanded) MaterialTheme.colorScheme.tertiary else Color.Transparent,
+                shape = MaterialTheme.shapes.medium
+            ),
         verticalArrangement = ExtensionPadding.mediumVerticalArrangementTop,
         horizontalAlignment = Alignment.Start
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = ExtensionPadding.mediumHorizontalArrangement,
-            modifier = Modifier.wrapContentWidth().wrapContentHeight()
+            modifier = Modifier
+                .wrapContentWidth()
+                .wrapContentHeight()
+                .padding(
+                    horizontal = ExtensionPadding.mediumHorPadding,
+                    vertical = ExtensionPadding.mediumVerPadding
+                )
         ) {
             Text(
                 text = "Сессия №${sessionDTO.sessionId} ${
@@ -59,46 +75,6 @@ fun SessionCard(sessionDTO: SessionDTO) {
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Start,
             )
-
-            Text(
-                text = "№ теста ${sessionDTO.testId}",
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.End,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = ExtensionPadding.mediumHorizontalArrangement,
-            modifier = Modifier.wrapContentWidth().wrapContentHeight()
-        ) {
-            Text(
-                text = "Среднее значение ${sessionDTO.averageValue} секунд",
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Start,
-            )
-            Text(
-                text = "Стандартное отклонение ${sessionDTO.standardDeviation}",
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Start,
-            )
-        }
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = ExtensionPadding.mediumHorizontalArrangement,
-            modifier = Modifier.wrapContentWidth().wrapContentHeight()
-        ) {
-            Text(
-                text = "Попыток ${sessionDTO.count}",
-                style = MaterialTheme.typography.bodyMedium.copy(color = ExtendedTheme.colors.onSuccessContainer),
-                textAlign = TextAlign.Start,
-            )
-            Text(
-                text = "Ошибок ${sessionDTO.errors}",
-                style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error),
-                textAlign = TextAlign.Start,
-            )
             IconButton(
                 onClick = {
                     isExpanded = !isExpanded
@@ -109,35 +85,99 @@ fun SessionCard(sessionDTO: SessionDTO) {
                     modifier = Modifier.rotate(rotation)
                 )
             }
+
+            Text(
+                text = "№ теста ${sessionDTO.testId}",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.End,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
-        if (isExpanded) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = ExtensionPadding.mediumHorizontalArrangement,
-                modifier = Modifier.wrapContentWidth().wrapContentHeight()
+        AnimatedVisibility(
+            visible = isExpanded,
+            modifier = Modifier
+                .wrapContentHeight()
+                .fillMaxWidth()
+                .padding(
+                    horizontal = ExtensionPadding.mediumHorPadding,
+                    vertical = ExtensionPadding.mediumVerPadding
+                )
+        ) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(
+                    space = ExtensionPadding.largeVerPadding,
+                    alignment = Alignment.CenterVertically
+                ),
+                horizontalAlignment = Alignment.Start
             ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = ExtensionPadding.mediumHorizontalArrangement,
+                    modifier = Modifier.wrapContentWidth().wrapContentHeight()
+                ) {
+                    Text(
+                        text = "Среднее значение ${sessionDTO.averageValue} секунд",
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Start,
+                    )
+                    Text(
+                        text = "Стандартное отклонение ${sessionDTO.standardDeviation}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Start,
+                    )
+                }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = ExtensionPadding.mediumHorizontalArrangement,
+                    modifier = Modifier.wrapContentWidth().wrapContentHeight()
+                ) {
+                    Text(
+                        text = "Категория водительского удостоверения ${sessionDTO.drivingLicenseCategory}.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Start,
+                    )
+                }
                 Text(
-                    text = "Категория водительского удостоверения ${sessionDTO.drivingLicenseCategory}.",
+                    text = "Стаж вождения на момент прохождения тестирования ${sessionDTO.experience} ${
+                        getEnd(
+                            sessionDTO
+                        )
+                    }.",
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Start,
                 )
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = ExtensionPadding.mediumHorizontalArrangement,
+                    modifier = Modifier.wrapContentWidth().wrapContentHeight()
+                ) {
+                    Text(
+                        text = "Попыток ${sessionDTO.count}",
+                        style = MaterialTheme.typography.bodyMedium.copy(color = ExtendedTheme.colors.onSuccessContainer),
+                        textAlign = TextAlign.Start,
+                    )
+                    Text(
+                        text = "Ошибок ${sessionDTO.errors}",
+                        style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error),
+                        textAlign = TextAlign.Start,
+                    )
+                }
             }
-            Text(
-                text = "Стаж вождения на момент прохождения тестирования ${sessionDTO.experience} ${getEnd(sessionDTO)}.",
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Start,
-            )
         }
-        Divider(
-            modifier = Modifier
-                .fillMaxWidth(0.7f)
-                .background(
-                    color = Color.Transparent,
-                    shape = MaterialTheme.shapes.small
-                ),
-            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.12f),
-            thickness = ConstantSize.dividerStatisticHeight
-        )
+        if (!isExpanded)
+            Divider(
+                modifier = Modifier
+                    .fillMaxWidth(0.7f)
+                    .background(
+                        color = Color.Transparent,
+                        shape = MaterialTheme.shapes.small
+                    ),
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.12f),
+                thickness = ConstantSize.dividerStatisticHeight
+            )
     }
 }
 
