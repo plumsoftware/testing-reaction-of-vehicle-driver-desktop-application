@@ -71,7 +71,7 @@ compose.desktop {
             )
             modules("java.sql")
 
-            packageName = "Тестирование реакции"
+            packageName = "Тестирование реакции - Гибрид"
             packageVersion = "1.0.0"
 
             description =
