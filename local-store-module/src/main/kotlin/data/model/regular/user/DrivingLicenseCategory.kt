@@ -1,6 +1,13 @@
 package data.model.regular.user
 
 enum class DrivingLicenseCategory {
+
+    /**
+    Для актуализации категорий водитеских удостоверений использовать
+    Постановление Правительства РФ от ... "О допуске к управлению транспортными средствами" (вместе с "Правилами проведения экзаменов на право управления транспортными средствами и выдачи водительских удостоверений")
+    Раздел "III. Выдача российских национальных и международных водительских удостоверений"
+     **/
+
     Empty {
         override fun toString(): String {
             return ""
@@ -13,33 +20,11 @@ enum class DrivingLicenseCategory {
         }
     },
 
-    AM {
-        override fun toString(): String {
-            return "AM"
-        }
-    },
 
-    A1 {
-        override fun toString(): String {
-            return "A1"
-        }
-    },
-
-    A2 {
-        override fun toString(): String {
-            return "A2"
-        }
-    },
 
     A {
         override fun toString(): String {
             return "A"
-        }
-    },
-
-    B1 {
-        override fun toString(): String {
-            return "B1"
         }
     },
 
@@ -49,51 +34,9 @@ enum class DrivingLicenseCategory {
         }
     },
 
-    B96 {
-        override fun toString(): String {
-            return "B96"
-        }
-    },
-
-    BE {
-        override fun toString(): String {
-            return "BE"
-        }
-    },
-
-    C1 {
-        override fun toString(): String {
-            return "C1"
-        }
-    },
-
-    C1E {
-        override fun toString(): String {
-            return "C1E"
-        }
-    },
-
     C {
         override fun toString(): String {
             return "C"
-        }
-    },
-
-    CE {
-        override fun toString(): String {
-            return "CE"
-        }
-    },
-
-    D1 {
-        override fun toString(): String {
-            return "D1"
-        }
-    },
-
-    D1E {
-        override fun toString(): String {
-            return "D1E"
         }
     },
 
@@ -103,15 +46,84 @@ enum class DrivingLicenseCategory {
         }
     },
 
+
+
+    BE {
+        override fun toString(): String {
+            return "BE"
+        }
+    },
+
+    CE {
+        override fun toString(): String {
+            return "CE"
+        }
+    },
+
     DE {
         override fun toString(): String {
             return "DE"
         }
     },
 
-    T {
+
+
+    Tm {
         override fun toString(): String {
-            return "T"
+            return "Tm"
+        }
+    },
+
+    Tb {
+        override fun toString(): String {
+            return "Tb"
+        }
+    },
+
+    M {
+        override fun toString(): String {
+            return "M"
+        }
+    },
+
+
+
+    A1 {
+        override fun toString(): String {
+            return "A1"
+        }
+    },
+
+    B1 {
+        override fun toString(): String {
+            return "B1"
+        }
+    },
+
+    C1 {
+        override fun toString(): String {
+            return "C1"
+        }
+    },
+
+    D1 {
+        override fun toString(): String {
+            return "D1"
+        }
+    },
+
+
+
+
+    C1E {
+        override fun toString(): String {
+            return "C1E"
+        }
+    },
+
+    D1E {
+        override fun toString(): String {
+            return "D1E"
         }
     };
 
