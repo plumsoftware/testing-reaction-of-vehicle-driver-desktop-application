@@ -7,6 +7,7 @@ import java.util.Base64
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
+import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
 class CryptographyRepositoryImpl(ignoreConfig: Boolean = false) : CryptographyRepository {
@@ -38,17 +39,20 @@ class CryptographyRepositoryImpl(ignoreConfig: Boolean = false) : CryptographyRe
     fun encode(text: String, secretKey: SecretKey): String {
         val cipher = Cipher.getInstance(TRANSFORMATION_TEST)
         cipher.init(Cipher.ENCRYPT_MODE, secretKey)
+        val ivBytes = cipher.iv
         val encryptedBytes = cipher.doFinal(text.toByteArray(Charsets.UTF_8))
-
-        return Base64.getEncoder().encodeToString(encryptedBytes)
+        val combined = ivBytes + encryptedBytes
+        return Base64.getEncoder().encodeToString(combined)
     }
 
     fun decrypt(encryptedText: String, secretKey: SecretKey): String {
         val combined = Base64.getDecoder().decode(encryptedText)
+        val ivBytes = combined.copyOfRange(0, 16)
         val encryptedBytes = combined.copyOfRange(16, combined.size)
 
         val cipher = Cipher.getInstance(TRANSFORMATION_TEST)
-        cipher.init(Cipher.DECRYPT_MODE, secretKey)
+        val ivSpec = IvParameterSpec(ivBytes)
+        cipher.init(Cipher.DECRYPT_MODE, secretKey, ivSpec)
         val decryptedBytes = cipher.doFinal(encryptedBytes)
         return String(decryptedBytes, Charsets.UTF_8)
     }

@@ -4,7 +4,7 @@ import kotlin.test.Test
 
 class TestCryptography {
 
-    private val cryptographyRepository = CryptographyRepositoryImpl()
+    private val cryptographyRepository = CryptographyRepositoryImpl(ignoreConfig = true)
 
     @Test
     fun `test encodeion and decryption with short text`() {
