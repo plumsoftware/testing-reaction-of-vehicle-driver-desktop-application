@@ -2,7 +2,7 @@ import data.model.Config
 import kotlinx.serialization.json.Json
 import java.io.File
 
-inline fun getConfig(ignoreConfig: Boolean) : Config {
+inline fun getConfig(ignoreConfig: Boolean = false) : Config {
     if (ignoreConfig) return Config()
     val configFile = File("app\\config.json")
     if (!configFile.exists()) {
