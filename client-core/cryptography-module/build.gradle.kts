@@ -11,6 +11,7 @@ repositories {
 
 dependencies {
     implementation(project(path = ":client-core::config-module"))
+    testImplementation(kotlin("test"))
 }
 
 tasks.test {
