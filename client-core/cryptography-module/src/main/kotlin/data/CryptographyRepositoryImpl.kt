@@ -9,9 +9,9 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.SecretKeySpec
 
-class CryptographyRepositoryImpl : CryptographyRepository {
+class CryptographyRepositoryImpl(ignoreConfig: Boolean = false) : CryptographyRepository {
 
-    private var config: Config = getConfig()
+    private var config: Config = getConfig(ignoreConfig = ignoreConfig)
 
     private val ALGORITHM = config.cryptography.algorithm
     private val TRANSFORMATION = config.cryptography.transformation
