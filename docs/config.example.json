@@ -1,0 +1,12 @@
+{
+  "cryptography": {
+    "secret_key": "ЗАМЕНИТЕ_НА_КЛЮЧ_32_СИМВОЛА_HEX",
+    "algorithm": "AES",
+    "transformation": "AES/ECB/PKCS5Padding"
+  },
+  "program_data": {
+    "name": "Тест на реакцию",
+    "version": "1.0.0",
+    "number": "ЗАМЕНИТЕ_НА_НОМЕР_ПРОГРАММЫ"
+  }
+}
