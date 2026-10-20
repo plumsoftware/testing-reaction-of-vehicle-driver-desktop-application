@@ -1,20 +1,20 @@
 package tests.car_stop_by_red_light_simple_reaction.store
 
 import data.model.dto.test.TestDTO
+import other.components.SaveStatus
+import tests.common.COUNTDOWN_SECONDS
+import tests.common.TestPhase
+import tests.common.TrialResults
 
 data class State(
-    val start: Long = 0L,
-    val end: Long = 0L,
-    val userClicked: Int = 0,
-    val errors: Int = 0,
+    val phase: TestPhase = TestPhase.COUNTDOWN,
+    val countdown: Int = COUNTDOWN_SECONDS,
+    /** Идентификатор текущего предъявления красного сигнала, null вне фазы STIMULUS. */
+    val stimulusId: Int? = null,
+    /** Последняя попытка завершилась пропуском: машина проехала на красный. */
+    val lastTrialMissed: Boolean = false,
+    val results: TrialResults = TrialResults(),
 
-    val intervals: MutableList<Long> = mutableListOf(),
     val testDTO: TestDTO = TestDTO(),
-
-    val startCountDownTimer: Int = 10,
-    val intervalSignal: Long = 0L,
-    val testIsFinished: Boolean = false,
-    val isAnimPlaying: Boolean = false,
-    val currentDistance: Float = 0f,
-    val finalDistance: Float = 1400f,
+    val saveStatus: SaveStatus = SaveStatus.SAVING,
 )

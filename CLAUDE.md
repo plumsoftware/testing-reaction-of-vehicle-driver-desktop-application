@@ -63,6 +63,10 @@ DI-фреймворка нет. В `Main.kt` каждого приложения
 
 Каждый экран: `XxxPage.kt` (Composable) + `viewmodel/XxxViewModel.kt` (PreCompose `ViewModel`) + `store/{State,Event,Effect}.kt` (иногда `Output`/`Label`). ViewModel держит `state: MutableStateFlow<State>`, принимает `onEvent(event)`, одноразовые действия (навигация, назад) отправляет в `effect: MutableSharedFlow<Effect>`, которые Composable собирает в `LaunchedEffect` и вызывает `navigator`. Новые тесты реакции добавляются как модель в `theme-ui-module/model/tests`, экран в `tests-ui-module/tests/<name>/` и запись в списке `TestMenuViewModel`.
 
+### Тесты реакции
+
+Общая логика — `tests-ui-module/.../tests/common/ReactionTestCore.kt` (фазы `TestPhase`, учёт попыток `TrialResults`, момент сигнала `StimulusClock`, сохранение `saveTestResult`); статистика — `ReactionStatistics` в `local-store-module`. Время сигнала — первая отрисовка стимула (`Modifier.reportFirstDraw`), время реакции — нажатие (`Modifier.onPressTimestamp`), обе отметки через `System.nanoTime()`. Не использовать `Button.onClick` для регистрации реакции: он срабатывает на отпускании. Размеры сцен тестов считаются от размеров окна (`BoxWithConstraints`), анимация движения дороги считается от времени кадра (`withFrameNanos`), а не шагом в пикселях. Методика и типы ошибок описаны в `README.md`.
+
 ### Хранилище и режимы
 
 - Пути жёстко ориентированы на Windows: данные и `settings.json` лежат в `C:\Users\<user>\AppData\Local\Reaction test\` (`GeneralConstants`, `DatabaseConstants`). На macOS/Linux пути работают некорректно.

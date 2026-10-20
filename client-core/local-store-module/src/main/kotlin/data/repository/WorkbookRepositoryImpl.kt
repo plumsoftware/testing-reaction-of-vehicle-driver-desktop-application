@@ -4,8 +4,6 @@ import data.constant.ExcelConstants
 import data.model.dto.test.TestDTO
 import domain.repository.WorkbookRepository
 import org.apache.poi.ss.usermodel.*
-import org.apache.poi.xssf.usermodel.XSSFCell
-import org.apache.poi.xssf.usermodel.XSSFFont
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.apache.poi.xssf.usermodel.XSSFWorkbookType
 import utlis.parseToExcelDateTime
@@ -15,6 +13,33 @@ import java.io.FileOutputStream
 import java.util.*
 
 class WorkbookRepositoryImpl : WorkbookRepository {
+
+    private data class Column(val title: String, val width: Int, val color: IndexedColors)
+
+    /**
+     * Порядок столбцов 0–10 совпадает со старыми файлами; новые столбцы добавлены в конец,
+     * поэтому существующие таблицы продолжают заполняться корректно.
+     */
+    private val columns = listOf(
+        Column("Уникальный ID сессии", 25000, IndexedColors.LIGHT_YELLOW),
+        Column("Уникальный ID пользователя", 25000, IndexedColors.LIGHT_YELLOW),
+        Column("ID теста", 10000, IndexedColors.LIGHT_YELLOW),
+        Column("Дата", 15000, IndexedColors.LIGHT_YELLOW),
+        Column("Категория вод. удостоверения", 25000, IndexedColors.LIGHT_YELLOW),
+        Column("Интервал сигнала в секундах", 10000, IndexedColors.LIGHT_YELLOW),
+        Column("Стаж вождения", 10000, IndexedColors.LIGHT_YELLOW),
+        Column("Количество ошибок (всего)", 15000, IndexedColors.LIGHT_YELLOW),
+        Column("Количество попыток", 15000, IndexedColors.LIGHT_YELLOW),
+        Column("Среднее время правильных реакций, с", 25000, IndexedColors.LIGHT_GREEN),
+        Column("Стандартное отклонение (выборочное), с", 25000, IndexedColors.LIGHT_GREEN),
+        Column("Возраст", 10000, IndexedColors.LIGHT_YELLOW),
+        Column("Учтено правильных реакций (n)", 15000, IndexedColors.LIGHT_GREEN),
+        Column("Ошибки: неверная реакция", 15000, IndexedColors.LIGHT_YELLOW),
+        Column("Ошибки: пропуск сигнала", 15000, IndexedColors.LIGHT_YELLOW),
+        Column("Ошибки: фальстарт", 15000, IndexedColors.LIGHT_YELLOW),
+        Column("Время правильных реакций по попыткам, мс", 40000, IndexedColors.LIGHT_GREEN),
+    )
+
     override suspend fun createWorkbookIfNotExists(
         folderPath: String,
         formats: List<XSSFWorkbookType>,
@@ -24,287 +49,15 @@ class WorkbookRepositoryImpl : WorkbookRepository {
 
             val path = "$folderPath\\${ExcelConstants.FILE_NAME}${extension.lowercase()}"
 
-            var workbook: Workbook? = getWorkbook(path = path)
-
-            if (workbook == null) {
-//            Folder
+            if (getWorkbook(path = path) == null) {
                 val folder = File(folderPath)
                 if (!folder.exists()) {
-                    folder.mkdir()
+                    folder.mkdirs()
                 }
 
-//            Variables
-                workbook = XSSFWorkbook(formats[index])
-
-//            Create sheet "Данные тестирования"
+                val workbook = XSSFWorkbook(formats[index])
                 val sheet = workbook.createSheet(ExcelConstants.SHEET_NAME)
-
-//            Cell style
-                val font = workbook.createFont() as XSSFFont
-                font.bold = true
-
-                var cellStyle = workbook.createCellStyle()
-                cellStyle.borderBottom = BorderStyle.THIN
-                cellStyle.bottomBorderColor = IndexedColors.BLACK.getIndex()
-                cellStyle.borderTop = BorderStyle.THIN
-                cellStyle.topBorderColor = IndexedColors.BLACK.getIndex()
-                cellStyle.borderRight = BorderStyle.THIN
-                cellStyle.rightBorderColor = IndexedColors.BLACK.getIndex()
-                cellStyle.borderLeft = BorderStyle.THIN
-                cellStyle.leftBorderColor = IndexedColors.BLACK.getIndex()
-                cellStyle.wrapText = true
-
-
-//            Create base data
-                val row = sheet.createRow(0)
-
-                for (i in 0..10) {
-                    var cellItem: XSSFCell
-                    when (i) {
-                        0 -> {
-                            cellItem = row.createCell(i)
-                            cellItem.setCellValue("Униклаьный ID сессии")
-                            sheet.setColumnWidth(i, 25000)
-
-//                        Cell style
-                            cellStyle = workbook.createCellStyle()
-                            cellStyle.borderBottom = BorderStyle.THIN
-                            cellStyle.bottomBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.borderTop = BorderStyle.THIN
-                            cellStyle.topBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.borderRight = BorderStyle.THIN
-                            cellStyle.rightBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.borderLeft = BorderStyle.THIN
-                            cellStyle.leftBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.wrapText = true
-                            cellStyle.fillForegroundColor = IndexedColors.LIGHT_YELLOW.getIndex()
-                            cellStyle.fillPattern = FillPatternType.SOLID_FOREGROUND
-                            cellStyle.setFont(font)
-                            cellItem.cellStyle = cellStyle
-                        }
-
-                        1 -> {
-                            cellItem = row.createCell(i)
-                            cellItem.setCellValue("Униклаьный ID пользователя")
-                            sheet.setColumnWidth(i, 25000)
-
-//                        Cell style
-                            cellStyle = workbook.createCellStyle()
-                            cellStyle.borderBottom = BorderStyle.THIN
-                            cellStyle.bottomBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.borderTop = BorderStyle.THIN
-                            cellStyle.topBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.borderRight = BorderStyle.THIN
-                            cellStyle.rightBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.borderLeft = BorderStyle.THIN
-                            cellStyle.leftBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.wrapText = true
-                            cellStyle.fillForegroundColor = IndexedColors.LIGHT_YELLOW.getIndex()
-                            cellStyle.fillPattern = FillPatternType.SOLID_FOREGROUND
-                            cellStyle.setFont(font)
-                            cellItem.cellStyle = cellStyle
-                        }
-
-                        2 -> {
-                            cellItem = row.createCell(i)
-                            cellItem.setCellValue("ID теста")
-                            sheet.setColumnWidth(i, 10000)
-
-//                        Cell style
-                            cellStyle = workbook.createCellStyle()
-                            cellStyle.borderBottom = BorderStyle.THIN
-                            cellStyle.bottomBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.borderTop = BorderStyle.THIN
-                            cellStyle.topBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.borderRight = BorderStyle.THIN
-                            cellStyle.rightBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.borderLeft = BorderStyle.THIN
-                            cellStyle.leftBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.wrapText = true
-                            cellStyle.fillForegroundColor = IndexedColors.LIGHT_YELLOW.getIndex()
-                            cellStyle.fillPattern = FillPatternType.SOLID_FOREGROUND
-                            cellStyle.setFont(font)
-                            cellItem.cellStyle = cellStyle
-                        }
-
-                        3 -> {
-                            cellItem = row.createCell(i)
-                            cellItem.setCellValue("Дата")
-                            sheet.setColumnWidth(i, 15000)
-
-//                        Cell style
-                            cellStyle = workbook.createCellStyle()
-                            cellStyle.borderBottom = BorderStyle.THIN
-                            cellStyle.bottomBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.borderTop = BorderStyle.THIN
-                            cellStyle.topBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.borderRight = BorderStyle.THIN
-                            cellStyle.rightBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.borderLeft = BorderStyle.THIN
-                            cellStyle.leftBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.wrapText = true
-                            cellStyle.fillForegroundColor = IndexedColors.LIGHT_YELLOW.getIndex()
-                            cellStyle.fillPattern = FillPatternType.SOLID_FOREGROUND
-                            cellStyle.setFont(font)
-                            cellItem.cellStyle = cellStyle
-                        }
-
-                        4 -> {
-                            cellItem = row.createCell(i)
-                            cellItem.setCellValue("Категоория вод. удостоверения")
-                            sheet.setColumnWidth(i, 25000)
-
-//                        Cell style
-                            cellStyle = workbook.createCellStyle()
-                            cellStyle.borderBottom = BorderStyle.THIN
-                            cellStyle.bottomBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.borderTop = BorderStyle.THIN
-                            cellStyle.topBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.borderRight = BorderStyle.THIN
-                            cellStyle.rightBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.borderLeft = BorderStyle.THIN
-                            cellStyle.leftBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.wrapText = true
-                            cellStyle.fillForegroundColor = IndexedColors.LIGHT_YELLOW.getIndex()
-                            cellStyle.fillPattern = FillPatternType.SOLID_FOREGROUND
-                            cellStyle.setFont(font)
-                            cellItem.cellStyle = cellStyle
-                        }
-
-                        5 -> {
-                            cellItem = row.createCell(i)
-                            cellItem.setCellValue("Интервал сигнала в секундах")
-                            sheet.setColumnWidth(i, 10000)
-
-//                        Cell style
-                            cellStyle = workbook.createCellStyle()
-                            cellStyle.borderBottom = BorderStyle.THIN
-                            cellStyle.bottomBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.borderTop = BorderStyle.THIN
-                            cellStyle.topBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.borderRight = BorderStyle.THIN
-                            cellStyle.rightBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.borderLeft = BorderStyle.THIN
-                            cellStyle.leftBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.wrapText = true
-                            cellStyle.fillForegroundColor = IndexedColors.LIGHT_YELLOW.getIndex()
-                            cellStyle.fillPattern = FillPatternType.SOLID_FOREGROUND
-                            cellStyle.setFont(font)
-                            cellItem.cellStyle = cellStyle
-                        }
-
-                        6 -> {
-                            cellItem = row.createCell(i)
-                            cellItem.setCellValue("Стаж воздения")
-                            sheet.setColumnWidth(i, 10000)
-
-//                        Cell style
-                            cellStyle = workbook.createCellStyle()
-                            cellStyle.borderBottom = BorderStyle.THIN
-                            cellStyle.bottomBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.borderTop = BorderStyle.THIN
-                            cellStyle.topBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.borderRight = BorderStyle.THIN
-                            cellStyle.rightBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.borderLeft = BorderStyle.THIN
-                            cellStyle.leftBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.wrapText = true
-                            cellStyle.fillForegroundColor = IndexedColors.LIGHT_YELLOW.getIndex()
-                            cellStyle.fillPattern = FillPatternType.SOLID_FOREGROUND
-                            cellStyle.setFont(font)
-                            cellItem.cellStyle = cellStyle
-                        }
-
-                        7 -> {
-                            cellItem = row.createCell(i)
-                            cellItem.setCellValue("Количество ошибок")
-                            sheet.setColumnWidth(i, 15000)
-
-//                        Cell style
-                            cellStyle = workbook.createCellStyle()
-                            cellStyle.borderBottom = BorderStyle.THIN
-                            cellStyle.bottomBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.borderTop = BorderStyle.THIN
-                            cellStyle.topBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.borderRight = BorderStyle.THIN
-                            cellStyle.rightBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.borderLeft = BorderStyle.THIN
-                            cellStyle.leftBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.wrapText = true
-                            cellStyle.fillForegroundColor = IndexedColors.LIGHT_YELLOW.getIndex()
-                            cellStyle.fillPattern = FillPatternType.SOLID_FOREGROUND
-                            cellStyle.setFont(font)
-                            cellItem.cellStyle = cellStyle
-                        }
-
-                        8 -> {
-                            cellItem = row.createCell(i)
-                            cellItem.setCellValue("Количестыо попыток")
-                            sheet.setColumnWidth(i, 15000)
-
-//                        Cell style
-                            cellStyle = workbook.createCellStyle()
-                            cellStyle.borderBottom = BorderStyle.THIN
-                            cellStyle.bottomBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.borderTop = BorderStyle.THIN
-                            cellStyle.topBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.borderRight = BorderStyle.THIN
-                            cellStyle.rightBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.borderLeft = BorderStyle.THIN
-                            cellStyle.leftBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.wrapText = true
-                            cellStyle.fillForegroundColor = IndexedColors.LIGHT_YELLOW.getIndex()
-                            cellStyle.fillPattern = FillPatternType.SOLID_FOREGROUND
-                            cellStyle.setFont(font)
-                            cellItem.cellStyle = cellStyle
-                        }
-
-                        9 -> {
-                            cellItem = row.createCell(i)
-                            cellItem.setCellValue("Среднее значение в секундах")
-                            sheet.setColumnWidth(i, 25000)
-
-//                        Cell style
-                            cellStyle = workbook.createCellStyle()
-                            cellStyle.borderBottom = BorderStyle.THIN
-                            cellStyle.bottomBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.borderTop = BorderStyle.THIN
-                            cellStyle.topBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.borderRight = BorderStyle.THIN
-                            cellStyle.rightBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.borderLeft = BorderStyle.THIN
-                            cellStyle.leftBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.wrapText = true
-                            cellStyle.fillForegroundColor = IndexedColors.LIGHT_GREEN.getIndex()
-                            cellStyle.fillPattern = FillPatternType.SOLID_FOREGROUND
-                            cellStyle.setFont(font)
-                            cellItem.cellStyle = cellStyle
-                        }
-
-                        10 -> {
-                            cellItem = row.createCell(i)
-                            cellItem.setCellValue("Стандартное отклонение")
-                            sheet.setColumnWidth(i, 25000)
-
-//                        Cell style
-                            cellStyle = workbook.createCellStyle()
-                            cellStyle.borderBottom = BorderStyle.THIN
-                            cellStyle.bottomBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.borderTop = BorderStyle.THIN
-                            cellStyle.topBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.borderRight = BorderStyle.THIN
-                            cellStyle.rightBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.borderLeft = BorderStyle.THIN
-                            cellStyle.leftBorderColor = IndexedColors.BLACK.getIndex()
-                            cellStyle.wrapText = true
-                            cellStyle.fillForegroundColor = IndexedColors.LIGHT_GREEN.getIndex()
-                            cellStyle.fillPattern = FillPatternType.SOLID_FOREGROUND
-                            cellStyle.setFont(font)
-                            cellItem.cellStyle = cellStyle
-                        }
-                    }
-                }
-//            Save
+                writeHeader(workbook = workbook, sheet = sheet)
                 saveInFile(path, workbook)
             }
         }
@@ -316,95 +69,90 @@ class WorkbookRepositoryImpl : WorkbookRepository {
         formats: List<XSSFWorkbookType>,
         extensions: MutableList<String>,
     ) {
-        extensions.forEachIndexed { index, extension ->
+        extensions.forEach { extension ->
             val path = "$folderPath\\${ExcelConstants.FILE_NAME}${extension.lowercase()}"
-            var rowIndex = 0
-            var cellIndex = 0
 
-            val workbook: Workbook? = getWorkbook(path = path)
+            val workbook: Workbook = getWorkbook(path = path) ?: return@forEach
+            val sheet = workbook.getSheetAt(0)
 
-            if (workbook != null) {
-                val sheet = workbook.getSheetAt(0)
+            // В файлах, созданных старой версией, дописываем заголовки новых столбцов
+            writeHeader(workbook = workbook, sheet = sheet)
 
-//                Cell style
-                val cellStyle = workbook.createCellStyle()
-                cellStyle.wrapText = true
+            val rowItem = sheet.createRow(sheet.lastRowNum + 1)
+            val dateFormat: String = parseToExcelDateTime(Calendar.getInstance().timeInMillis)
 
-
-//                Get last indexes
-                for (rowItem in sheet) {
-                    rowIndex++
-                    for (cellItem in rowItem) {
-                        cellIndex++
-                    }
-                }
-
-//                Write user data
-                val rowItem = sheet.createRow(rowIndex)
-
-                val calendar: Calendar = Calendar.getInstance()
-                val dateFormat: String = parseToExcelDateTime(calendar.timeInMillis)
-
-                val sessionIdCellItem: Cell = rowItem.createCell(0)
-                sessionIdCellItem.setCellValue(testDTO.sessionId.toString())
-
-                val userIdCellItem: Cell = rowItem.createCell(1)
-                userIdCellItem.setCellValue(testDTO.user.id.toString())
-
-                val testIdCellItem: Cell = rowItem.createCell(2)
-                testIdCellItem.setCellValue(testDTO.testMode?.id.toString())
-
-                val dateCellItem: Cell = rowItem.createCell(3)
-                dateCellItem.setCellValue(dateFormat)
-
-                val DLCellItem: Cell = rowItem.createCell(4)
-                DLCellItem.setCellValue(testDTO.user.drivingLicenseCategory.toString())
-
-                val signalIntervalCellItem: Cell = rowItem.createCell(5)
-                signalIntervalCellItem.setCellValue(testDTO.interval.toString())
-
-                val experienceCellItem: Cell = rowItem.createCell(6)
-                experienceCellItem.setCellValue(testDTO.user.experience.toString())
-
-                val errorsCellItem: Cell = rowItem.createCell(7)
-                errorsCellItem.setCellValue(testDTO.errorsCount.toString())
-
-                val countCellItem: Cell = rowItem.createCell(8)
-                countCellItem.setCellValue(testDTO.count.toString())
-
-                val averageCellItem: Cell = rowItem.createCell(9)
-                averageCellItem.setCellValue(testDTO.averageValue.toString())
-
-                val stdDeviationCellItem: Cell = rowItem.createCell(10)
-                stdDeviationCellItem.setCellValue(testDTO.stdDeviationValue.toString())
-
-                saveInFile(path, workbook)
+            with(testDTO) {
+                rowItem.createCell(0).setCellValue(sessionId.toDouble())
+                rowItem.createCell(1).setCellValue(user.id.toDouble())
+                testMode?.id?.let { rowItem.createCell(2).setCellValue(it.toDouble()) }
+                rowItem.createCell(3).setCellValue(dateFormat)
+                rowItem.createCell(4).setCellValue(user.drivingLicenseCategory.toString())
+                rowItem.createCell(5).setCellValue(interval.toString())
+                rowItem.createCell(6).setCellValue(user.experience.toDouble())
+                rowItem.createCell(7).setCellValue((errorsCount ?: 0).toDouble())
+                rowItem.createCell(8).setCellValue(count.toDouble())
+                rowItem.createCell(9).setCellValue(averageValue)
+                rowItem.createCell(10).setCellValue(stdDeviationValue)
+                rowItem.createCell(11).setCellValue(user.age.toDouble())
+                rowItem.createCell(12).setCellValue(reactionTimesMs.size.toDouble())
+                rowItem.createCell(13).setCellValue(wrongResponses.toDouble())
+                rowItem.createCell(14).setCellValue(omissions.toDouble())
+                rowItem.createCell(15).setCellValue(prematureResponses.toDouble())
+                rowItem.createCell(16).setCellValue(
+                    reactionTimesMs.joinToString(separator = "; ") { String.format(Locale.ROOT, "%.1f", it) }
+                )
             }
+
+            saveInFile(path, workbook)
         }
         println(testDTO.toString())
     }
 
+    /** Создаёт недостающие ячейки заголовка в первой строке листа. */
+    private fun writeHeader(workbook: Workbook, sheet: Sheet) {
+        val font = workbook.createFont()
+        font.bold = true
+
+        val row = sheet.getRow(0) ?: sheet.createRow(0)
+        columns.forEachIndexed { index, column ->
+            if (row.getCell(index) != null) return@forEachIndexed
+
+            val cellStyle = workbook.createCellStyle()
+            cellStyle.borderBottom = BorderStyle.THIN
+            cellStyle.bottomBorderColor = IndexedColors.BLACK.getIndex()
+            cellStyle.borderTop = BorderStyle.THIN
+            cellStyle.topBorderColor = IndexedColors.BLACK.getIndex()
+            cellStyle.borderRight = BorderStyle.THIN
+            cellStyle.rightBorderColor = IndexedColors.BLACK.getIndex()
+            cellStyle.borderLeft = BorderStyle.THIN
+            cellStyle.leftBorderColor = IndexedColors.BLACK.getIndex()
+            cellStyle.wrapText = true
+            cellStyle.fillForegroundColor = column.color.getIndex()
+            cellStyle.fillPattern = FillPatternType.SOLID_FOREGROUND
+            cellStyle.setFont(font)
+
+            val cell = row.createCell(index)
+            cell.setCellValue(column.title)
+            cell.cellStyle = cellStyle
+            sheet.setColumnWidth(index, column.width)
+        }
+    }
+
     private fun saveInFile(path: String, workbook: Workbook): Boolean {
-//        Path to Excel file
         val file = File(path)
         FileOutputStream(file).use { fileOut ->
             workbook.write(fileOut)
             fileOut.flush()
-            fileOut.close()
             workbook.close()
             return true
         }
     }
 
     private fun getWorkbook(path: String): Workbook? {
-        try {
-            val file = File(path)
-            val fileInputStream = FileInputStream(file)
-            val workbook: Workbook = XSSFWorkbook(fileInputStream)
-            fileInputStream.close()
-            return workbook
+        return try {
+            FileInputStream(File(path)).use { XSSFWorkbook(it) }
         } catch (e: Exception) {
-            return null
+            null
         }
     }
 }

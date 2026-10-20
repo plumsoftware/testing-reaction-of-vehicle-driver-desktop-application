@@ -117,12 +117,12 @@ fun SessionCard(sessionDTO: SessionDTO) {
                     modifier = Modifier.wrapContentWidth().wrapContentHeight()
                 ) {
                     Text(
-                        text = "Среднее значение ${sessionDTO.averageValue} секунд",
+                        text = "Среднее время реакции ${String.format(Locale.ROOT, "%.0f", sessionDTO.averageValue * 1000)} мс",
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Start,
                     )
                     Text(
-                        text = "Стандартное отклонение ${sessionDTO.standardDeviation}",
+                        text = "Стандартное отклонение ${String.format(Locale.ROOT, "%.0f", sessionDTO.standardDeviation * 1000)} мс",
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Start,
                     )

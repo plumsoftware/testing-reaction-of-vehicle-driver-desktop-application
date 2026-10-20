@@ -16,8 +16,9 @@ class SessionStorage(
         return getAllSessionsDtoFromDatabaseUseCase.getAllSessionsDtoFromDatabase()
     }
 
-    suspend fun insertOrAbort(sessionDTO: SessionDTO) {
-        insertOrAbortNewSessionUseCase.insertOrAbortNewSession(sessionDTO = sessionDTO)
+    /** Сохраняет сессию и возвращает её session_id. */
+    suspend fun insertOrAbort(sessionDTO: SessionDTO): Long {
+        return insertOrAbortNewSessionUseCase.insertOrAbortNewSession(sessionDTO = sessionDTO)
     }
 
     suspend fun getSessionsWithUserId(userId: Long) = getSessionsWithUserIdUseCase.execute(userId = userId)

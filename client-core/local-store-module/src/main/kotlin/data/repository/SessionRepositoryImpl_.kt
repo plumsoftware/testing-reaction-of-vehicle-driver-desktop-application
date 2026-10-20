@@ -1,5 +1,6 @@
 package data.repository
 
+import app.cash.sqldelight.db.QueryResult
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import data.CryptographyRepositoryImpl
 import data.constant.DatabaseConstants
@@ -36,6 +37,39 @@ class SessionRepositoryImpl_(
         val sessionsDatabase =
             Database(driver = sessionsDatabaseDriver)
         sessionsDatabase.sqldelight_sessions_schemeQueries.create()
+        migrateStandardDeviationToSeconds()
+    }
+
+    /**
+     * До версии 1 стандартное отклонение сохранялось в миллисекундах, а среднее — в секундах.
+     * Однократно переводит старые записи в секунды; версия схемы хранится в PRAGMA user_version.
+     */
+    private fun migrateStandardDeviationToSeconds() {
+        val version = sessionsDatabaseDriver.executeQuery(
+            identifier = null,
+            sql = "PRAGMA user_version",
+            mapper = { cursor ->
+                QueryResult.Value(if (cursor.next().value) cursor.getLong(0) ?: 0L else 0L)
+            },
+            parameters = 0
+        ).value
+
+        if (version < SCHEMA_VERSION_SD_IN_SECONDS) {
+            sessionsDatabaseDriver.execute(
+                identifier = null,
+                sql = "UPDATE Sessions SET standard_deviation = standard_deviation / 1000.0",
+                parameters = 0
+            )
+            sessionsDatabaseDriver.execute(
+                identifier = null,
+                sql = "PRAGMA user_version = $SCHEMA_VERSION_SD_IN_SECONDS",
+                parameters = 0
+            )
+        }
+    }
+
+    private companion object {
+        const val SCHEMA_VERSION_SD_IN_SECONDS = 1L
     }
 
     override suspend fun getAllSessionDtoFromDatabase(): List<SessionDTO> {
@@ -74,7 +108,7 @@ class SessionRepositoryImpl_(
         return list
     }
 
-    override suspend fun insertOrAbortNewSession(sessionDTO: SessionDTO) {
+    override suspend fun insertOrAbortNewSession(sessionDTO: SessionDTO): Long {
         val driver = sessionsDatabaseDriver
         val database = Database(driver = driver)
         with(sessionDTO) {
@@ -83,7 +117,9 @@ class SessionRepositoryImpl_(
             val encodedAge = cryptographyRepository.encode(text = userAge.toLong().toString())
             val encodedDrivingLicence = cryptographyRepository.encode(text = drivingLicenseCategory.toString())
 
-            database.sqldelight_sessions_schemeQueries.transaction {
+            // id берётся через last_insert_rowid() в той же транзакции: MAX(session_id) в сетевом режиме
+            // может вернуть сессию, параллельно сохранённую с другого компьютера
+            return database.sqldelight_sessions_schemeQueries.transactionWithResult {
                 database.sqldelight_sessions_schemeQueries.insertOrAbortNewSession(
                     userId,
                     testId,
@@ -101,6 +137,7 @@ class SessionRepositoryImpl_(
                     encodedDrivingLicence,
                     signalInterval.toString()
                 )
+                database.sqldelight_sessions_schemeQueries.lastInsertRowId().executeAsOne()
             }
         }
     }

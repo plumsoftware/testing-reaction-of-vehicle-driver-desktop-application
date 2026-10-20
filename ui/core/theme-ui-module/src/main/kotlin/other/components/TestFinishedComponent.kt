@@ -1,47 +1,89 @@
 package other.components
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import other.extension.padding.ExtensionPadding
+import androidx.compose.ui.unit.dp
+import data.model.dto.test.TestDTO
+import java.util.Locale
 
+/** Состояние сохранения результатов теста. */
+enum class SaveStatus(val text: String) {
+    SAVING("Сохранение результатов…"),
+    SAVED("Результаты сохранены"),
+    FAILED("Не удалось сохранить результаты")
+}
+
+/**
+ * Итоги теста. Время показывается в миллисекундах, в БД и Excel хранится в секундах.
+ */
 @Composable
 fun TestFinishedComponent(
-    modifier: Modifier = Modifier,
-    getAverage: () -> Double,
-    getStdDeviation: () -> Double,
-    count: Int,
-    errors: Int,
-    id: Long
+    result: TestDTO,
+    saveStatus: SaveStatus,
+    modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = Modifier.wrapContentSize().then(modifier),
-        verticalArrangement = ExtensionPadding.mediumVerticalArrangement,
-        horizontalAlignment = Alignment.CenterHorizontally
+    Card(
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+        modifier = modifier.widthIn(max = 720.dp)
     ) {
-        Text(
-            text = "Тестирование окончено",
-            style = MaterialTheme.typography.headlineMedium
-        )
-        Text(
-            text = "Среднее время реакции ${"%.1f".format(getAverage())} секунд",
-            style = MaterialTheme.typography.bodyMedium
-        )
-        Text(
-            text = "Стандартное отклонение времени реакции ${"%.2f".format(getStdDeviation())} секунд",
-            style = MaterialTheme.typography.bodyMedium
-        )
-        Text(
-            text = "Из $count попыток Вы ошиблись $errors раз",
-            style = MaterialTheme.typography.bodyMedium
-        )
-        Text(
-            text = "Ваш уникальный id $id",
-            style = MaterialTheme.typography.bodyMedium
-        )
+        Column(
+            modifier = Modifier.padding(horizontal = 40.dp, vertical = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(text = "Тестирование окончено", style = MaterialTheme.typography.headlineMedium)
+
+            val n = result.reactionTimesMs.size
+            if (n > 0) {
+                ResultLine("Среднее время правильной реакции", formatMs(result.averageValue))
+                ResultLine(
+                    "Стандартное отклонение",
+                    if (n >= 2) formatMs(result.stdDeviationValue) else "— (нужно ≥ 2 реакций)"
+                )
+            } else {
+                ResultLine("Среднее время правильной реакции", "нет правильных реакций")
+            }
+            ResultLine("Предъявлено сигналов", result.count.toString())
+            ResultLine("Учтено правильных реакций", n.toString())
+
+            HorizontalDivider()
+
+            ResultLine("Ошибок всего", (result.errorsCount ?: 0).toString())
+            ResultLine("— неверная реакция", result.wrongResponses.toString())
+            ResultLine("— пропуск сигнала", result.omissions.toString())
+            ResultLine("— фальстарт", result.prematureResponses.toString())
+
+            HorizontalDivider()
+
+            ResultLine("Ваш уникальный id", result.user.id.toString())
+            Text(
+                text = saveStatus.text,
+                style = MaterialTheme.typography.bodyMedium,
+                color = when (saveStatus) {
+                    SaveStatus.SAVING -> MaterialTheme.colorScheme.onSurfaceVariant
+                    SaveStatus.SAVED -> MaterialTheme.colorScheme.primary
+                    SaveStatus.FAILED -> MaterialTheme.colorScheme.error
+                }
+            )
+        }
     }
 }
+
+@Composable
+private fun ResultLine(label: String, value: String) {
+    Text(
+        text = "$label: $value",
+        style = MaterialTheme.typography.bodyMedium
+    )
+}
+
+private fun formatMs(seconds: Double): String = String.format(Locale.ROOT, "%.0f мс", seconds * 1000)

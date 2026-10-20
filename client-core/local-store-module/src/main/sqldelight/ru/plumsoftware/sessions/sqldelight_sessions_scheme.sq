@@ -60,5 +60,8 @@ VALUES (
 getLastSessionId:
 SELECT MAX(session_id) FROM Sessions;
 
+lastInsertRowId:
+SELECT last_insert_rowid();
+
 getSessionsWithUserId:
 SELECT * FROM Sessions WHERE user_id = ?;

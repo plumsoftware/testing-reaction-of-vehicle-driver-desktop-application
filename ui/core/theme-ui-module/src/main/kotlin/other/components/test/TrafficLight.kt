@@ -4,99 +4,122 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import other.extension.size.ConstantSize
+import androidx.compose.ui.unit.Dp
 import theme.trafficLightBranchColor
 import theme.trafficLightColor
 
+/** Цвета ламп по индексу: 0 — красный, 1 — жёлтый, 2 — зелёный. */
+val trafficLightLampColors = listOf(Color.Red, Color.Yellow, Color.Green)
+
+/** Высота светофора (корпус + стойка) в долях размера лампы — для расчёта размера под экран. */
+const val TRAFFIC_LIGHT_HEIGHT_IN_LAMPS = 5.9f
+
+/**
+ * Светофор, все размеры которого пропорциональны [lampSize].
+ *
+ * @param currentLampIndex горящая лампа (0..2) или -1, если все погашены.
+ * @param stimulusKey идентификатор текущего предъявления сигнала (для [onLampDrawn]).
+ * @param onLampDrawn вызывается с моментом первой отрисовки горящей лампы.
+ */
 @Composable
-fun TrafficLight(currentLampIndex: Int) {
-    val roundBox = 22.dp
+fun TrafficLight(
+    currentLampIndex: Int,
+    lampSize: Dp,
+    modifier: Modifier = Modifier,
+    stimulusKey: Any? = null,
+    onLampDrawn: ((Long) -> Unit)? = null
+) {
     Column(
-        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.wrapContentHeight().fillMaxWidth()
+        modifier = modifier
     ) {
-        Box(
+        Column(
+            verticalArrangement = Arrangement.spacedBy(lampSize * 0.3f),
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .clip(shape = RoundedCornerShape(topStart = roundBox, topEnd = roundBox))
-                .background(color = trafficLightColor)
+                .clip(RoundedCornerShape(lampSize * 0.3f))
+                .background(trafficLightColor)
+                .padding(horizontal = lampSize * 0.45f, vertical = lampSize * 0.35f)
         ) {
-            Box(
-                modifier = Modifier
-                    .padding(
-                        start = ConstantSize.trafficLightPaddingHor,
-                        end = ConstantSize.trafficLightPaddingHor,
-                        top = ConstantSize.trafficLightPaddingVer
-                    )
-            ) {
+            trafficLightLampColors.forEachIndexed { index, color ->
+                val isLit = index == currentLampIndex
                 Box(
                     modifier = Modifier
-                        .clip(shape = RoundedCornerShape(200.dp))
-                        .align(Alignment.Center)
-                        .background(if (currentLampIndex == 0) Color.Red else Color.Gray)
-                        .size(ConstantSize.trafficLightLampSize)
+                        .size(lampSize)
+                        .clip(CircleShape)
+                        .background(if (isLit) color else Color.Gray)
+                        .reportFirstDraw(
+                            key = if (isLit) stimulusKey else null,
+                            onDrawn = onLampDrawn
+                        )
                 )
             }
         }
         Box(
             modifier = Modifier
-                .background(color = trafficLightColor)
+                .width(lampSize * 0.5f)
+                .height(lampSize)
+                .background(trafficLightBranchColor)
+        )
+    }
+}
+
+/**
+ * Компактный светофор на обочине в тесте с машиной.
+ *
+ * @param stimulusKey идентификатор текущего предъявления сигнала (для [onLampDrawn]).
+ * @param onLampDrawn вызывается с моментом первой отрисовки горящей лампы.
+ */
+@Composable
+fun SmallTrafficLightTopSideView(
+    currentLampIndex: Int,
+    lampSize: Dp,
+    modifier: Modifier = Modifier,
+    stimulusKey: Any? = null,
+    onLampDrawn: ((Long) -> Unit)? = null
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(lampSize * 0.12f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .clip(RoundedCornerShape(lampSize * 0.25f))
+                .background(trafficLightColor)
+                .padding(lampSize * 0.24f)
         ) {
-            Box(
-                modifier = Modifier
-                    .padding(
-                        horizontal = ConstantSize.trafficLightPaddingHor,
-                        vertical = ConstantSize.trafficLightPaddingVer
-                    )
-            ) {
+            trafficLightLampColors.forEachIndexed { index, color ->
+                val isLit = index == currentLampIndex
                 Box(
                     modifier = Modifier
-                        .clip(shape = RoundedCornerShape(200.dp))
-                        .align(Alignment.Center)
-                        .background(if (currentLampIndex == 1) Color.Yellow else Color.Gray)
-                        .size(ConstantSize.trafficLightLampSize)
+                        .size(lampSize)
+                        .clip(CircleShape)
+                        .background(if (isLit) color else Color.Gray)
+                        .reportFirstDraw(
+                            key = if (isLit) stimulusKey else null,
+                            onDrawn = onLampDrawn
+                        )
                 )
             }
         }
         Box(
             modifier = Modifier
-                .clip(shape = RoundedCornerShape(bottomEnd = roundBox, bottomStart = roundBox))
-                .background(color = trafficLightColor)
-        ) {
-            Box(
-                modifier = Modifier
-                    .padding(
-                        start = ConstantSize.trafficLightPaddingHor,
-                        end = ConstantSize.trafficLightPaddingHor,
-                        bottom = ConstantSize.trafficLightPaddingVer
-                    )
-                    .background(color = trafficLightColor)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .clip(shape = RoundedCornerShape(200.dp))
-                        .align(Alignment.BottomCenter)
-                        .background(if (currentLampIndex == 2) Color.Green else Color.Gray)
-                        .size(ConstantSize.trafficLightLampSize)
-                )
-            }
-        }
-        Box(
-            modifier = Modifier.width(width = 40.dp).height(height = 80.dp)
-                .background(color = trafficLightBranchColor)
+                .width(lampSize * 0.4f)
+                .height(lampSize)
+                .background(trafficLightBranchColor)
         )
     }
 }
