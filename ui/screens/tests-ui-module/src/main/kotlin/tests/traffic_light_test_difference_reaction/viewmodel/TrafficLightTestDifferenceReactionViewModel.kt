@@ -16,7 +16,9 @@ import other.components.SaveStatus
 import data.model.dto.test.TrialOutcome
 import tests.common.COUNTDOWN_SECONDS
 import tests.common.Foreperiod
+import tests.common.goNoGoMetrics
 import tests.common.lampName
+import tests.common.reactionTimeMetrics
 import tests.common.StimulusClock
 import tests.common.TestPhase
 import tests.common.isAnticipation
@@ -160,7 +162,11 @@ class TrafficLightTestDifferenceReactionViewModel(
     }
 
     private fun finishTest() {
-        val result = state.value.testDTO.withResults(state.value.results)
+        val results = state.value.results
+        val result = state.value.testDTO.withResults(
+            results = results,
+            metrics = reactionTimeMetrics(results) + goNoGoMetrics(results, goStimulus = lampName(GO_LAMP_INDEX))
+        )
         state.update {
             it.copy(
                 phase = TestPhase.FINISHED,

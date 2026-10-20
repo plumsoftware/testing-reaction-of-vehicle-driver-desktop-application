@@ -22,5 +22,9 @@ object DesktopRouting {
     const val trafficLightChoiceReaction = "/trafficLight_choiceReaction"
     const val trafficLightDifferenceReaction = "/trafficLight_differenceReaction"
     const val carStopByRedLightSimpleReaction = "/carStopByRedLightSimpleReaction"
+    const val rmoStopLine = "/rmoStopLine"
+    const val hornBrakeReaction = "/hornBrakeReaction"
+    const val pvtBrakeLights10 = "/pvtBrakeLights10"
+    const val pvtBrakeLights5 = "/pvtBrakeLights5"
 //    endregion
 }

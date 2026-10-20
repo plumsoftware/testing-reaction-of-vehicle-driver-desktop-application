@@ -28,6 +28,7 @@ import domain.usecase.settings.GetUserSettingsUseCase
 import domain.usecase.settings.SaveUserSettingsUseCase
 import domain.usecase.sql_database.local.GetAllSessionsDtoFromDatabaseUseCase
 import domain.usecase.sql_database.local.GetLastSessionIdUseCase
+import domain.usecase.sql_database.local.GetSessionMetricsUseCase
 import domain.usecase.sql_database.local.GetSessionTrialsUseCase
 import domain.usecase.sql_database.local.GetUserByLoginAndPasswordUseCase
 import domain.usecase.sql_database.local.InsertOrAbortNewSessionUseCase
@@ -55,6 +56,9 @@ import privacypolicy.PrivacyPolicy
 import presentation.settings.SettingsPage
 import testmenu.TestMenu
 import tests.car_stop_by_red_light_simple_reaction.CarStopByRedLightSimpleReaction
+import tests.horn_brake_reaction.HornBrakeReaction
+import tests.pvt_brake_lights.PvtBrakeLights
+import tests.rmo_stop_line.RmoStopLine
 import tests.traffic_light_test_choice_reaction.TrafficLightTestChoiceReaction
 import tests.traffic_light_test_difference_reaction.TrafficLightTestDifferenceReaction
 
@@ -92,6 +96,7 @@ fun main() = run {
         val sessionStorage = SessionStorage(
             getLastSessionIdUseCase = GetLastSessionIdUseCase(sessionRepository),
             getSessionTrialsUseCase = GetSessionTrialsUseCase(sessionRepository),
+            getSessionMetricsUseCase = GetSessionMetricsUseCase(sessionRepository),
             getAllSessionsDtoFromDatabaseUseCase = GetAllSessionsDtoFromDatabaseUseCase(
                 sessionRepository
             ),
@@ -261,6 +266,44 @@ fun main() = run {
                         scene(route = DesktopRouting.carStopByRedLightSimpleReaction) {
                             println("CarStopByRedLightSimpleReaction page rendered")
                             CarStopByRedLightSimpleReaction(
+                                workBookStorage = workBookStorage,
+                                settings = mainState.value.settings,
+                                testDTO = mainState.value.testDTO,
+                                sessionStorage = sessionStorage,
+                                navigator = navigator
+                            )
+                        }
+                        scene(route = DesktopRouting.rmoStopLine) {
+                            RmoStopLine(
+                                workBookStorage = workBookStorage,
+                                settings = mainState.value.settings,
+                                testDTO = mainState.value.testDTO,
+                                sessionStorage = sessionStorage,
+                                navigator = navigator
+                            )
+                        }
+                        scene(route = DesktopRouting.hornBrakeReaction) {
+                            HornBrakeReaction(
+                                workBookStorage = workBookStorage,
+                                settings = mainState.value.settings,
+                                testDTO = mainState.value.testDTO,
+                                sessionStorage = sessionStorage,
+                                navigator = navigator
+                            )
+                        }
+                        scene(route = DesktopRouting.pvtBrakeLights10) {
+                            PvtBrakeLights(
+                                durationMinutes = 10,
+                                workBookStorage = workBookStorage,
+                                settings = mainState.value.settings,
+                                testDTO = mainState.value.testDTO,
+                                sessionStorage = sessionStorage,
+                                navigator = navigator
+                            )
+                        }
+                        scene(route = DesktopRouting.pvtBrakeLights5) {
+                            PvtBrakeLights(
+                                durationMinutes = 5,
                                 workBookStorage = workBookStorage,
                                 settings = mainState.value.settings,
                                 testDTO = mainState.value.testDTO,

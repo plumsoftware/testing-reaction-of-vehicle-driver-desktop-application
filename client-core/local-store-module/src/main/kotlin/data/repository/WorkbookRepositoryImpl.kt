@@ -71,6 +71,18 @@ class WorkbookRepositoryImpl : WorkbookRepository {
         Column("Время реакции, мс (отрицательное — нажатие до сигнала)", 12000, IndexedColors.LIGHT_GREEN),
     )
 
+    /** Лист с показателями, специфичными для теста: одна строка на показатель. */
+    private val metricColumns = listOf(
+        Column("Уникальный ID сессии", 8000, IndexedColors.LIGHT_YELLOW),
+        Column("Уникальный ID пользователя", 8000, IndexedColors.LIGHT_YELLOW),
+        Column("ID теста", 5000, IndexedColors.LIGHT_YELLOW),
+        Column("Дата", 10000, IndexedColors.LIGHT_YELLOW),
+        Column("Ключ показателя", 10000, IndexedColors.LIGHT_YELLOW),
+        Column("Показатель", 20000, IndexedColors.LIGHT_GREEN),
+        Column("Значение", 8000, IndexedColors.LIGHT_GREEN),
+        Column("Единица", 5000, IndexedColors.LIGHT_GREEN),
+    )
+
     override suspend fun createWorkbookIfNotExists(
         folderPath: String,
         formats: List<XSSFWorkbookType>,
@@ -91,6 +103,8 @@ class WorkbookRepositoryImpl : WorkbookRepository {
                 writeHeader(workbook = workbook, sheet = sheet, columns = columns)
                 val trialsSheet = workbook.createSheet(ExcelConstants.TRIALS_SHEET_NAME)
                 writeHeader(workbook = workbook, sheet = trialsSheet, columns = trialColumns)
+                val metricsSheet = workbook.createSheet(ExcelConstants.METRICS_SHEET_NAME)
+                writeHeader(workbook = workbook, sheet = metricsSheet, columns = metricColumns)
                 saveInFile(path, workbook)
             }
         }
@@ -113,6 +127,9 @@ class WorkbookRepositoryImpl : WorkbookRepository {
             val trialsSheet = workbook.getSheet(ExcelConstants.TRIALS_SHEET_NAME)
                 ?: workbook.createSheet(ExcelConstants.TRIALS_SHEET_NAME)
             writeHeader(workbook = workbook, sheet = trialsSheet, columns = trialColumns)
+            val metricsSheet = workbook.getSheet(ExcelConstants.METRICS_SHEET_NAME)
+                ?: workbook.createSheet(ExcelConstants.METRICS_SHEET_NAME)
+            writeHeader(workbook = workbook, sheet = metricsSheet, columns = metricColumns)
 
             val rowItem = sheet.createRow(sheet.lastRowNum + 1)
             val dateFormat: String = parseToExcelDateTime(Calendar.getInstance().timeInMillis)
@@ -169,6 +186,18 @@ class WorkbookRepositoryImpl : WorkbookRepository {
                     trialRow.createCell(6).setCellValue(trial.foreperiodMs.toDouble())
                     trialRow.createCell(7).setCellValue(trial.outcome.title)
                     trial.reactionTimeMs?.let { trialRow.createCell(8).setCellValue(it) }
+                }
+
+                metrics.forEach { metric ->
+                    val metricRow = metricsSheet.createRow(metricsSheet.lastRowNum + 1)
+                    metricRow.createCell(0).setCellValue(sessionId.toDouble())
+                    metricRow.createCell(1).setCellValue(user.id.toDouble())
+                    testMode?.id?.let { metricRow.createCell(2).setCellValue(it.toDouble()) }
+                    metricRow.createCell(3).setCellValue(dateFormat)
+                    metricRow.createCell(4).setCellValue(metric.key)
+                    metricRow.createCell(5).setCellValue(metric.name)
+                    metricRow.createCell(6).setCellValue(metric.value)
+                    metricRow.createCell(7).setCellValue(metric.unit)
                 }
             }
 

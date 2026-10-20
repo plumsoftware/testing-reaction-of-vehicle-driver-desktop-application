@@ -22,6 +22,13 @@ enum class SaveStatus(val text: String) {
     FAILED("Не удалось сохранить результаты")
 }
 
+/** Подписи основных показателей; у РДО вместо времени реакции — ошибка остановки. */
+data class ResultLabels(
+    val average: String = "Среднее время правильной реакции",
+    val standardDeviation: String = "Стандартное отклонение",
+    val validCount: String = "Учтено правильных реакций",
+)
+
 /**
  * Итоги теста. Время показывается в миллисекундах, в БД и Excel хранится в секундах.
  */
@@ -29,7 +36,8 @@ enum class SaveStatus(val text: String) {
 fun TestFinishedComponent(
     result: TestDTO,
     saveStatus: SaveStatus,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    labels: ResultLabels = ResultLabels()
 ) {
     Card(
         shape = MaterialTheme.shapes.extraLarge,
@@ -44,16 +52,23 @@ fun TestFinishedComponent(
 
             val n = result.reactionTimesMs.size
             if (n > 0) {
-                ResultLine("Среднее время правильной реакции", formatMs(result.averageValue))
+                ResultLine(labels.average, formatMs(result.averageValue))
                 ResultLine(
-                    "Стандартное отклонение",
-                    if (n >= 2) formatMs(result.stdDeviationValue) else "— (нужно ≥ 2 реакций)"
+                    labels.standardDeviation,
+                    if (n >= 2) formatMs(result.stdDeviationValue) else "— (нужно ≥ 2 значений)"
                 )
             } else {
-                ResultLine("Среднее время правильной реакции", "нет правильных реакций")
+                ResultLine(labels.average, "нет учтённых ответов")
             }
             ResultLine("Предъявлено сигналов", result.count.toString())
-            ResultLine("Учтено правильных реакций", n.toString())
+            ResultLine(labels.validCount, n.toString())
+
+            if (result.metrics.isNotEmpty()) {
+                HorizontalDivider()
+                result.metrics.forEach { metric ->
+                    ResultLine(metric.name, formatMetric(metric.value, metric.unit))
+                }
+            }
 
             HorizontalDivider()
 
@@ -84,6 +99,16 @@ private fun ResultLine(label: String, value: String) {
         text = "$label: $value",
         style = MaterialTheme.typography.bodyMedium
     )
+}
+
+/** Целые величины — без дробной части, остальные — с точностью по смыслу единицы. */
+fun formatMetric(value: Double, unit: String): String {
+    val number = when {
+        unit == "шт." || unit == "мин" -> String.format(Locale.ROOT, "%.0f", value)
+        unit == "мс" || unit == "%" -> String.format(Locale.ROOT, "%.1f", value)
+        else -> String.format(Locale.ROOT, "%.2f", value)
+    }
+    return if (unit.isEmpty()) number else "$number $unit"
 }
 
 private fun formatMs(seconds: Double): String = String.format(Locale.ROOT, "%.0f мс", seconds * 1000)

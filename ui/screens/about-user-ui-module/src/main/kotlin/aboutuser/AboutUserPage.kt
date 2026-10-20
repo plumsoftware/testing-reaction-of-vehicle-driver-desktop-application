@@ -322,7 +322,11 @@ fun AboutUserPage(navigator: Navigator, userStorage: UserStorage, sessionStorage
                     with(state.value.filteredSessionsList) {
                         if (this.isNotEmpty()) {
                             itemsIndexed(this) { _, item ->
-                                SessionCard(sessionDTO = item, loadTrials = aboutUserViewModel::loadTrials)
+                                SessionCard(
+                                    sessionDTO = item,
+                                    loadTrials = aboutUserViewModel::loadTrials,
+                                    loadMetrics = aboutUserViewModel::loadMetrics
+                                )
                             }
                         } else {
                             item {

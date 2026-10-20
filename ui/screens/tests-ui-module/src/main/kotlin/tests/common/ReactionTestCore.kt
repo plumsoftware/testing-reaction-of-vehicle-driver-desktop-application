@@ -3,6 +3,7 @@ package tests.common
 import data.model.dto.database.SessionDTO
 import data.model.dto.test.ReactionStatistics
 import data.model.dto.test.TestDTO
+import data.model.dto.test.TestMetric
 import data.model.dto.test.TrialOutcome
 import data.model.dto.test.TrialRecord
 import data.model.regular.settings.Settings
@@ -64,7 +65,14 @@ data class TrialResults(val trials: List<TrialRecord> = emptyList()) {
     )
 }
 
-fun TestDTO.withResults(results: TrialResults): TestDTO = copy(
+/**
+ * Итог теста. [metrics] — показатели, специфичные для теста; по умолчанию — общие показатели
+ * времени реакции.
+ */
+fun TestDTO.withResults(
+    results: TrialResults,
+    metrics: List<TestMetric> = reactionTimeMetrics(results)
+): TestDTO = copy(
     reactionTimesMs = results.reactionTimesMs,
     errorsCount = results.errors,
     wrongResponses = results.wrongResponses,
@@ -72,7 +80,8 @@ fun TestDTO.withResults(results: TrialResults): TestDTO = copy(
     prematureResponses = results.prematureResponses,
     averageValue = ReactionStatistics.meanSeconds(results.reactionTimesMs),
     stdDeviationValue = ReactionStatistics.sampleStdDeviationSeconds(results.reactionTimesMs),
-    trials = results.trials
+    trials = results.trials,
+    metrics = metrics
 )
 
 /**
@@ -98,8 +107,12 @@ fun randomForeperiodMs(interval: Interval): Long =
  * а не момент изменения состояния: между ними проходит до одного кадра.
  */
 class StimulusClock {
+    // Момент звукового сигнала приходит из аудиопотока, поэтому поля volatile
+    @Volatile
     var stimulusId: Int = 0
         private set
+
+    @Volatile
     private var drawnNanos: Long? = null
 
     /** Начинает новое предъявление и возвращает его идентификатор. */
@@ -179,7 +192,8 @@ suspend fun saveTestResult(
             preTestState = enriched.preTestState,
             environment = enriched.environment
         ),
-        trials = enriched.trials
+        trials = enriched.trials,
+        metrics = enriched.metrics
     )
     val saved = enriched.copy(sessionId = sessionId)
 

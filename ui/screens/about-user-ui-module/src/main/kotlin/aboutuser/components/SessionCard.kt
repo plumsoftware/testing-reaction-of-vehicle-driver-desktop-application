@@ -24,11 +24,14 @@ import com.aay.compose.lineChart.LineChart
 import com.aay.compose.lineChart.model.LineParameters
 import com.aay.compose.lineChart.model.LineType
 import data.model.dto.database.SessionDTO
+import data.model.dto.test.TestMetric
 import data.model.dto.test.TrialOutcome
 import data.model.dto.test.TrialRecord
 import data.model.regular.user.Handedness
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import model.tests.reactionTestName
+import other.components.formatMetric
 import other.extension.padding.ExtensionPadding
 import other.extension.size.ConstantSize
 import theme.ExtendedTheme
@@ -41,17 +44,25 @@ import java.util.*
  * и график времени реакции по попыткам (загружается из БД при первом раскрытии).
  */
 @Composable
-fun SessionCard(sessionDTO: SessionDTO, loadTrials: suspend (sessionId: Long) -> List<TrialRecord>) {
+fun SessionCard(
+    sessionDTO: SessionDTO,
+    loadTrials: suspend (sessionId: Long) -> List<TrialRecord>,
+    loadMetrics: suspend (sessionId: Long) -> List<TestMetric>
+) {
     var isExpanded by remember { mutableStateOf(false) }
     var trials by remember(sessionDTO.sessionId) { mutableStateOf<List<TrialRecord>?>(null) }
+    var metrics by remember(sessionDTO.sessionId) { mutableStateOf<List<TestMetric>>(emptyList()) }
 
     LaunchedEffect(isExpanded) {
         if (isExpanded && trials == null) {
-            trials = try {
-                withContext(Dispatchers.IO) { loadTrials(sessionDTO.sessionId) }
+            try {
+                withContext(Dispatchers.IO) {
+                    metrics = loadMetrics(sessionDTO.sessionId)
+                    trials = loadTrials(sessionDTO.sessionId)
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
-                emptyList()
+                trials = emptyList()
             }
         }
     }
@@ -99,7 +110,7 @@ fun SessionCard(sessionDTO: SessionDTO, loadTrials: suspend (sessionId: Long) ->
                 )
             }
             Text(
-                text = "№ теста ${sessionDTO.testId}",
+                text = reactionTestName(sessionDTO.testId),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.End,
@@ -118,6 +129,11 @@ fun SessionCard(sessionDTO: SessionDTO, loadTrials: suspend (sessionId: Long) ->
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 SessionDetails(sessionDTO = sessionDTO, trials = trials)
+                if (metrics.isNotEmpty()) {
+                    DetailsSection("Показатели теста") {
+                        metrics.forEach { Line(it.name, formatMetric(it.value, it.unit)) }
+                    }
+                }
                 TrialsChart(trials = trials)
             }
         }

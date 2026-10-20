@@ -3,6 +3,7 @@ package data.constant
 object ExcelConstants {
     const val SHEET_NAME: String = "Данные тестирования"
     const val TRIALS_SHEET_NAME: String = "Попытки"
+    const val METRICS_SHEET_NAME: String = "Показатели"
     const val PATH: String = "C:\\Данные тестирования\\База тестирования.xlsx"
     const val FILE_NAME: String = "База тестирования"
 

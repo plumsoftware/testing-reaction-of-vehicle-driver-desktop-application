@@ -20,6 +20,7 @@ import data.model.regular.user.User
  * @param preTestState анкета перед тестом.
  * @param environment рабочее место (заполняется при сохранении).
  * @param userSessionNumber какой по счёту раз пользователь проходит этот тест (заполняется при сохранении).
+ * @param metrics показатели, специфичные для теста.
  */
 data class TestDTO(
     val user: User = User.empty(),
@@ -39,4 +40,5 @@ data class TestDTO(
     val preTestState: PreTestState = PreTestState(),
     val environment: TestEnvironment = TestEnvironment(),
     val userSessionNumber: Int = 0,
+    val metrics: List<TestMetric> = emptyList(),
 )

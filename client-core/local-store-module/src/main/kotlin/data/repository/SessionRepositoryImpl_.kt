@@ -10,6 +10,7 @@ import data.model.dto.test.InputDevice
 import data.model.dto.test.PreTestState
 import data.model.dto.test.ResponseHand
 import data.model.dto.test.TestEnvironment
+import data.model.dto.test.TestMetric
 import data.model.dto.test.TrialOutcome
 import data.model.dto.test.TrialRecord
 import data.model.dto.test.VisionCorrection
@@ -46,6 +47,7 @@ class SessionRepositoryImpl_(
             Database(driver = sessionsDatabaseDriver)
         sessionsDatabase.sqldelight_sessions_schemeQueries.create()
         sessionsDatabase.sqldelight_sessions_schemeQueries.createTrials()
+        sessionsDatabase.sqldelight_sessions_schemeQueries.createMetrics()
         addMissingColumns()
         migrateStandardDeviationToSeconds()
     }
@@ -146,7 +148,11 @@ class SessionRepositoryImpl_(
             .map { toSessionDto(it) }
     }
 
-    override suspend fun insertOrAbortNewSession(sessionDTO: SessionDTO, trials: List<TrialRecord>): Long {
+    override suspend fun insertOrAbortNewSession(
+        sessionDTO: SessionDTO,
+        trials: List<TrialRecord>,
+        metrics: List<TestMetric>
+    ): Long {
         val database = Database(driver = sessionsDatabaseDriver)
         val queries = database.sqldelight_sessions_schemeQueries
         with(sessionDTO) {
@@ -213,6 +219,15 @@ class SessionRepositoryImpl_(
                         reaction_time_ms = trial.reactionTimeMs
                     )
                 }
+                metrics.forEach { metric ->
+                    queries.insertMetric(
+                        session_id = newSessionId,
+                        metric_key = metric.key,
+                        metric_name = metric.name,
+                        metric_value = metric.value,
+                        metric_unit = metric.unit
+                    )
+                }
                 newSessionId
             }
         }
@@ -230,6 +245,14 @@ class SessionRepositoryImpl_(
                     outcome = outcome,
                     reactionTimeMs = row.reaction_time_ms
                 )
+            }
+    }
+
+    override suspend fun getMetrics(sessionId: Long): List<TestMetric> {
+        val database = Database(driver = sessionsDatabaseDriver)
+        return database.sqldelight_sessions_schemeQueries.getMetricsBySessionId(session_id = sessionId).executeAsList()
+            .map { row ->
+                TestMetric(key = row.metric_key, name = row.metric_name, value = row.metric_value, unit = row.metric_unit)
             }
     }
 

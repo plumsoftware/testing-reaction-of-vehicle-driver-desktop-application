@@ -156,3 +156,25 @@ INSERT INTO SessionTrials (
 
 getTrialsBySessionId:
 SELECT * FROM SessionTrials WHERE session_id = ? ORDER BY trial_id;
+
+createMetrics:
+CREATE TABLE IF NOT EXISTS SessionMetrics (
+    metric_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    session_id INTEGER NOT NULL,
+    metric_key TEXT NOT NULL,
+    metric_name TEXT NOT NULL,
+    metric_value REAL NOT NULL,
+    metric_unit TEXT NOT NULL
+);
+
+insertMetric:
+INSERT INTO SessionMetrics (
+    session_id,
+    metric_key,
+    metric_name,
+    metric_value,
+    metric_unit
+) VALUES (?, ?, ?, ?, ?);
+
+getMetricsBySessionId:
+SELECT * FROM SessionMetrics WHERE session_id = ? ORDER BY metric_id;

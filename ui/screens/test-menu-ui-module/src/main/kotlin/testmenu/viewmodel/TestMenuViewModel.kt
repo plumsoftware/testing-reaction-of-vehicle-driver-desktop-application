@@ -3,9 +3,7 @@ package testmenu.viewmodel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import model.tests.CarStopByRedLightSimpleReaction
-import model.tests.TrafficLightChoiceReaction
-import model.tests.TrafficLightDifferenceReaction
+import model.tests.allReactionTests
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
 import testmenu.store.Effect
@@ -16,11 +14,7 @@ class TestMenuViewModel : ViewModel() {
 
     val state = MutableStateFlow(
         State(
-            reactionTests = listOf(
-                TrafficLightChoiceReaction(),
-                TrafficLightDifferenceReaction(),
-                CarStopByRedLightSimpleReaction()
-            )
+            reactionTests = allReactionTests
         )
     )
     val effect = MutableSharedFlow<Effect>()

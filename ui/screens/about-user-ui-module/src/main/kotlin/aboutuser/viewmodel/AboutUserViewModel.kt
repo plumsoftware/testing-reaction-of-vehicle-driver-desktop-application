@@ -1,5 +1,6 @@
 package aboutuser.viewmodel
 
+import data.model.dto.test.TestMetric
 import data.model.dto.test.TrialRecord
 import data.model.dto.database.SessionDTO
 import data.model.either.AppEither
@@ -114,6 +115,9 @@ class AboutUserViewModel(
 
     /** Попытки сессии для подробного просмотра. */
     suspend fun loadTrials(sessionId: Long): List<TrialRecord> = sessionStorage.getTrials(sessionId = sessionId)
+
+    /** Показатели сессии, специфичные для теста. */
+    suspend fun loadMetrics(sessionId: Long): List<TestMetric> = sessionStorage.getMetrics(sessionId = sessionId)
 
     private fun clearState() {
         state.update {

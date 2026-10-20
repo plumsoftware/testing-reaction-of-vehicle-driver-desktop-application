@@ -37,6 +37,7 @@ import domain.storage.UserStorage
 import domain.usecase.settings.*
 import domain.usecase.sql_database.local.GetAllSessionsDtoFromDatabaseUseCase
 import domain.usecase.sql_database.local.GetLastSessionIdUseCase
+import domain.usecase.sql_database.local.GetSessionMetricsUseCase
 import domain.usecase.sql_database.local.GetSessionTrialsUseCase
 import domain.usecase.sql_database.local.GetUserByLoginAndPasswordUseCase
 import domain.usecase.sql_database.local.InsertOrAbortNewSessionUseCase
@@ -121,7 +122,8 @@ fun main() = run {
                         insertOrAbortNewSessionUseCase = InsertOrAbortNewSessionUseCase(sessionRepository),
                         getSessionsWithUserIdUseCase = GetSessionsWithUserIdUseCase(sessionRepository),
                         getLastSessionIdUseCase = GetLastSessionIdUseCase(sessionRepository),
-                        getSessionTrialsUseCase = GetSessionTrialsUseCase(sessionRepository)
+                        getSessionTrialsUseCase = GetSessionTrialsUseCase(sessionRepository),
+                        getSessionMetricsUseCase = GetSessionMetricsUseCase(sessionRepository)
                     )
                 }
 //                endregion
