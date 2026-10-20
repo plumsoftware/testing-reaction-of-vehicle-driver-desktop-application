@@ -11,7 +11,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -47,8 +47,9 @@ fun GenerateCodePage() {
                     onValueChange = {
                         generateCodeViewModel.onEvent(Event.ChangeKeySize(keySize = it))
                     },
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        containerColor = Color.Transparent,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent
                     ),
                     label = {
                         Text(
@@ -65,8 +66,9 @@ fun GenerateCodePage() {
                     modifier = Modifier.weight(1.0f),
                     value = state.value.code ?: "",
                     onValueChange = {},
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        containerColor = Color.Transparent,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent
                     ),
                     label = {
                         Text(text = "Ключ", style = MaterialTheme.typography.bodySmall)
@@ -81,9 +83,10 @@ fun GenerateCodePage() {
                 modifier = Modifier.fillMaxWidth().wrapContentHeight(),
                 value = state.value.number ?: "",
                 onValueChange = {},
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    containerColor = Color.Transparent,
-                ),
+                colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent
+                    ),
                 label = {
                     Text(text = "Номер программы", style = MaterialTheme.typography.bodySmall)
                 },

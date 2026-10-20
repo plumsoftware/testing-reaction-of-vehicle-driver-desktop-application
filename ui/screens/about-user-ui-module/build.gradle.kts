@@ -1,6 +1,7 @@
 plugins {
     kotlin("jvm")
     id("org.jetbrains.compose")
+    kotlin("plugin.compose")
 }
 
 repositories {
@@ -12,6 +13,7 @@ repositories {
 dependencies {
     implementation(compose.desktop.currentOs)
     implementation(globalVersions.material3)
+    implementation(globalVersions.material.icons.core)
 
 //    Precompose
     api(globalVersions.precompose.viewmodel)

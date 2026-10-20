@@ -18,6 +18,7 @@ val macExtraPlistKeys: String
 plugins {
     kotlin("jvm")
     id("org.jetbrains.compose")
+    kotlin("plugin.compose")
     alias(globalVersions.plugins.kotlin.serialization)
 }
 

@@ -1,6 +1,7 @@
 plugins {
     kotlin("jvm")
     id("org.jetbrains.compose")
+    kotlin("plugin.compose")
 }
 
 repositories {
@@ -15,6 +16,7 @@ dependencies {
     implementation(compose.desktop.currentOs)
 
     implementation(globalVersions.material3)
+    implementation(globalVersions.material.icons.core)
 
 //    JUnit
     testImplementation(globalVersions.junit)

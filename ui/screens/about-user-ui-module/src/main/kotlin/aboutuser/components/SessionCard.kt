@@ -168,7 +168,7 @@ fun SessionCard(sessionDTO: SessionDTO) {
             }
         }
         if (!isExpanded)
-            Divider(
+            HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth(0.7f)
                     .background(
