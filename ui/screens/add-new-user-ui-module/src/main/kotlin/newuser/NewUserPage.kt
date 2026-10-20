@@ -13,6 +13,7 @@ import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.Face
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.ThumbUp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -20,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import data.model.either.AppEither
 import data.model.regular.user.Gender
+import data.model.regular.user.Handedness
 import domain.storage.UserStorage
 import moe.tlaster.precompose.navigation.Navigator
 import moe.tlaster.precompose.viewmodel.viewModel
@@ -116,19 +118,36 @@ fun NewUserPage(navigator: Navigator, userStorage: UserStorage) {
                     modifier = Modifier.weight(1.0f),
                 )
             }
-            AuthSpinnerField(
-                text = if (state.value.gender == Gender.EMPTY) "" else state.value.gender.toString(),
-                labelHint = "Пол",
-                label = "Пол",
-                leadingIcon = Icons.Rounded.Face,
-                onValueChange = {
-                    it as Gender
-                    newUserViewModel.onEvent(Event.OnGenderChanged(it))
-                },
-                isError = state.value.isGenderError,
-                list = Gender.entries,
-                modifier = Modifier.fillMaxWidth(0.333f),
-            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxWidth(0.667f)
+            ) {
+                AuthSpinnerField(
+                    text = if (state.value.gender == Gender.EMPTY) "" else state.value.gender.toString(),
+                    labelHint = "Пол",
+                    label = "Пол",
+                    leadingIcon = Icons.Rounded.Face,
+                    onValueChange = {
+                        it as Gender
+                        newUserViewModel.onEvent(Event.OnGenderChanged(it))
+                    },
+                    isError = state.value.isGenderError,
+                    list = Gender.entries.filter { it != Gender.EMPTY },
+                    modifier = Modifier.weight(1.0f),
+                )
+                AuthSpinnerField(
+                    text = state.value.handedness.toString(),
+                    labelHint = "ведущую руку",
+                    label = "Ведущая рука",
+                    leadingIcon = Icons.Rounded.ThumbUp,
+                    onValueChange = {
+                        newUserViewModel.onEvent(Event.OnHandednessChanged(it as Handedness))
+                    },
+                    isError = state.value.isHandednessError,
+                    list = Handedness.selectable,
+                    modifier = Modifier.weight(1.0f),
+                )
+            }
         }
 
         FormSection(title = "Учётная запись") {

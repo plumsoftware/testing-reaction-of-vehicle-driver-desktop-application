@@ -16,7 +16,10 @@ import other.components.SaveStatus
 import tests.car_stop_by_red_light_simple_reaction.store.Effect
 import tests.car_stop_by_red_light_simple_reaction.store.Event
 import tests.car_stop_by_red_light_simple_reaction.store.State
+import data.model.dto.test.TrialOutcome
 import tests.common.COUNTDOWN_SECONDS
+import tests.common.Foreperiod
+import tests.common.lampName
 import tests.common.StimulusClock
 import tests.common.TestPhase
 import tests.common.isAnticipation
@@ -43,6 +46,7 @@ class CarStopByRedLightSimpleReactionViewModel(
 
     private val clock = StimulusClock()
     private var phaseJob: Job? = null
+    private var foreperiod = Foreperiod(durationMs = 0)
 
     fun onEvent(event: Event) {
         when (event) {
@@ -74,7 +78,8 @@ class CarStopByRedLightSimpleReactionViewModel(
     private fun startForeperiod() {
         state.update { it.copy(phase = TestPhase.FOREPERIOD, stimulusId = null, lastTrialMissed = false) }
         phaseJob = viewModelScope.launch {
-            delay(randomForeperiodMs(state.value.testDTO.interval))
+            foreperiod = Foreperiod(randomForeperiodMs(state.value.testDTO.interval))
+            delay(foreperiod.durationMs)
             showRedLight()
         }
     }
@@ -89,7 +94,11 @@ class CarStopByRedLightSimpleReactionViewModel(
                 it.copy(
                     phase = TestPhase.FEEDBACK,
                     lastTrialMissed = true,
-                    results = it.results.withOmission()
+                    results = it.results.with(
+                        stimulus = lampName(RED_LAMP_INDEX),
+                        foreperiodMs = foreperiod.durationMs,
+                        outcome = TrialOutcome.OMISSION
+                    )
                 )
             }
             pauseThenNextTrial()
@@ -100,7 +109,16 @@ class CarStopByRedLightSimpleReactionViewModel(
         when (state.value.phase) {
             TestPhase.FOREPERIOD -> {
                 phaseJob?.cancel()
-                state.update { it.copy(results = it.results.withFalseStart()) }
+                state.update {
+                    it.copy(
+                        results = it.results.with(
+                            stimulus = null,
+                            foreperiodMs = foreperiod.durationMs,
+                            outcome = TrialOutcome.FALSE_START,
+                            reactionTimeMs = foreperiod.msBeforeSignal(pressNanos)
+                        )
+                    )
+                }
                 startForeperiod()
             }
 
@@ -110,8 +128,13 @@ class CarStopByRedLightSimpleReactionViewModel(
                 state.update {
                     it.copy(
                         phase = TestPhase.FEEDBACK,
-                        results = if (isAnticipation(reactionTimeMs)) it.results.withAnticipation()
-                        else it.results.withCorrect(reactionTimeMs!!)
+                        results = it.results.with(
+                            stimulus = lampName(RED_LAMP_INDEX),
+                            foreperiodMs = foreperiod.durationMs,
+                            outcome = if (isAnticipation(reactionTimeMs)) TrialOutcome.ANTICIPATION
+                            else TrialOutcome.CORRECT,
+                            reactionTimeMs = reactionTimeMs
+                        )
                     )
                 }
                 phaseJob = viewModelScope.launch { pauseThenNextTrial() }
@@ -154,6 +177,8 @@ class CarStopByRedLightSimpleReactionViewModel(
     companion object {
         /** Окно ответа после загорания красного, мс (как в тесте реакции различения). */
         const val RESPONSE_WINDOW_MS = 2000L
+
+        private const val RED_LAMP_INDEX = 0
 
         /** Пауза после попытки, мс. */
         const val FEEDBACK_MS = 1000L

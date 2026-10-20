@@ -2,6 +2,7 @@ package newuser.login.store
 
 import data.model.regular.user.DrivingLicenseCategory
 import data.model.regular.user.Interval
+import data.model.dto.test.PreTestState
 
 data class State (
     val login: String = "",
@@ -21,6 +22,11 @@ data class State (
 
     val intervals: List<Interval> = emptyList(),
     val selectedInterval: Interval = Interval(),
+
+    /** Анкета «Состояние перед тестом». */
+    val preTestState: PreTestState = PreTestState(),
+    /** Подсвечивать незаполненные поля анкеты (после попытки начать тест). */
+    val showPreTestErrors: Boolean = false,
 
     val roamingErrorMessage: String = ""
 )

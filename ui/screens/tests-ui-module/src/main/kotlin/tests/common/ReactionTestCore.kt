@@ -3,6 +3,8 @@ package tests.common
 import data.model.dto.database.SessionDTO
 import data.model.dto.test.ReactionStatistics
 import data.model.dto.test.TestDTO
+import data.model.dto.test.TrialOutcome
+import data.model.dto.test.TrialRecord
 import data.model.regular.settings.Settings
 import data.model.regular.user.Interval
 import domain.storage.SessionStorage
@@ -10,6 +12,7 @@ import domain.storage.WorkbookStorage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
+import utlis.EnvironmentCollector
 import java.util.Calendar
 import kotlin.random.Random
 
@@ -25,34 +28,40 @@ const val COUNTDOWN_SECONDS = 10
 enum class TestPhase { COUNTDOWN, FOREPERIOD, STIMULUS, FEEDBACK, FINISHED }
 
 /**
- * Накопленные результаты попыток.
- *
- * @param presented сколько сигналов предъявлено (завершённых попыток).
+ * Попытки теста по порядку; все итоговые показатели считаются из этого списка.
  */
-data class TrialResults(
-    val presented: Int = 0,
-    val reactionTimesMs: List<Double> = emptyList(),
-    val wrongResponses: Int = 0,
-    val omissions: Int = 0,
-    val prematureResponses: Int = 0,
-) {
+data class TrialResults(val trials: List<TrialRecord> = emptyList()) {
+
+    /** Сколько сигналов предъявлено (фальстарты до сигнала не считаются). */
+    val presented: Int get() = trials.count { it.outcome != TrialOutcome.FALSE_START }
+
+    val reactionTimesMs: List<Double>
+        get() = trials.filter { it.outcome == TrialOutcome.CORRECT }.mapNotNull { it.reactionTimeMs }
+
+    val wrongResponses: Int get() = trials.count { it.outcome == TrialOutcome.WRONG }
+    val omissions: Int get() = trials.count { it.outcome == TrialOutcome.OMISSION }
+    val prematureResponses: Int
+        get() = trials.count { it.outcome == TrialOutcome.FALSE_START || it.outcome == TrialOutcome.ANTICIPATION }
+
     val errors: Int get() = wrongResponses + omissions + prematureResponses
 
-    fun withCorrect(reactionTimeMs: Double) =
-        copy(presented = presented + 1, reactionTimesMs = reactionTimesMs + reactionTimeMs)
+    /** Номер попытки, которая сейчас идёт или ожидается. */
+    val currentTrialNumber: Int get() = presented + 1
 
-    fun withWrong() = copy(presented = presented + 1, wrongResponses = wrongResponses + 1)
-
-    fun withOmission() = copy(presented = presented + 1, omissions = omissions + 1)
-
-    /** Реакция на предъявленный сигнал, но быстрее порога упреждения — попытка израсходована. */
-    fun withAnticipation() = copy(presented = presented + 1, prematureResponses = prematureResponses + 1)
-
-    /** Нажатие до сигнала — попытка НЕ израсходована, интервал до сигнала начинается заново. */
-    fun withFalseStart() = copy(prematureResponses = prematureResponses + 1)
-
-    /** Сигнал предъявлен, реакция не требовалась и не была выполнена (правильное торможение). */
-    fun withCorrectRejection() = copy(presented = presented + 1)
+    fun with(
+        stimulus: String?,
+        foreperiodMs: Long,
+        outcome: TrialOutcome,
+        reactionTimeMs: Double? = null
+    ) = copy(
+        trials = trials + TrialRecord(
+            number = currentTrialNumber,
+            stimulus = stimulus,
+            foreperiodMs = foreperiodMs,
+            outcome = outcome,
+            reactionTimeMs = reactionTimeMs
+        )
+    )
 }
 
 fun TestDTO.withResults(results: TrialResults): TestDTO = copy(
@@ -62,8 +71,21 @@ fun TestDTO.withResults(results: TrialResults): TestDTO = copy(
     omissions = results.omissions,
     prematureResponses = results.prematureResponses,
     averageValue = ReactionStatistics.meanSeconds(results.reactionTimesMs),
-    stdDeviationValue = ReactionStatistics.sampleStdDeviationSeconds(results.reactionTimesMs)
+    stdDeviationValue = ReactionStatistics.sampleStdDeviationSeconds(results.reactionTimesMs),
+    trials = results.trials
 )
+
+/**
+ * Случайный интервал до сигнала и момент его начала: нужен, чтобы для фальстарта записать,
+ * на сколько раньше запланированного сигнала было нажатие.
+ */
+class Foreperiod(val durationMs: Long) {
+    private val startNanos = System.nanoTime()
+
+    /** Отрицательное время (мс) от запланированного сигнала до нажатия [pressNanos]. */
+    fun msBeforeSignal(pressNanos: Long): Double =
+        (pressNanos - startNanos) / 1_000_000.0 - durationMs
+}
 
 /** Случайный интервал до сигнала, равномерно распределённый в [start; finish], мс. */
 fun randomForeperiodMs(interval: Interval): Long =
@@ -121,6 +143,14 @@ suspend fun saveTestResult(
     val now = Calendar.getInstance()
     val testId = requireNotNull(result.testMode?.id) { "Не задан тип теста" }
 
+    // Какой по счёту раз пользователь проходит этот тест (для учёта натренированности)
+    val previousSessions = sessionStorage.getSessionsWithUserId(userId = result.user.id)
+        .count { it.testId == testId }
+    val enriched = result.copy(
+        userSessionNumber = previousSessions + 1,
+        environment = EnvironmentCollector.collect()
+    )
+
     val sessionId = sessionStorage.insertOrAbort(
         SessionDTO(
             sessionId = 0,
@@ -142,7 +172,7 @@ suspend fun saveTestResult(
             signalInterval = result.interval
         )
     )
-    val saved = result.copy(sessionId = sessionId)
+    val saved = enriched.copy(sessionId = sessionId)
 
     workbookStorage.createWorkbookIfNotExists(
         folderPath = settings.localFolderToTable,
@@ -154,4 +184,12 @@ suspend fun saveTestResult(
         dataFormats = settings.dataFormats
     )
     saved
+}
+
+/** Название сигнала светофора по индексу лампы: 0 — красный, 1 — жёлтый, 2 — зелёный. */
+fun lampName(lampIndex: Int): String = when (lampIndex) {
+    0 -> "красный"
+    1 -> "жёлтый"
+    2 -> "зелёный"
+    else -> "—"
 }

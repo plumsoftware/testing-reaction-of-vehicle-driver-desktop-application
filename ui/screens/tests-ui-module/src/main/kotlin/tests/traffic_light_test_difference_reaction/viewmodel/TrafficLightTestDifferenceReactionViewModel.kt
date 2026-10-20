@@ -13,7 +13,10 @@ import kotlinx.coroutines.launch
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
 import other.components.SaveStatus
+import data.model.dto.test.TrialOutcome
 import tests.common.COUNTDOWN_SECONDS
+import tests.common.Foreperiod
+import tests.common.lampName
 import tests.common.StimulusClock
 import tests.common.TestPhase
 import tests.common.isAnticipation
@@ -48,6 +51,7 @@ class TrafficLightTestDifferenceReactionViewModel(
 
     private val clock = StimulusClock()
     private var phaseJob: Job? = null
+    private var foreperiod = Foreperiod(durationMs = 0)
 
     fun onEvent(event: Event) {
         when (event) {
@@ -81,7 +85,8 @@ class TrafficLightTestDifferenceReactionViewModel(
             it.copy(phase = TestPhase.FOREPERIOD, currentLampIndex = -1, stimulusId = null)
         }
         phaseJob = viewModelScope.launch {
-            delay(randomForeperiodMs(state.value.testDTO.interval))
+            foreperiod = Foreperiod(randomForeperiodMs(state.value.testDTO.interval))
+            delay(foreperiod.durationMs)
             showStimulus()
         }
     }
@@ -96,8 +101,12 @@ class TrafficLightTestDifferenceReactionViewModel(
             delay(RESPONSE_WINDOW_MS)
             state.update {
                 it.copy(
-                    results = if (it.currentLampIndex == GO_LAMP_INDEX) it.results.withOmission()
-                    else it.results.withCorrectRejection()
+                    results = it.results.with(
+                        stimulus = lampName(it.currentLampIndex),
+                        foreperiodMs = foreperiod.durationMs,
+                        outcome = if (it.currentLampIndex == GO_LAMP_INDEX) TrialOutcome.OMISSION
+                        else TrialOutcome.CORRECT_REJECTION
+                    )
                 )
             }
             nextTrialOrFinish()
@@ -108,7 +117,16 @@ class TrafficLightTestDifferenceReactionViewModel(
         when (state.value.phase) {
             TestPhase.FOREPERIOD -> {
                 phaseJob?.cancel()
-                state.update { it.copy(results = it.results.withFalseStart()) }
+                state.update {
+                    it.copy(
+                        results = it.results.with(
+                            stimulus = null,
+                            foreperiodMs = foreperiod.durationMs,
+                            outcome = TrialOutcome.FALSE_START,
+                            reactionTimeMs = foreperiod.msBeforeSignal(pressNanos)
+                        )
+                    )
+                }
                 startForeperiod()
             }
 
@@ -117,11 +135,16 @@ class TrafficLightTestDifferenceReactionViewModel(
                 val reactionTimeMs = clock.reactionTimeMs(pressNanos)
                 state.update {
                     it.copy(
-                        results = when {
-                            isAnticipation(reactionTimeMs) -> it.results.withAnticipation()
-                            it.currentLampIndex == GO_LAMP_INDEX -> it.results.withCorrect(reactionTimeMs!!)
-                            else -> it.results.withWrong()
-                        }
+                        results = it.results.with(
+                            stimulus = lampName(it.currentLampIndex),
+                            foreperiodMs = foreperiod.durationMs,
+                            outcome = when {
+                                isAnticipation(reactionTimeMs) -> TrialOutcome.ANTICIPATION
+                                it.currentLampIndex == GO_LAMP_INDEX -> TrialOutcome.CORRECT
+                                else -> TrialOutcome.WRONG
+                            },
+                            reactionTimeMs = reactionTimeMs
+                        )
                     )
                 }
                 nextTrialOrFinish()

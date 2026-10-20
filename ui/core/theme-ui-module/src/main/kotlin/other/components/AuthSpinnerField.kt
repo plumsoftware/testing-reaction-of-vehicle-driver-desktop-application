@@ -10,9 +10,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
-import data.model.regular.user.DrivingLicenseCategory
-import data.model.regular.user.Gender
-import data.model.regular.user.Interval
 
 /**
  * Поле выбора из списка. Открывается кликом по всему полю.
@@ -72,16 +69,7 @@ fun AuthSpinnerField(
             shape = MaterialTheme.shapes.medium,
             containerColor = MaterialTheme.colorScheme.surfaceContainer
         ) {
-            list.forEach { any ->
-
-                val item = when (any) {
-                    is DrivingLicenseCategory -> any
-                    is Int -> any
-                    is Interval -> any
-                    is Gender -> any
-                    else -> DrivingLicenseCategory.Empty
-                }
-
+            list.forEach { item ->
                 DropdownMenuItem(
                     text = {
                         Text(text = item.toString(), style = MaterialTheme.typography.bodyMedium)

@@ -38,6 +38,37 @@ class WorkbookRepositoryImpl : WorkbookRepository {
         Column("Ошибки: пропуск сигнала", 15000, IndexedColors.LIGHT_YELLOW),
         Column("Ошибки: фальстарт", 15000, IndexedColors.LIGHT_YELLOW),
         Column("Время правильных реакций по попыткам, мс", 40000, IndexedColors.LIGHT_GREEN),
+        Column("Ведущая рука", 10000, IndexedColors.LIGHT_YELLOW),
+        Column("Номер сессии пользователя в этом тесте", 15000, IndexedColors.LIGHT_YELLOW),
+        Column("Коррекция зрения", 12000, IndexedColors.LIGHT_TURQUOISE),
+        Column("Сон за сутки, ч", 10000, IndexedColors.LIGHT_TURQUOISE),
+        Column("Самочувствие (1–5)", 10000, IndexedColors.LIGHT_TURQUOISE),
+        Column("Рука ответа", 10000, IndexedColors.LIGHT_TURQUOISE),
+        Column("Устройство ввода", 10000, IndexedColors.LIGHT_TURQUOISE),
+        Column("Монитор", 20000, IndexedColors.GREY_25_PERCENT),
+        Column("Размер изображения монитора, см", 12000, IndexedColors.GREY_25_PERCENT),
+        Column("Диагональ монитора, дюймы", 10000, IndexedColors.GREY_25_PERCENT),
+        Column("Разрешение экрана, px", 10000, IndexedColors.GREY_25_PERCENT),
+        Column("Частота обновления, Гц", 10000, IndexedColors.GREY_25_PERCENT),
+        Column("Масштаб ОС, %", 8000, IndexedColors.GREY_25_PERCENT),
+        Column("Размер окна теста, px", 10000, IndexedColors.GREY_25_PERCENT),
+        Column("Компьютер", 12000, IndexedColors.GREY_25_PERCENT),
+        Column("ОС", 12000, IndexedColors.GREY_25_PERCENT),
+        Column("Версия программы", 8000, IndexedColors.GREY_25_PERCENT),
+        Column("Версия методики", 8000, IndexedColors.GREY_25_PERCENT),
+    )
+
+    /** Лист с каждой попыткой: одна строка на сигнал или фальстарт. */
+    private val trialColumns = listOf(
+        Column("Уникальный ID сессии", 8000, IndexedColors.LIGHT_YELLOW),
+        Column("Уникальный ID пользователя", 8000, IndexedColors.LIGHT_YELLOW),
+        Column("ID теста", 5000, IndexedColors.LIGHT_YELLOW),
+        Column("Дата", 10000, IndexedColors.LIGHT_YELLOW),
+        Column("Номер попытки", 6000, IndexedColors.LIGHT_YELLOW),
+        Column("Сигнал", 8000, IndexedColors.LIGHT_YELLOW),
+        Column("Интервал до сигнала, мс", 8000, IndexedColors.LIGHT_YELLOW),
+        Column("Исход", 10000, IndexedColors.LIGHT_GREEN),
+        Column("Время реакции, мс (отрицательное — нажатие до сигнала)", 12000, IndexedColors.LIGHT_GREEN),
     )
 
     override suspend fun createWorkbookIfNotExists(
@@ -57,7 +88,9 @@ class WorkbookRepositoryImpl : WorkbookRepository {
 
                 val workbook = XSSFWorkbook(formats[index])
                 val sheet = workbook.createSheet(ExcelConstants.SHEET_NAME)
-                writeHeader(workbook = workbook, sheet = sheet)
+                writeHeader(workbook = workbook, sheet = sheet, columns = columns)
+                val trialsSheet = workbook.createSheet(ExcelConstants.TRIALS_SHEET_NAME)
+                writeHeader(workbook = workbook, sheet = trialsSheet, columns = trialColumns)
                 saveInFile(path, workbook)
             }
         }
@@ -75,8 +108,11 @@ class WorkbookRepositoryImpl : WorkbookRepository {
             val workbook: Workbook = getWorkbook(path = path) ?: return@forEach
             val sheet = workbook.getSheetAt(0)
 
-            // В файлах, созданных старой версией, дописываем заголовки новых столбцов
-            writeHeader(workbook = workbook, sheet = sheet)
+            // В файлах, созданных старой версией, дописываем заголовки новых столбцов и лист попыток
+            writeHeader(workbook = workbook, sheet = sheet, columns = columns)
+            val trialsSheet = workbook.getSheet(ExcelConstants.TRIALS_SHEET_NAME)
+                ?: workbook.createSheet(ExcelConstants.TRIALS_SHEET_NAME)
+            writeHeader(workbook = workbook, sheet = trialsSheet, columns = trialColumns)
 
             val rowItem = sheet.createRow(sheet.lastRowNum + 1)
             val dateFormat: String = parseToExcelDateTime(Calendar.getInstance().timeInMillis)
@@ -101,6 +137,39 @@ class WorkbookRepositoryImpl : WorkbookRepository {
                 rowItem.createCell(16).setCellValue(
                     reactionTimesMs.joinToString(separator = "; ") { String.format(Locale.ROOT, "%.1f", it) }
                 )
+                rowItem.createCell(17).setCellValue(user.handedness.toString())
+                rowItem.createCell(18).setCellValue(userSessionNumber.toDouble())
+
+                rowItem.createCell(19).setCellValue(preTestState.visionCorrection?.toString() ?: "")
+                preTestState.sleepHours?.let { rowItem.createCell(20).setCellValue(it.toDouble()) }
+                preTestState.wellBeing?.let { rowItem.createCell(21).setCellValue(it.toDouble()) }
+                rowItem.createCell(22).setCellValue(preTestState.responseHand?.toString() ?: "")
+                rowItem.createCell(23).setCellValue(preTestState.inputDevice?.toString() ?: "")
+
+                rowItem.createCell(24).setCellValue(environment.monitorName)
+                rowItem.createCell(25).setCellValue(environment.monitorSizeCm)
+                environment.monitorDiagonalInches?.let { rowItem.createCell(26).setCellValue(it) }
+                rowItem.createCell(27).setCellValue(environment.screenResolution)
+                environment.refreshRateHz?.let { rowItem.createCell(28).setCellValue(it.toDouble()) }
+                environment.scalePercent?.let { rowItem.createCell(29).setCellValue(it.toDouble()) }
+                rowItem.createCell(30).setCellValue(environment.testWindowPx)
+                rowItem.createCell(31).setCellValue(environment.computerName)
+                rowItem.createCell(32).setCellValue(environment.operatingSystem)
+                rowItem.createCell(33).setCellValue(environment.appVersion)
+                rowItem.createCell(34).setCellValue(environment.methodVersion)
+
+                trials.forEach { trial ->
+                    val trialRow = trialsSheet.createRow(trialsSheet.lastRowNum + 1)
+                    trialRow.createCell(0).setCellValue(sessionId.toDouble())
+                    trialRow.createCell(1).setCellValue(user.id.toDouble())
+                    testMode?.id?.let { trialRow.createCell(2).setCellValue(it.toDouble()) }
+                    trialRow.createCell(3).setCellValue(dateFormat)
+                    trialRow.createCell(4).setCellValue(trial.number.toDouble())
+                    trialRow.createCell(5).setCellValue(trial.stimulus ?: "—")
+                    trialRow.createCell(6).setCellValue(trial.foreperiodMs.toDouble())
+                    trialRow.createCell(7).setCellValue(trial.outcome.title)
+                    trial.reactionTimeMs?.let { trialRow.createCell(8).setCellValue(it) }
+                }
             }
 
             saveInFile(path, workbook)
@@ -109,9 +178,9 @@ class WorkbookRepositoryImpl : WorkbookRepository {
     }
 
     /** Создаёт недостающие ячейки заголовка в первой строке листа. */
-    private fun writeHeader(workbook: Workbook, sheet: Sheet) {
-        val font = workbook.createFont()
-        font.bold = true
+    private fun writeHeader(workbook: Workbook, sheet: Sheet, columns: List<Column>) {
+        // Шрифт и стили создаются только для недостающих ячеек: число шрифтов в файле Excel ограничено
+        val font by lazy { workbook.createFont().apply { bold = true } }
 
         val row = sheet.getRow(0) ?: sheet.createRow(0)
         columns.forEachIndexed { index, column ->

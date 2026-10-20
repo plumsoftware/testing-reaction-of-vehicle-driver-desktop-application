@@ -16,6 +16,10 @@ import data.model.regular.user.User
  * [ReactionStatistics.ANTICIPATION_THRESHOLD_MS] после него.
  * @param averageValue среднее время правильных реакций, с.
  * @param stdDeviationValue выборочное стандартное отклонение времени правильных реакций, с.
+ * @param trials все попытки по порядку, включая фальстарты.
+ * @param preTestState анкета перед тестом.
+ * @param environment рабочее место (заполняется при сохранении).
+ * @param userSessionNumber какой по счёту раз пользователь проходит этот тест (заполняется при сохранении).
  */
 data class TestDTO(
     val user: User = User.empty(),
@@ -30,5 +34,9 @@ data class TestDTO(
     val prematureResponses: Int = 0,
     val sessionId: Long = 0L,
     val averageValue: Double = 0.0,
-    val stdDeviationValue: Double = 0.0
+    val stdDeviationValue: Double = 0.0,
+    val trials: List<TrialRecord> = emptyList(),
+    val preTestState: PreTestState = PreTestState(),
+    val environment: TestEnvironment = TestEnvironment(),
+    val userSessionNumber: Int = 0,
 )

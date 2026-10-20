@@ -1,6 +1,7 @@
 package domain.usecase.sql_database.local.user
 
 import data.model.regular.user.Gender
+import data.model.regular.user.Handedness
 import data.model.regular.user.User
 import domain.repository.UserRepository
 
@@ -15,7 +16,7 @@ class GetAllUsersUseCase(private val userRepository: UserRepository) {
                 gender = Gender.fromString(it.gender),
                 login = it.user_login,
                 password = it.user_password
-            )
+            ).apply { handedness = Handedness.fromString(it.handedness) }
         }
         return allUsers
     }

@@ -65,7 +65,7 @@ DI-фреймворка нет. В `Main.kt` каждого приложения
 
 ### Тесты реакции
 
-Общая логика — `tests-ui-module/.../tests/common/ReactionTestCore.kt` (фазы `TestPhase`, учёт попыток `TrialResults`, момент сигнала `StimulusClock`, сохранение `saveTestResult`); статистика — `ReactionStatistics` в `local-store-module`. Время сигнала — первая отрисовка стимула (`Modifier.reportFirstDraw`), время реакции — нажатие (`Modifier.onPressTimestamp`), обе отметки через `System.nanoTime()`. Не использовать `Button.onClick` для регистрации реакции: он срабатывает на отпускании. Размеры сцен тестов считаются от размеров окна (`BoxWithConstraints`), анимация движения дороги считается от времени кадра (`withFrameNanos`), а не шагом в пикселях. Методика и типы ошибок описаны в `README.md`.
+Общая логика — `tests-ui-module/.../tests/common/ReactionTestCore.kt` (фазы `TestPhase`, учёт попыток `TrialResults`, момент сигнала `StimulusClock`, сохранение `saveTestResult`); статистика — `ReactionStatistics` в `local-store-module`. Время сигнала — первая отрисовка стимула (`Modifier.reportFirstDraw`), время реакции — нажатие (`Modifier.onPressTimestamp`), обе отметки через `System.nanoTime()`. Не использовать `Button.onClick` для регистрации реакции: он срабатывает на отпускании. Размеры сцен тестов считаются от размеров окна (`BoxWithConstraints`), анимация движения дороги считается от времени кадра (`withFrameNanos`), а не шагом в пикселях. Каждая попытка пишется в `TrialResults.trials` (лист Excel «Попытки»); сведения о рабочем месте — `EnvironmentCollector` (при изменении методики увеличивать `METHOD_VERSION`). Методика, типы ошибок и состав данных описаны в `README.md`.
 
 ### Хранилище и режимы
 

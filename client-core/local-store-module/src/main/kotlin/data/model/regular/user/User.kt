@@ -11,6 +11,7 @@ data class User(
     var experience: Int,
     var login: String,
     var password: String,
+    var handedness: Handedness = Handedness.UNKNOWN,
 ) {
 
     constructor(id: Long, name: String, surname: String, patronymic: String, gender: Gender, login: String, password: String) :

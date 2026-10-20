@@ -11,6 +11,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AccountBox
 import androidx.compose.material.icons.rounded.AccountCircle
+import androidx.compose.material.icons.rounded.Build
+import androidx.compose.material.icons.rounded.Face
+import androidx.compose.material.icons.rounded.Favorite
+import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material.icons.rounded.ThumbUp
 import androidx.compose.material.icons.rounded.DateRange
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Notifications
@@ -25,7 +30,11 @@ import newuser.login.store.Effect
 import newuser.login.store.Event
 import newuser.login.viewmodel.LoginViewModel
 import data.constant.TestConstants
+import data.model.dto.test.InputDevice
+import data.model.dto.test.PreTestState
+import data.model.dto.test.ResponseHand
 import data.model.dto.test.TestDTO
+import data.model.dto.test.VisionCorrection
 import data.model.regular.user.DrivingLicenseCategory
 import data.model.regular.user.Interval
 import domain.storage.UserStorage
@@ -170,6 +179,80 @@ fun Login(navigator: Navigator, userStorage: UserStorage, block: (TestDTO) -> Un
                     },
                     isError = state.value.isDrivingLicenseCategoryError,
                     list = DrivingLicenseCategory.entries,
+                    modifier = Modifier.weight(1.0f)
+                )
+            }
+        }
+
+        FormSection(title = "Состояние перед тестом") {
+            val preTest = state.value.preTestState
+            val showErrors = state.value.showPreTestErrors
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                AuthSpinnerField(
+                    text = preTest.visionCorrection?.toString() ?: "",
+                    labelHint = "коррекцию зрения",
+                    label = "Очки / линзы",
+                    leadingIcon = Icons.Rounded.Face,
+                    onValueChange = {
+                        loginViewModel.onEvent(Event.OnVisionCorrectionChanged(it as VisionCorrection))
+                    },
+                    isError = showErrors && preTest.visionCorrection == null,
+                    list = VisionCorrection.entries,
+                    modifier = Modifier.weight(1.0f)
+                )
+                AuthTextField(
+                    text = preTest.sleepHours?.toString() ?: "",
+                    labelHint = "часы сна",
+                    label = "Сон за сутки, ч",
+                    leadingIcon = Icons.Rounded.Star,
+                    onValueChange = {
+                        loginViewModel.onEvent(Event.OnSleepHoursChanged(it.trim().toIntOrNull()))
+                    },
+                    isError = showErrors && preTest.sleepHours == null,
+                    modifier = Modifier.weight(1.0f)
+                )
+                AuthSpinnerField(
+                    text = preTest.wellBeing?.toString() ?: "",
+                    labelHint = "самочувствие",
+                    label = "Самочувствие: 1 — плохо, 5 — отлично",
+                    leadingIcon = Icons.Rounded.Favorite,
+                    onValueChange = {
+                        loginViewModel.onEvent(Event.OnWellBeingChanged(it as Int))
+                    },
+                    isError = showErrors && preTest.wellBeing == null,
+                    list = PreTestState.wellBeingScale.toList(),
+                    modifier = Modifier.weight(1.0f)
+                )
+            }
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                AuthSpinnerField(
+                    text = preTest.responseHand?.toString() ?: "",
+                    labelHint = "руку для ответа",
+                    label = "Рука для ответа",
+                    leadingIcon = Icons.Rounded.ThumbUp,
+                    onValueChange = {
+                        loginViewModel.onEvent(Event.OnResponseHandChanged(it as ResponseHand))
+                    },
+                    isError = showErrors && preTest.responseHand == null,
+                    list = ResponseHand.entries,
+                    modifier = Modifier.weight(1.0f)
+                )
+                AuthSpinnerField(
+                    text = preTest.inputDevice?.toString() ?: "",
+                    labelHint = "устройство ввода",
+                    label = "Устройство ввода",
+                    leadingIcon = Icons.Rounded.Build,
+                    onValueChange = {
+                        loginViewModel.onEvent(Event.OnInputDeviceChanged(it as InputDevice))
+                    },
+                    isError = showErrors && preTest.inputDevice == null,
+                    list = InputDevice.entries,
                     modifier = Modifier.weight(1.0f)
                 )
             }
