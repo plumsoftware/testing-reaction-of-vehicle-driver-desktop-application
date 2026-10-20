@@ -50,7 +50,7 @@ Desktop-приложения (Kotlin + Compose Multiplatform for Desktop) для
   - `hash-module` — хэширование паролей; `cryptography-module` — симметричное шифрование персональных данных пользователя в БД (ФИО, пол хранятся зашифрованными, расшифровываются в `UserRepositoryImpl`).
   - `config-module` — чтение `app\config.json` (относительно рабочей директории) с ключом/алгоритмом шифрования и данными о программе. Без этого файла `CryptographyRepositoryImpl` бросает исключение при создании, т.е. приложение с пользователями не запустится. Файл в `.gitignore`; шаблон — `docs/config.example.json`, формат и требования к длине ключа описаны в `README.md`.
 - **`ui/*`**:
-  - `ui/core/theme-ui-module` — тема (`AppTheme`), общие компоненты (включая элементы тестов: светофор, дорога, педали), модели тестов (`model/tests/*`, наследники `ReactionTest`) и константы маршрутов `other/extension/route/DesktopRouting`.
+  - `ui/core/theme-ui-module` — тема (`AppTheme`, синяя палитра M3 в `theme/Colors.kt`, схемы строятся через `lightColorScheme`/`darkColorScheme`), каркас экранов-форм `FormScreen`/`FormSection`/`FormMessage` и поля `AuthTextField`/`AuthSpinnerField` (цвета полей — `formTextFieldColors()`), общие компоненты (включая элементы тестов: светофор, дорога, педали), модели тестов (`model/tests/*`, наследники `ReactionTest`) и константы маршрутов `other/extension/route/DesktopRouting`.
   - `ui/screens/*-ui-module` — отдельные экраны (авторизация, пользователи, профиль пользователя с графиками, меню тестов, сами тесты и т.д.).
 
 ### Ручной DI и навигация

@@ -135,8 +135,9 @@ fun AboutUserPage(navigator: Navigator, userStorage: UserStorage, sessionStorage
                                     textStyle = MaterialTheme.typography.headlineLarge.copy(
                                         fontWeight = FontWeight.Black
                                     ),
-                                    colors = TextFieldDefaults.textFieldColors(
-                                        containerColor = Color.Transparent
+                                    colors = TextFieldDefaults.colors(
+                                        focusedContainerColor = Color.Transparent,
+                                        unfocusedContainerColor = Color.Transparent
                                     )
                                 )
                                 TextField(
@@ -148,8 +149,9 @@ fun AboutUserPage(navigator: Navigator, userStorage: UserStorage, sessionStorage
                                     textStyle = MaterialTheme.typography.headlineLarge.copy(
                                         fontWeight = FontWeight.Black
                                     ),
-                                    colors = TextFieldDefaults.textFieldColors(
-                                        containerColor = Color.Transparent
+                                    colors = TextFieldDefaults.colors(
+                                        focusedContainerColor = Color.Transparent,
+                                        unfocusedContainerColor = Color.Transparent
                                     )
                                 )
                                 TextField(
@@ -165,8 +167,9 @@ fun AboutUserPage(navigator: Navigator, userStorage: UserStorage, sessionStorage
                                     textStyle = MaterialTheme.typography.headlineLarge.copy(
                                         fontWeight = FontWeight.Black
                                     ),
-                                    colors = TextFieldDefaults.textFieldColors(
-                                        containerColor = Color.Transparent
+                                    colors = TextFieldDefaults.colors(
+                                        focusedContainerColor = Color.Transparent,
+                                        unfocusedContainerColor = Color.Transparent
                                     )
                                 )
                             }
@@ -187,6 +190,7 @@ fun AboutUserPage(navigator: Navigator, userStorage: UserStorage, sessionStorage
                                 AuthTextField(
                                     text = "",
                                     labelHint = "Пароль",
+                                    isPassword = true,
                                     onValueChange = {
                                         aboutUserViewModel.onEvent(Event.OnPasswordChanged(password = it))
                                     },
@@ -280,9 +284,10 @@ fun AboutUserPage(navigator: Navigator, userStorage: UserStorage, sessionStorage
                                 textStyle = MaterialTheme.typography.bodySmall,
                                 shape = MaterialTheme.shapes.medium,
                                 maxLines = 1,
-                                colors = TextFieldDefaults.outlinedTextFieldColors(
-                                    containerColor = Color.Transparent,
-                                ),
+                                colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent
+                    ),
                                 isError = state.value.isFilterError,
                                 value = state.value.testNumberFilter,
                                 onValueChange = {

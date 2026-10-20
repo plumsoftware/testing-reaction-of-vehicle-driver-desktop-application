@@ -1,15 +1,26 @@
 package newuser.login
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AccountBox
+import androidx.compose.material.icons.rounded.AccountCircle
+import androidx.compose.material.icons.rounded.DateRange
+import androidx.compose.material.icons.rounded.Lock
+import androidx.compose.material.icons.rounded.Notifications
+import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import newuser.login.store.Effect
 import newuser.login.store.Event
 import newuser.login.viewmodel.LoginViewModel
@@ -22,13 +33,11 @@ import moe.tlaster.precompose.navigation.Navigator
 import moe.tlaster.precompose.viewmodel.viewModel
 import other.components.AuthSpinnerField
 import other.components.AuthTextField
-import other.components.BackButton
-import other.components.DefaultButton
-import other.extension.padding.ExtensionPadding
-import other.extension.padding.ExtensionPadding.mediumHorizontalArrangementCenter
+import other.components.FormMessage
+import other.components.FormScreen
+import other.components.FormSection
 import other.extension.route.DesktopRouting
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Login(navigator: Navigator, userStorage: UserStorage, block: (TestDTO) -> Unit = {}) {
 
@@ -59,58 +68,64 @@ fun Login(navigator: Navigator, userStorage: UserStorage, block: (TestDTO) -> Un
     val state = loginViewModel.state.collectAsState()
 
 
-    Scaffold(
-        topBar = {
-            BackButton(
-                onClick = { loginViewModel.onEvent(Event.BackClicked) }
-            )
-        },
-        floatingActionButton = {
-            DefaultButton(
-                onClick = { loginViewModel.onEvent(Event.StartTest) },
-                content = {
-                    Text(
-                        text = "Перейти в меню с тестами",
-                        style = MaterialTheme.typography.headlineMedium
-                    )
-                })
-        },
-        floatingActionButtonPosition = FabPosition.End,
-        modifier = Modifier.fillMaxSize()
+    FormScreen(
+        title = "Вход в тестирование",
+        subtitle = "Введите логин и пароль, выданные администратором, и параметры теста",
+        primaryButtonText = "Перейти к тестам",
+        onPrimaryClick = { loginViewModel.onEvent(Event.StartTest) },
+        onBackClick = { loginViewModel.onEvent(Event.BackClicked) },
+        message = {
+            //Карточка с ошибкой
+            AnimatedVisibility(
+                visible = state.value.roamingErrorMessage.isNotEmpty(),
+                enter = fadeIn() + expandVertically(),
+                exit = fadeOut() + shrinkVertically()
+            ) {
+                FormMessage(text = state.value.roamingErrorMessage, isError = true)
+            }
+        }
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(ExtensionPadding.mediumAsymmetricalContentPadding),
-            verticalArrangement = ExtensionPadding.mediumVerticalArrangement,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            AuthTextField(
-                text = state.value.login,
-                labelHint = "Логин",
-                onValueChange = {
-                    loginViewModel.onEvent(Event.OnLoginChanged(login = it))
-                },
-                isError = state.value.isLoginError
-            )
-
-            AuthTextField(
-                text = state.value.password,
-                labelHint = "Пароль",
-                onValueChange = {
-                    loginViewModel.onEvent(Event.OnPasswordChanged(password = it))
-                },
-                isError = state.value.isPasswordError
-            )
-
+        FormSection(title = "Учётная запись") {
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = mediumHorizontalArrangementCenter,
-                modifier = Modifier.fillMaxWidth().wrapContentHeight()
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                AuthTextField(
+                    text = state.value.login,
+                    labelHint = "логин",
+                    label = "Логин",
+                    leadingIcon = Icons.Rounded.AccountCircle,
+                    onValueChange = {
+                        loginViewModel.onEvent(Event.OnLoginChanged(login = it))
+                    },
+                    isError = state.value.isLoginError,
+                    modifier = Modifier.weight(1.0f)
+                )
+                AuthTextField(
+                    text = state.value.password,
+                    labelHint = "пароль",
+                    label = "Пароль",
+                    leadingIcon = Icons.Rounded.Lock,
+                    isPassword = true,
+                    onValueChange = {
+                        loginViewModel.onEvent(Event.OnPasswordChanged(password = it))
+                    },
+                    isError = state.value.isPasswordError,
+                    modifier = Modifier.weight(1.0f)
+                )
+            }
+        }
+
+        FormSection(title = "О водителе") {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxWidth()
             ) {
                 AuthTextField(
                     text = if (state.value.experience == 0) "" else state.value.experience.toString(),
-                    labelHint = "Стаж вождения",
+                    labelHint = "стаж вождения",
+                    label = "Стаж вождения, лет",
+                    leadingIcon = Icons.Rounded.DateRange,
                     onValueChange = {
                         loginViewModel.onEvent(
                             Event.OnExperienceChanged(
@@ -123,11 +138,13 @@ fun Login(navigator: Navigator, userStorage: UserStorage, block: (TestDTO) -> Un
                         )
                     },
                     isError = state.value.isExperienceError,
-                    modifier = Modifier.fillMaxWidth().weight(1.0f)
+                    modifier = Modifier.weight(1.0f)
                 )
                 AuthTextField(
                     text = if (state.value.age < 0) "" else state.value.age.toString(),
-                    labelHint = "Возраст",
+                    labelHint = "возраст",
+                    label = "Возраст",
+                    leadingIcon = Icons.Rounded.Person,
                     onValueChange = {
                         loginViewModel.onEvent(
                             Event.OnAgeChanged(
@@ -140,64 +157,54 @@ fun Login(navigator: Navigator, userStorage: UserStorage, block: (TestDTO) -> Un
                         )
                     },
                     isError = state.value.isAgeError,
-                    modifier = Modifier.fillMaxWidth().weight(1.0f)
+                    modifier = Modifier.weight(1.0f)
                 )
                 AuthSpinnerField(
                     text = if (state.value.drivingLicenseCategory == DrivingLicenseCategory.Empty) "" else state.value.drivingLicenseCategory.toString(),
-                    labelHint = "Категория прав",
+                    labelHint = "категорию прав",
+                    label = "Категория прав",
+                    leadingIcon = Icons.Rounded.AccountBox,
                     onValueChange = {
                         it as DrivingLicenseCategory
                         loginViewModel.onEvent(Event.OnDrivingLicenseCategoryChanged(it))
                     },
                     isError = state.value.isDrivingLicenseCategoryError,
                     list = DrivingLicenseCategory.entries,
-                    modifier = Modifier.fillMaxWidth().weight(1.0f)
+                    modifier = Modifier.weight(1.0f)
                 )
+            }
+        }
+
+        FormSection(title = "Параметры теста") {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 AuthSpinnerField(
                     text = if (state.value.count == 0) "" else state.value.count.toString(),
-                    labelHint = "Количество попыток",
+                    labelHint = "количество попыток",
+                    label = "Количество попыток",
+                    leadingIcon = Icons.Rounded.Refresh,
                     onValueChange = {
                         it as Int
                         loginViewModel.onEvent(Event.OnCountChanged(it))
                     },
                     isError = state.value.isCountError,
                     list = TestConstants.counts.toList(),
-                    modifier = Modifier.fillMaxWidth().weight(1.0f)
+                    modifier = Modifier.weight(1.0f)
                 )
-            }
-
-            AuthSpinnerField(
-                text = if (state.value.selectedInterval == Interval()) "" else state.value.selectedInterval.toString(),
-                labelHint = "Интервал сигнала в секундах",
-                onValueChange = {
-                    loginViewModel.onEvent(Event.OnIntervalChanged(it as Interval))
-                },
-                isError = state.value.isIntervalError,
-                list = TestConstants.Tests.intervals.toList(),
-                modifier = Modifier.wrapContentWidth().wrapContentHeight().align(Alignment.Start)
-            )
-
-            //Карточка с ошибкой
-            AnimatedVisibility(
-                visible = state.value.roamingErrorMessage.isNotEmpty(),
-                enter = slideInVertically(initialOffsetY = { it }),
-                exit = slideOutVertically(targetOffsetY = { it }),
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            ) {
-                Card(
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.errorContainer,
-                        contentColor = MaterialTheme.colorScheme.onErrorContainer
-                    ),
-                    modifier = Modifier
-                        .wrapContentWidth()
-                ) {
-                    Text(
-                        text = state.value.roamingErrorMessage,
-                        modifier = Modifier.padding(ExtensionPadding.smallPadding),
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                }
+                AuthSpinnerField(
+                    text = if (state.value.selectedInterval == Interval()) "" else state.value.selectedInterval.toString(),
+                    labelHint = "интервал сигнала",
+                    label = "Интервал сигнала, с",
+                    leadingIcon = Icons.Rounded.Notifications,
+                    onValueChange = {
+                        loginViewModel.onEvent(Event.OnIntervalChanged(it as Interval))
+                    },
+                    isError = state.value.isIntervalError,
+                    list = TestConstants.Tests.intervals.toList(),
+                    modifier = Modifier.weight(1.0f)
+                )
             }
         }
     }
