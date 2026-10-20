@@ -169,8 +169,17 @@ suspend fun saveTestResult(
             experience = result.user.experience.toString(),
             userAge = result.user.age.toString(),
             drivingLicenseCategory = result.user.drivingLicenseCategory,
-            signalInterval = result.interval
-        )
+            signalInterval = result.interval,
+            validCount = enriched.reactionTimesMs.size,
+            wrongResponses = enriched.wrongResponses,
+            omissions = enriched.omissions,
+            prematureResponses = enriched.prematureResponses,
+            handedness = enriched.user.handedness,
+            userSessionNumber = enriched.userSessionNumber,
+            preTestState = enriched.preTestState,
+            environment = enriched.environment
+        ),
+        trials = enriched.trials
     )
     val saved = enriched.copy(sessionId = sessionId)
 

@@ -1,5 +1,6 @@
 package aboutuser.viewmodel
 
+import data.model.dto.test.TrialRecord
 import data.model.dto.database.SessionDTO
 import data.model.either.AppEither
 import data.model.regular.user.User
@@ -110,6 +111,9 @@ class AboutUserViewModel(
             }
         }
     }
+
+    /** Попытки сессии для подробного просмотра. */
+    suspend fun loadTrials(sessionId: Long): List<TrialRecord> = sessionStorage.getTrials(sessionId = sessionId)
 
     private fun clearState() {
         state.update {

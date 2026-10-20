@@ -227,9 +227,10 @@ fun AboutUserPage(navigator: Navigator, userStorage: UserStorage, sessionStorage
                                 modifier = Modifier.fillMaxWidth().wrapContentHeight()
                                     .padding(ExtensionPadding.mediumAsymmetricalContentPadding)
                             ) {
-                                if (state.value.sessions.isNotEmpty())
+                                // График строится по тому же фильтру, что и список: разные тесты не смешиваются
+                                if (state.value.filteredSessionsList.isNotEmpty())
                                     LinearChart(
-                                        list = state.value.sessions.take(30),
+                                        list = state.value.filteredSessionsList.takeLast(30),
                                         acceptedLineParams = state.value.selectedChipList
                                     )
                                 else
@@ -321,7 +322,7 @@ fun AboutUserPage(navigator: Navigator, userStorage: UserStorage, sessionStorage
                     with(state.value.filteredSessionsList) {
                         if (this.isNotEmpty()) {
                             itemsIndexed(this) { _, item ->
-                                SessionCard(item)
+                                SessionCard(sessionDTO = item, loadTrials = aboutUserViewModel::loadTrials)
                             }
                         } else {
                             item {

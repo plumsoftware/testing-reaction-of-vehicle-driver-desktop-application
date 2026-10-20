@@ -6,62 +6,49 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.aay.compose.baseComponents.model.GridOrientation
 import com.aay.compose.baseComponents.model.LegendPosition
 import com.aay.compose.lineChart.LineChart
 import com.aay.compose.lineChart.model.LineParameters
 import com.aay.compose.lineChart.model.LineType
+import data.constant.UIConstants
 import data.model.dto.database.SessionDTO
 import theme.ExtendedTheme
 import utils.toLineChartData
-import utils.toLineChartData1
-import utils.toLineChartData2
-import utils.toLineChartData3
 import utils.toSemiDate
 import utils.x
 import utils.y
 
+/**
+ * Динамика по сессиям. Линии и их порядок соответствуют [UIConstants.lineChartParams].
+ * Время реакции показывается в мс, чтобы быть в одном масштабе со счётчиками.
+ * Для сессий до версии методики 2 разбивка ошибок не записывалась и показывается как 0.
+ */
 @Composable
 fun LinearChart(list: List<SessionDTO>, acceptedLineParams: List<Boolean>) {
 
-    val lineParameters: MutableList<LineParameters> = mutableListOf(
-        LineParameters(
-            label = "Среднее значение",
-            data = list.toLineChartData().y(),
-            lineColor = ExtendedTheme.colors.lineChartColor1,
-            lineType = LineType.DEFAULT_LINE,
-            lineShadow = false,
-        ),
-        LineParameters(
-            label = "Стандартное отклонение",
-            data = list.toLineChartData1().y(),
-            lineColor = ExtendedTheme.colors.lineChartColor2,
-            lineType = LineType.DEFAULT_LINE,
-            lineShadow = false,
-        ),
-        LineParameters(
-            label = "Количество ошибок",
-            data = list.toLineChartData2().y(),
-            lineColor = MaterialTheme.colorScheme.error,
-            lineType = LineType.DEFAULT_LINE,
-            lineShadow = false,
-        ),
-        LineParameters(
-            label = "Количество попыток",
-            data = list.toLineChartData3().y(),
-            lineColor = ExtendedTheme.colors.onSuccessContainer,
-            lineType = LineType.DEFAULT_LINE,
-            lineShadow = false,
-        )
+    val series: List<Pair<Color, (SessionDTO) -> Double>> = listOf(
+        ExtendedTheme.colors.lineChartColor1 to { it.averageValue * 1000 },
+        ExtendedTheme.colors.lineChartColor2 to { it.standardDeviation * 1000 },
+        MaterialTheme.colorScheme.error to { it.errors.toDouble() },
+        ExtendedTheme.colors.onSuccessContainer to { it.count.toDouble() },
+        MaterialTheme.colorScheme.tertiary to { (it.wrongResponses ?: 0).toDouble() },
+        MaterialTheme.colorScheme.secondary to { (it.omissions ?: 0).toDouble() },
+        MaterialTheme.colorScheme.primary to { (it.prematureResponses ?: 0).toDouble() },
     )
 
-    val lineParametersToShow = mutableListOf<LineParameters>()
-
-    acceptedLineParams.forEachIndexed { index, item ->
-        if (item) {
-            lineParametersToShow.add(lineParameters[index])
-        }
+    val lineParametersToShow = series.mapIndexedNotNull { index, (color, value) ->
+        if (acceptedLineParams.getOrElse(index) { false }) {
+            LineParameters(
+                label = UIConstants.lineChartParams[index],
+                data = list.toLineChartData(value).y(),
+                lineColor = color,
+                lineType = LineType.DEFAULT_LINE,
+                lineShadow = false,
+            )
+        } else null
     }
 
     Box(modifier = Modifier.height(height = 550.dp)) {
@@ -70,7 +57,7 @@ fun LinearChart(list: List<SessionDTO>, acceptedLineParams: List<Boolean>) {
             linesParameters = lineParametersToShow,
             isGrid = true,
             gridColor = ExtendedTheme.colors.lineChartGripColor,
-            xAxisData = list.toLineChartData().x().toSemiDate(),
+            xAxisData = list.toLineChartData { 0.0 }.x().toSemiDate(),
             animateChart = true,
             showGridWithSpacer = true,
             yAxisStyle = MaterialTheme.typography.titleSmall.copy(color = MaterialTheme.colorScheme.onBackground),
@@ -82,6 +69,6 @@ fun LinearChart(list: List<SessionDTO>, acceptedLineParams: List<Boolean>) {
             showYAxis = true,
             legendPosition = LegendPosition.BOTTOM,
             descriptionStyle = MaterialTheme.typography.titleMedium.copy(color = MaterialTheme.colorScheme.onBackground)
-            )
+        )
     }
 }

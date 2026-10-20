@@ -18,23 +18,43 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.aay.compose.baseComponents.model.GridOrientation
+import com.aay.compose.baseComponents.model.LegendPosition
+import com.aay.compose.lineChart.LineChart
+import com.aay.compose.lineChart.model.LineParameters
+import com.aay.compose.lineChart.model.LineType
 import data.model.dto.database.SessionDTO
+import data.model.dto.test.TrialOutcome
+import data.model.dto.test.TrialRecord
+import data.model.regular.user.Handedness
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import other.extension.padding.ExtensionPadding
 import other.extension.size.ConstantSize
 import theme.ExtendedTheme
+import utils.timeInMillis
 import java.text.SimpleDateFormat
 import java.util.*
 
+/**
+ * Карточка сессии. В раскрытом виде показывает все записанные данные
+ * и график времени реакции по попыткам (загружается из БД при первом раскрытии).
+ */
 @Composable
-fun SessionCard(sessionDTO: SessionDTO) {
-    val cal = Calendar.getInstance()
-    cal.set(Calendar.YEAR, sessionDTO.testYear)
-    cal.set(Calendar.MONTH, sessionDTO.testMonth)
-    cal.set(Calendar.DAY_OF_MONTH, sessionDTO.testDay)
-    cal.set(Calendar.HOUR_OF_DAY, sessionDTO.testHourOfDay24h)
-    cal.set(Calendar.MINUTE, sessionDTO.testMinuteOfHour)
-
+fun SessionCard(sessionDTO: SessionDTO, loadTrials: suspend (sessionId: Long) -> List<TrialRecord>) {
     var isExpanded by remember { mutableStateOf(false) }
+    var trials by remember(sessionDTO.sessionId) { mutableStateOf<List<TrialRecord>?>(null) }
+
+    LaunchedEffect(isExpanded) {
+        if (isExpanded && trials == null) {
+            trials = try {
+                withContext(Dispatchers.IO) { loadTrials(sessionDTO.sessionId) }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                emptyList()
+            }
+        }
+    }
 
     val rotation by animateFloatAsState(
         targetValue = if (isExpanded) 180f else 0f,
@@ -43,10 +63,10 @@ fun SessionCard(sessionDTO: SessionDTO) {
 
     Column(
         modifier = Modifier
-            .wrapContentWidth()
+            .fillMaxWidth()
             .clip(shape = MaterialTheme.shapes.medium)
             .border(
-                width = if (isExpanded) 4.dp else 0.dp,
+                width = if (isExpanded) 2.dp else 0.dp,
                 color = if (isExpanded) MaterialTheme.colorScheme.tertiary else Color.Transparent,
                 shape = MaterialTheme.shapes.medium
             ),
@@ -57,8 +77,7 @@ fun SessionCard(sessionDTO: SessionDTO) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = ExtensionPadding.mediumHorizontalArrangement,
             modifier = Modifier
-                .wrapContentWidth()
-                .wrapContentHeight()
+                .fillMaxWidth()
                 .padding(
                     horizontal = ExtensionPadding.mediumHorPadding,
                     vertical = ExtensionPadding.mediumVerPadding
@@ -66,26 +85,19 @@ fun SessionCard(sessionDTO: SessionDTO) {
         ) {
             Text(
                 text = "Сессия №${sessionDTO.sessionId} ${
-                    SimpleDateFormat(
-                        "dd.MM.yyyy hh:mm",
-                        Locale.getDefault()
-                    ).format(Date(cal.timeInMillis))
+                    SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault()).format(Date(sessionDTO.timeInMillis()))
                 } с интервалом ${sessionDTO.signalInterval} секунд",
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Start,
             )
-            IconButton(
-                onClick = {
-                    isExpanded = !isExpanded
-                }) {
+            IconButton(onClick = { isExpanded = !isExpanded }) {
                 Icon(
                     imageVector = Icons.Rounded.ArrowDropDown,
                     contentDescription = "Показать дополнительную информацию",
                     modifier = Modifier.rotate(rotation)
                 )
             }
-
             Text(
                 text = "№ теста ${sessionDTO.testId}",
                 style = MaterialTheme.typography.bodyMedium,
@@ -94,106 +106,182 @@ fun SessionCard(sessionDTO: SessionDTO) {
                 modifier = Modifier.fillMaxWidth()
             )
         }
+
         AnimatedVisibility(
             visible = isExpanded,
             modifier = Modifier
-                .wrapContentHeight()
                 .fillMaxWidth()
                 .padding(
                     horizontal = ExtensionPadding.mediumHorPadding,
                     vertical = ExtensionPadding.mediumVerPadding
                 )
         ) {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(
-                    space = ExtensionPadding.largeVerPadding,
-                    alignment = Alignment.CenterVertically
-                ),
-                horizontalAlignment = Alignment.Start
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = ExtensionPadding.mediumHorizontalArrangement,
-                    modifier = Modifier.wrapContentWidth().wrapContentHeight()
-                ) {
-                    Text(
-                        text = "Среднее время реакции ${String.format(Locale.ROOT, "%.0f", sessionDTO.averageValue * 1000)} мс",
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Start,
-                    )
-                    Text(
-                        text = "Стандартное отклонение ${String.format(Locale.ROOT, "%.0f", sessionDTO.standardDeviation * 1000)} мс",
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Start,
-                    )
-                }
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = ExtensionPadding.mediumHorizontalArrangement,
-                    modifier = Modifier.wrapContentWidth().wrapContentHeight()
-                ) {
-                    Text(
-                        text = "Категория водительского удостоверения ${sessionDTO.drivingLicenseCategory}.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Start,
-                    )
-                }
-                Text(
-                    text = "Стаж вождения на момент прохождения тестирования ${sessionDTO.experience} ${
-                        getEnd(
-                            sessionDTO
-                        )
-                    }.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    textAlign = TextAlign.Start,
-                )
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = ExtensionPadding.mediumHorizontalArrangement,
-                    modifier = Modifier.wrapContentWidth().wrapContentHeight()
-                ) {
-                    Text(
-                        text = "Попыток ${sessionDTO.count}",
-                        style = MaterialTheme.typography.bodyMedium.copy(color = ExtendedTheme.colors.onSuccessContainer),
-                        textAlign = TextAlign.Start,
-                    )
-                    Text(
-                        text = "Ошибок ${sessionDTO.errors}",
-                        style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error),
-                        textAlign = TextAlign.Start,
-                    )
-                }
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                SessionDetails(sessionDTO = sessionDTO, trials = trials)
+                TrialsChart(trials = trials)
             }
         }
+
         if (!isExpanded)
             HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth(0.7f)
-                    .background(
-                        color = Color.Transparent,
-                        shape = MaterialTheme.shapes.small
-                    ),
+                    .background(color = Color.Transparent, shape = MaterialTheme.shapes.small),
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.12f),
                 thickness = ConstantSize.dividerStatisticHeight
             )
     }
 }
 
-private fun getEnd(sessionDTO: SessionDTO): String {
-    val end = if (sessionDTO.experience.toInt() > 4) {
-        "лет"
-    } else {
-        if (sessionDTO.experience.toInt() == 0) {
-            "лет"
-        } else {
-            if (sessionDTO.experience.toInt() == 1) {
-                "год"
-            } else {
-                "года"
+@Composable
+private fun SessionDetails(sessionDTO: SessionDTO, trials: List<TrialRecord>?) = with(sessionDTO) {
+    DetailsSection("Результат") {
+        val correctRts = trials.orEmpty().filter { it.outcome == TrialOutcome.CORRECT }.mapNotNull { it.reactionTimeMs }
+        Line("Среднее время правильной реакции", formatMs(averageValue))
+        Line("Стандартное отклонение", formatMs(standardDeviation))
+        if (correctRts.isNotEmpty()) Line("Медиана", formatMs(median(correctRts) / 1000))
+        Line("Предъявлено сигналов", count.toString())
+        validCount?.let { Line("Учтено правильных реакций", it.toString()) }
+        Text(
+            text = "Ошибок всего: $errors" + if (wrongResponses != null) {
+                " (неверная реакция $wrongResponses, пропуск сигнала $omissions, фальстарт $prematureResponses)"
+            } else "",
+            style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error)
+        )
+    }
+
+    DetailsSection("Водитель на момент теста") {
+        Line("Категория водительского удостоверения", drivingLicenseCategory.toString())
+        Line("Стаж вождения", "$experience ${yearsEnding(experience.toIntOrNull() ?: 0)}")
+        Line("Возраст", userAge)
+        if (handedness != Handedness.UNKNOWN) Line("Ведущая рука", handedness.toString())
+        userSessionNumber?.let { Line("Прохождение этого теста", "$it-е") }
+    }
+
+    with(preTestState) {
+        if (visionCorrection != null || sleepHours != null || wellBeing != null || responseHand != null || inputDevice != null) {
+            DetailsSection("Состояние перед тестом") {
+                visionCorrection?.let { Line("Коррекция зрения", it.toString()) }
+                sleepHours?.let { Line("Сон за сутки", "$it ч") }
+                wellBeing?.let { Line("Самочувствие (1–5)", it.toString()) }
+                responseHand?.let { Line("Рука для ответа", it.toString()) }
+                inputDevice?.let { Line("Устройство ввода", it.toString()) }
             }
         }
     }
-    return end
+
+    val env = environment
+    if (env != null) {
+        DetailsSection("Рабочее место") {
+            if (env.monitorName.isNotEmpty()) Line("Монитор", env.monitorName)
+            if (env.monitorSizeCm.isNotEmpty()) {
+                Line(
+                    "Размер изображения",
+                    "${env.monitorSizeCm} см" + (env.monitorDiagonalInches?.let { ", диагональ $it″" } ?: "")
+                )
+            }
+            if (env.screenResolution.isNotEmpty()) {
+                Line("Разрешение", env.screenResolution + (env.refreshRateHz?.let { ", $it Гц" } ?: ""))
+            }
+            env.scalePercent?.let { Line("Масштаб ОС", "$it %") }
+            if (env.testWindowPx.isNotEmpty()) Line("Окно теста", "${env.testWindowPx} px")
+            if (env.computerName.isNotEmpty()) Line("Компьютер", env.computerName)
+            if (env.operatingSystem.isNotEmpty()) Line("ОС", env.operatingSystem)
+            Line("Версия программы / методики", "${env.appVersion} / ${env.methodVersion}")
+        }
+    } else {
+        Text(
+            text = "Сессия записана по методике версии 1: подробные данные не сохранялись.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+/** Время правильных реакций по номеру попытки. */
+@Composable
+private fun TrialsChart(trials: List<TrialRecord>?) {
+    when {
+        trials == null -> CircularProgressIndicator()
+        trials.isEmpty() -> Text(
+            text = "Попытки этой сессии не записаны.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        else -> {
+            val correct = trials.filter { it.outcome == TrialOutcome.CORRECT && it.reactionTimeMs != null }
+            DetailsSection("Попытки") {
+                trials.groupingBy { it.outcome }.eachCount().forEach { (outcome, number) ->
+                    Line(outcome.title.replaceFirstChar { it.uppercase() }, number.toString())
+                }
+            }
+            if (correct.size >= 2) {
+                Box(modifier = Modifier.height(320.dp)) {
+                    LineChart(
+                        modifier = Modifier.fillMaxWidth(),
+                        linesParameters = listOf(
+                            LineParameters(
+                                label = "Время правильной реакции по попыткам, мс",
+                                data = correct.map { it.reactionTimeMs!! },
+                                lineColor = ExtendedTheme.colors.lineChartColor1,
+                                lineType = LineType.DEFAULT_LINE,
+                                lineShadow = false,
+                            )
+                        ),
+                        isGrid = true,
+                        gridColor = ExtendedTheme.colors.lineChartGripColor,
+                        xAxisData = correct.map { it.number.toString() },
+                        animateChart = false,
+                        showGridWithSpacer = true,
+                        yAxisStyle = MaterialTheme.typography.titleSmall.copy(color = MaterialTheme.colorScheme.onBackground),
+                        xAxisStyle = MaterialTheme.typography.titleSmall.copy(color = MaterialTheme.colorScheme.onBackground),
+                        yAxisRange = 6,
+                        oneLineChart = false,
+                        gridOrientation = GridOrientation.GRID,
+                        showXAxis = true,
+                        showYAxis = true,
+                        legendPosition = LegendPosition.BOTTOM,
+                        descriptionStyle = MaterialTheme.typography.titleMedium.copy(color = MaterialTheme.colorScheme.onBackground)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DetailsSection(title: String, content: @Composable ColumnScope.() -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.primary
+        )
+        content()
+    }
+}
+
+@Composable
+private fun Line(label: String, value: String) {
+    Text(text = "$label: $value", style = MaterialTheme.typography.bodyMedium)
+}
+
+private fun formatMs(seconds: Double): String = String.format(Locale.ROOT, "%.0f мс", seconds * 1000)
+
+private fun median(values: List<Double>): Double {
+    val sorted = values.sorted()
+    val middle = sorted.size / 2
+    return if (sorted.size % 2 == 1) sorted[middle] else (sorted[middle - 1] + sorted[middle]) / 2
+}
+
+private fun yearsEnding(years: Int): String {
+    val lastTwo = years % 100
+    val last = years % 10
+    return when {
+        lastTwo in 11..14 -> "лет"
+        last == 1 -> "год"
+        last in 2..4 -> "года"
+        else -> "лет"
+    }
 }

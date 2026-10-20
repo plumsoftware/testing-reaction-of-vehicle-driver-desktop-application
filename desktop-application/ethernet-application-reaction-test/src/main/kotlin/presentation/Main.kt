@@ -28,6 +28,7 @@ import domain.usecase.settings.GetUserSettingsUseCase
 import domain.usecase.settings.SaveUserSettingsUseCase
 import domain.usecase.sql_database.local.GetAllSessionsDtoFromDatabaseUseCase
 import domain.usecase.sql_database.local.GetLastSessionIdUseCase
+import domain.usecase.sql_database.local.GetSessionTrialsUseCase
 import domain.usecase.sql_database.local.GetUserByLoginAndPasswordUseCase
 import domain.usecase.sql_database.local.InsertOrAbortNewSessionUseCase
 import domain.usecase.sql_database.local.user.DeleteUserUseCase
@@ -135,7 +136,8 @@ fun main() = run {
                         getSessionsWithUserIdUseCase = GetSessionsWithUserIdUseCase(
                             sessionRepository
                         ),
-                        getLastSessionIdUseCase = GetLastSessionIdUseCase(sessionRepository = sessionRepository)
+                        getLastSessionIdUseCase = GetLastSessionIdUseCase(sessionRepository = sessionRepository),
+                        getSessionTrialsUseCase = GetSessionTrialsUseCase(sessionRepository = sessionRepository)
                     )
                 }
 

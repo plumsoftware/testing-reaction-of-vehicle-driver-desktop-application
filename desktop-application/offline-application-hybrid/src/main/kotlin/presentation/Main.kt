@@ -28,6 +28,7 @@ import domain.usecase.settings.GetUserSettingsUseCase
 import domain.usecase.settings.SaveUserSettingsUseCase
 import domain.usecase.sql_database.local.GetAllSessionsDtoFromDatabaseUseCase
 import domain.usecase.sql_database.local.GetLastSessionIdUseCase
+import domain.usecase.sql_database.local.GetSessionTrialsUseCase
 import domain.usecase.sql_database.local.GetUserByLoginAndPasswordUseCase
 import domain.usecase.sql_database.local.InsertOrAbortNewSessionUseCase
 import domain.usecase.sql_database.local.user.DeleteUserUseCase
@@ -90,6 +91,7 @@ fun main() = run {
         val sessionRepository = SessionRepositoryImpl_()
         val sessionStorage = SessionStorage(
             getLastSessionIdUseCase = GetLastSessionIdUseCase(sessionRepository),
+            getSessionTrialsUseCase = GetSessionTrialsUseCase(sessionRepository),
             getAllSessionsDtoFromDatabaseUseCase = GetAllSessionsDtoFromDatabaseUseCase(
                 sessionRepository
             ),

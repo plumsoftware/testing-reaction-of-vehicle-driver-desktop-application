@@ -7,72 +7,25 @@ import java.util.*
 
 //region::Charts
 //region::Line charts
-fun List<SessionDTO>.toLineChartData(): List<LineChartItem> {
+/** Точки графика по сессиям: x — дата и время сессии, y — [value]. */
+fun List<SessionDTO>.toLineChartData(value: (SessionDTO) -> Double): List<LineChartItem> {
     return this.map {
-
-        val cal = Calendar.getInstance()
-        cal.set(Calendar.YEAR, it.testYear)
-        cal.set(Calendar.MONTH, it.testMonth)
-        cal.set(Calendar.DAY_OF_MONTH, it.testDay)
-        cal.set(Calendar.HOUR_OF_DAY, it.testHourOfDay24h)
-        cal.set(Calendar.MINUTE, it.testMinuteOfHour)
-
         LineChartItem(
-            valueX = cal.timeInMillis,
-            valueY = it.averageValue
+            valueX = it.timeInMillis(),
+            valueY = value(it)
         )
     }
 }
 
-fun List<SessionDTO>.toLineChartData1(): List<LineChartItem> {
-    return this.map {
-
-        val cal = Calendar.getInstance()
-        cal.set(Calendar.YEAR, it.testYear)
-        cal.set(Calendar.MONTH, it.testMonth)
-        cal.set(Calendar.DAY_OF_MONTH, it.testDay)
-        cal.set(Calendar.HOUR_OF_DAY, it.testHourOfDay24h)
-        cal.set(Calendar.MINUTE, it.testMinuteOfHour)
-
-        LineChartItem(
-            valueX = cal.timeInMillis,
-            valueY = it.standardDeviation
-        )
-    }
-}
-
-fun List<SessionDTO>.toLineChartData2(): List<LineChartItem> {
-    return this.map {
-
-        val cal = Calendar.getInstance()
-        cal.set(Calendar.YEAR, it.testYear)
-        cal.set(Calendar.MONTH, it.testMonth)
-        cal.set(Calendar.DAY_OF_MONTH, it.testDay)
-        cal.set(Calendar.HOUR_OF_DAY, it.testHourOfDay24h)
-        cal.set(Calendar.MINUTE, it.testMinuteOfHour)
-
-        LineChartItem(
-            valueX = cal.timeInMillis,
-            valueY = it.errors.toDouble()
-        )
-    }
-}
-
-fun List<SessionDTO>.toLineChartData3(): List<LineChartItem> {
-    return this.map {
-
-        val cal = Calendar.getInstance()
-        cal.set(Calendar.YEAR, it.testYear)
-        cal.set(Calendar.MONTH, it.testMonth)
-        cal.set(Calendar.DAY_OF_MONTH, it.testDay)
-        cal.set(Calendar.HOUR_OF_DAY, it.testHourOfDay24h)
-        cal.set(Calendar.MINUTE, it.testMinuteOfHour)
-
-        LineChartItem(
-            valueX = cal.timeInMillis,
-            valueY = it.count.toDouble()
-        )
-    }
+fun SessionDTO.timeInMillis(): Long {
+    val cal = Calendar.getInstance()
+    cal.set(Calendar.YEAR, testYear)
+    // testMonth хранится как Calendar.MONTH (с нуля)
+    cal.set(Calendar.MONTH, testMonth)
+    cal.set(Calendar.DAY_OF_MONTH, testDay)
+    cal.set(Calendar.HOUR_OF_DAY, testHourOfDay24h)
+    cal.set(Calendar.MINUTE, testMinuteOfHour)
+    return cal.timeInMillis
 }
 
 fun List<LineChartItem>.x(): List<Long> {
