@@ -1,8 +1,14 @@
 package data
 
 import com.sun.jna.platform.win32.Crypt32Util
+import data.model.Config
 import data.model.Cryptography
+import data.model.ProgramData
+import kotlinx.serialization.json.Json
 import java.io.File
+
+/** Ключа шифрования нет (или он нечитаем), а без него данные в базе не расшифровать. */
+class MissingCryptographyKeyException(message: String, cause: Throwable? = null) : IllegalStateException(message, cause)
 
 /**
  * Хранит параметры шифрования персональных данных в `%LOCALAPPDATA%\Reaction test`.
@@ -34,9 +40,10 @@ object CryptographyKeyStore {
         readStored(scope)?.let { return it }
 
         if (!canGenerate()) {
-            throw IllegalStateException(
-                "Ключ шифрования не найден, а в базе уже есть пользователи. " +
-                    "Скопируйте app\\config.json с компьютера, где программа уже работает, и положите его рядом с программой."
+            throw MissingCryptographyKeyException(
+                "На этом компьютере нет ключа шифрования, а в базе уже есть пользователи. " +
+                    "Получите файл config.json у администратора (программа администратора или гибрид: " +
+                    "Настройки → «Экспорт ключа») и положите его в папку ${importFolderPath()}, затем нажмите «Повторить»."
             )
         }
 
@@ -49,6 +56,25 @@ object CryptographyKeyStore {
         return generated
     }
 
+    /**
+     * Сохраняет ключ [scope] и номер программы в [target] в формате config.json — для переноса
+     * на другие компьютеры (сетевой режим) или резервной копии.
+     */
+    fun export(scope: KeyScope, target: File) {
+        val cryptography = readStored(scope)
+            ?: throw MissingCryptographyKeyException(
+                "Ключ ещё не создан: он появляется при первом открытии базы. Откройте базу (например, список пользователей) и повторите экспорт."
+            )
+        val config = Config(cryptography = cryptography, programData = ProgramData(number = ProgramNumberStore.get()))
+        target.parentFile?.mkdirs()
+        target.writeText(exportJson.encodeToString(Config.serializer(), config))
+    }
+
+    /** Папка, из которой программа берёт config.json при запуске. */
+    fun importFolderPath(): String = ConfigPaths.importFile.absoluteFile.parentFile.path
+
+    private val exportJson = Json { prettyPrint = true }
+
     private fun file(scope: KeyScope) = File(ConfigPaths.appDataFolder, scope.fileName)
 
     private fun readStored(scope: KeyScope): Cryptography? {
@@ -58,9 +84,9 @@ object CryptographyKeyStore {
             unprotect(file.readBytes())
         } catch (e: Exception) {
             // Не создаём новый ключ поверх: старые данные стали бы нечитаемыми навсегда.
-            throw IllegalStateException(
+            throw MissingCryptographyKeyException(
                 "Не удалось прочитать ключ шифрования ${file.absolutePath}: он сохранён другой учётной записью Windows. " +
-                    "Положите рядом с программой app\\config.json с этим ключом.",
+                    "Положите config.json с этим ключом в папку ${importFolderPath()}, затем нажмите «Повторить».",
                 e
             )
         }

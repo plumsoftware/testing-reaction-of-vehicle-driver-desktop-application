@@ -10,4 +10,6 @@ sealed class Event {
 
 
     data object SelectLocalFolderToTable : Event()
+
+    data object ExportKeyClicked : Event()
 }

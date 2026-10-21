@@ -10,7 +10,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
+import data.CryptographyKeyStore
+import data.KeyScope
 import presentation.settings.store.Effect
+import utils.showSaveFilePicker
 import presentation.settings.store.Event
 import presentation.settings.store.State
 import java.io.File
@@ -46,6 +49,8 @@ class SettingsViewModel(
 
     fun onEvent(event: Event) {
         when (event) {
+            Event.ExportKeyClicked -> exportKey()
+
             Event.BackClicked -> {
                 viewModelScope.launch {
                     effect.emit(Effect.BackClick)
@@ -101,5 +106,18 @@ class SettingsViewModel(
                 )
             )
         }
+    }
+
+    /** Сохраняет ключ шифрования в config.json — для других компьютеров или резервной копии. */
+    private fun exportKey() {
+        val target = showSaveFilePicker(defaultName = "config.json") ?: return
+        val message = try {
+            CryptographyKeyStore.export(scope = KeyScope.NETWORK, target = target)
+            "Ключ сохранён: ${target.absolutePath}"
+        } catch (e: Exception) {
+            e.printStackTrace()
+            "Не удалось сохранить ключ: ${e.message}"
+        }
+        state.update { it.copy(keyExportMessage = message) }
     }
 }

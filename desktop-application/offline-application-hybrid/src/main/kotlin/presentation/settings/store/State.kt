@@ -14,5 +14,8 @@ data class State(
 
     val selectedLocalFolderToTable: File = File(SettingsConstants.LOCAL_FOLDER_TO_TABLE),
 
-    val settings: Settings = Settings()
+    val settings: Settings = Settings(),
+
+    /** Итог последнего экспорта ключа. */
+    val keyExportMessage: String = ""
 )

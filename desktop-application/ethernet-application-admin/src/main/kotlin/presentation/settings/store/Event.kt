@@ -11,4 +11,6 @@ sealed class Event {
 
     data object CollapseDropDownMenuNetworkDrive : Event()
     data class SelectDropDownMenuNetworkDriveItem(val item: File) : Event()
+
+    data object ExportKeyClicked : Event()
 }

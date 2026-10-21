@@ -69,6 +69,7 @@ dependencies {
 
 //    Modules
     implementation(project(path = ":client-core:local-store-module"))
+    implementation(project(path = ":client-core:config-module"))
 
     implementation(project(path = ":ui:screens:authorization-ui-module"))
     implementation(project(path = ":ui:core:theme-ui-module"))

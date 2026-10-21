@@ -11,5 +11,8 @@ data class State(
     val selectedNetworkDrive: File = File("C:\\"),
     val dropdownMenuNetworkDriveExpanded: Boolean = false,
 
-    val settings: Settings = Settings()
+    val settings: Settings = Settings(),
+
+    /** Итог последнего экспорта ключа. */
+    val keyExportMessage: String = ""
 )
