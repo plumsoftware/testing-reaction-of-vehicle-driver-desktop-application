@@ -3,6 +3,7 @@ package data.repository
 import app.cash.sqldelight.db.QueryResult
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import data.CryptographyRepositoryImpl
+import data.KeyScope
 import data.constant.DatabaseConstants
 import data.constant.GeneralConstants
 import data.model.dto.database.SessionDTO
@@ -31,7 +32,10 @@ class SessionRepositoryImpl_(
     sessionsDirectory: String = DatabaseConstants.LOCAL_SESSION_JDBC_DRIVER_NAME
 ) : SessionRepository {
 
-    private val cryptographyRepository = CryptographyRepositoryImpl()
+    // Ключ к этому моменту уже есть: UserRepositoryImpl создаётся раньше и при необходимости его генерирует.
+    private val cryptographyRepository = CryptographyRepositoryImpl(
+        scope = if (mode == Mode.ETHERNET) KeyScope.NETWORK else KeyScope.LOCAL
+    )
 
     private val sessionsDatabaseDriver: JdbcSqliteDriver
     private val dir = if (mode == Mode.SINGLE) GeneralConstants.Paths.PATH_TO_SETTINGS_FOLDER else GeneralConstants.Paths.PATH_TO_ROAMING_DATABASE_DIRECTORY(directoryPath)
@@ -280,7 +284,7 @@ class SessionRepositoryImpl_(
             errors = errors.toInt(),
             experience = cryptographyRepository.decode(text = experience),
             userAge = cryptographyRepository.decode(text = user_age),
-            drivingLicenseCategory = DrivingLicenseCategory.valueOf(cryptographyRepository.decode(text = driving_license_category)),
+            drivingLicenseCategory = DrivingLicenseCategory.fromString(cryptographyRepository.decode(text = driving_license_category)),
             signalInterval = Interval.fromString(signal_interval),
             validCount = valid_count?.toInt(),
             wrongResponses = wrong_responses?.toInt(),

@@ -17,8 +17,12 @@ enum class ResponseHand(private val title: String) {
     override fun toString(): String = title
 }
 
-/** Устройство, которым испытуемый отвечает в тесте. */
+/**
+ * Устройство, которым испытуемый отвечает в тесте; выбирается в окне перед запуском теста.
+ * TOUCHPAD и OTHER остались для сессий, записанных раньше.
+ */
 enum class InputDevice(private val title: String) {
+    KEYBOARD("Клавиатура"),
     MOUSE("Мышь"),
     TOUCHPAD("Тачпад"),
     OTHER("Другое");
@@ -27,7 +31,7 @@ enum class InputDevice(private val title: String) {
 }
 
 /**
- * Состояние испытуемого перед тестом (анкета на экране входа).
+ * Состояние испытуемого перед тестом (анкета на экране входа; [inputDevice] — из окна перед запуском теста).
  *
  * @param sleepHours часов сна за последние сутки.
  * @param wellBeing самочувствие по шкале 1 (плохое) – 5 (отличное).
@@ -41,7 +45,7 @@ data class PreTestState(
 ) {
     val isComplete: Boolean
         get() = visionCorrection != null && sleepHours != null && wellBeing != null &&
-                responseHand != null && inputDevice != null
+                responseHand != null
 
     companion object {
         val sleepHoursRange = 0..24

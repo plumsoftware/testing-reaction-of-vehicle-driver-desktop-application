@@ -10,23 +10,26 @@ import data.model.regular.settings.Settings
 import data.model.regular.user.Interval
 import domain.storage.SessionStorage
 import domain.storage.WorkbookStorage
+import java.util.Calendar
+import kotlin.random.Random
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
 import utlis.EnvironmentCollector
-import java.util.Calendar
-import kotlin.random.Random
 
 /** Длительность обратного отсчёта перед первым сигналом, с. */
 const val COUNTDOWN_SECONDS = 10
+
+/** См. [model.tests.PRACTICE_TRIALS]. */
+const val PRACTICE_TRIALS = model.tests.PRACTICE_TRIALS
 
 /**
  * Фазы теста:
  * COUNTDOWN — обратный отсчёт; FOREPERIOD — случайный интервал до сигнала;
  * STIMULUS — сигнал предъявлен, ждём реакцию; FEEDBACK — пауза после попытки;
- * FINISHED — итоги.
+ * PRACTICE_FINISHED — тренировка окончена, ждём начала зачётной части; FINISHED — итоги.
  */
-enum class TestPhase { COUNTDOWN, FOREPERIOD, STIMULUS, FEEDBACK, FINISHED }
+enum class TestPhase { COUNTDOWN, FOREPERIOD, STIMULUS, FEEDBACK, PRACTICE_FINISHED, FINISHED }
 
 /**
  * Попытки теста по порядку; все итоговые показатели считаются из этого списка.
@@ -81,7 +84,22 @@ fun TestDTO.withResults(
     averageValue = ReactionStatistics.meanSeconds(results.reactionTimesMs),
     stdDeviationValue = ReactionStatistics.sampleStdDeviationSeconds(results.reactionTimesMs),
     trials = results.trials,
-    metrics = metrics
+    metrics = metrics + errorCountMetrics(results).filter { common -> metrics.none { it.key == common.key } }
+)
+
+/** Число ошибок по видам — во всех тестах, для листа «Показатели» и БД. */
+fun errorCountMetrics(results: TrialResults): List<TestMetric> = listOf(
+    TestMetric("errors_total", "Ошибок всего", results.errors.toDouble(), "шт."),
+    TestMetric("wrong_responses", "Неверные реакции", results.wrongResponses.toDouble(), "шт."),
+    TestMetric("omissions", "Пропуски сигнала", results.omissions.toDouble(), "шт."),
+    TestMetric(
+        "false_starts", "Ранние нажатия (до сигнала)",
+        results.trials.count { it.outcome == TrialOutcome.FALSE_START }.toDouble(), "шт."
+    ),
+    TestMetric(
+        "anticipations", "Слишком быстрые ответы (< 100 мс после сигнала)",
+        results.trials.count { it.outcome == TrialOutcome.ANTICIPATION }.toDouble(), "шт."
+    ),
 )
 
 /**
@@ -161,7 +179,12 @@ suspend fun saveTestResult(
         .count { it.testId == testId }
     val enriched = result.copy(
         userSessionNumber = previousSessions + 1,
-        environment = EnvironmentCollector.collect()
+        environment = EnvironmentCollector.collect(),
+        // Тренировку можно пропустить, а это влияет на результат — записываем
+        metrics = result.metrics + TestMetric(
+            "practice_trials", "Тренировочных попыток перед тестом",
+            (if (result.withPractice) PRACTICE_TRIALS else 0).toDouble(), "шт."
+        )
     )
 
     val sessionId = sessionStorage.insertOrAbort(

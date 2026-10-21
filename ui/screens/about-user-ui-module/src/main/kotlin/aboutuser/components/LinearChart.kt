@@ -4,7 +4,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -51,24 +53,36 @@ fun LinearChart(list: List<SessionDTO>, acceptedLineParams: List<Boolean>) {
         } else null
     }
 
-    Box(modifier = Modifier.height(height = 550.dp)) {
-        LineChart(
-            modifier = Modifier.fillMaxWidth(),
-            linesParameters = lineParametersToShow,
-            isGrid = true,
-            gridColor = ExtendedTheme.colors.lineChartGripColor,
-            xAxisData = list.toLineChartData { 0.0 }.x().toSemiDate(),
-            animateChart = true,
-            showGridWithSpacer = true,
-            yAxisStyle = MaterialTheme.typography.titleSmall.copy(color = MaterialTheme.colorScheme.onBackground),
-            xAxisStyle = MaterialTheme.typography.titleSmall.copy(color = MaterialTheme.colorScheme.onBackground),
-            yAxisRange = 10,
-            oneLineChart = false,
-            gridOrientation = GridOrientation.GRID,
-            showXAxis = true,
-            showYAxis = true,
-            legendPosition = LegendPosition.BOTTOM,
-            descriptionStyle = MaterialTheme.typography.titleMedium.copy(color = MaterialTheme.colorScheme.onBackground)
+    if (lineParametersToShow.isEmpty()) {
+        Text(
+            text = "Выберите хотя бы один показатель под графиком",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+        return
+    }
+
+    // Библиотека графиков запоминает данные при первом показе — пересоздаём график при их смене
+    key(lineParametersToShow.map { it.label }, list) {
+        Box(modifier = Modifier.height(height = 550.dp)) {
+            LineChart(
+                modifier = Modifier.fillMaxWidth(),
+                linesParameters = lineParametersToShow,
+                isGrid = true,
+                gridColor = ExtendedTheme.colors.lineChartGripColor,
+                xAxisData = list.toLineChartData { 0.0 }.x().toSemiDate(),
+                animateChart = true,
+                showGridWithSpacer = true,
+                yAxisStyle = MaterialTheme.typography.titleSmall.copy(color = MaterialTheme.colorScheme.onBackground),
+                xAxisStyle = MaterialTheme.typography.titleSmall.copy(color = MaterialTheme.colorScheme.onBackground),
+                yAxisRange = 10,
+                oneLineChart = false,
+                gridOrientation = GridOrientation.GRID,
+                showXAxis = true,
+                showYAxis = true,
+                legendPosition = LegendPosition.BOTTOM,
+                descriptionStyle = MaterialTheme.typography.titleMedium.copy(color = MaterialTheme.colorScheme.onBackground)
+            )
+        }
     }
 }

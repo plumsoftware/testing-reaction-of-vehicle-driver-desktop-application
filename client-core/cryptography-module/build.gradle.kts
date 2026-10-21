@@ -10,7 +10,7 @@ repositories {
 }
 
 dependencies {
-    implementation(project(path = ":client-core:config-module"))
+    api(project(path = ":client-core:config-module"))
 }
 
 tasks.test {

@@ -14,6 +14,7 @@ dependencies {
     implementation(compose.desktop.currentOs)
 
     implementation(globalVersions.material3)
+    implementation(globalVersions.material.icons.core)
 
 //    Precompose
     api(globalVersions.precompose.viewmodel)

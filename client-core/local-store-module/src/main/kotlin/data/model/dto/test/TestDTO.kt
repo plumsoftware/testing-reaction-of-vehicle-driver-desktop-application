@@ -21,6 +21,7 @@ import data.model.regular.user.User
  * @param environment рабочее место (заполняется при сохранении).
  * @param userSessionNumber какой по счёту раз пользователь проходит этот тест (заполняется при сохранении).
  * @param metrics показатели, специфичные для теста.
+ * @param withPractice перед зачётной частью проводится тренировка (выбирается в окне перед тестом).
  */
 data class TestDTO(
     val user: User = User.empty(),
@@ -41,4 +42,5 @@ data class TestDTO(
     val environment: TestEnvironment = TestEnvironment(),
     val userSessionNumber: Int = 0,
     val metrics: List<TestMetric> = emptyList(),
+    val withPractice: Boolean = true,
 )

@@ -19,6 +19,8 @@ import tests.common.Foreperiod
 import tests.common.lampName
 import tests.common.StimulusClock
 import tests.common.TestPhase
+import tests.common.TrialResults
+import tests.common.PRACTICE_TRIALS
 import tests.common.isAnticipation
 import tests.common.randomForeperiodMs
 import tests.common.saveTestResult
@@ -44,7 +46,7 @@ class TrafficLightTestChoiceReactionViewModel(
     private val sessionStorage: SessionStorage
 ) : ViewModel() {
 
-    val state = MutableStateFlow(State(testDTO = testDTO))
+    val state = MutableStateFlow(State(testDTO = testDTO, isPractice = testDTO.withPractice))
     val effect = MutableSharedFlow<Effect>()
 
     private val clock = StimulusClock()
@@ -53,6 +55,8 @@ class TrafficLightTestChoiceReactionViewModel(
 
     fun onEvent(event: Event) {
         when (event) {
+            Event.StartMainTest -> startMainTest()
+
             Event.BackCLicked -> {
                 viewModelScope.launch {
                     effect.emit(Effect.BackClicked)
@@ -129,15 +133,19 @@ class TrafficLightTestChoiceReactionViewModel(
                         )
                     )
                 }
-                if (state.value.results.presented >= state.value.testDTO.count) finishTest() else startForeperiod()
+                if (state.value.results.presented >= trialsTarget()) finishTest() else startForeperiod()
             }
 
             // Во время отсчёта и на экране итогов нажатия не учитываются
-            TestPhase.COUNTDOWN, TestPhase.FEEDBACK, TestPhase.FINISHED -> {}
+            TestPhase.COUNTDOWN, TestPhase.FEEDBACK, TestPhase.PRACTICE_FINISHED, TestPhase.FINISHED -> {}
         }
     }
 
     private fun finishTest() {
+        if (state.value.isPractice) {
+            finishPractice()
+            return
+        }
         val result = state.value.testDTO.withResults(state.value.results)
         state.update {
             it.copy(
@@ -164,5 +172,28 @@ class TrafficLightTestChoiceReactionViewModel(
             }
             state.update { it.copy(saveStatus = status) }
         }
+    }
+
+    /** Сколько попыток в текущей части: тренировочной или зачётной. */
+    private fun trialsTarget(): Int = if (state.value.isPractice) PRACTICE_TRIALS else state.value.testDTO.count
+
+    /** Тренировочные попытки отбрасываются, ждём, пока испытуемый начнёт зачётную часть. */
+    private fun finishPractice() {
+        phaseJob?.cancel()
+        state.update {
+            it.copy(
+                phase = TestPhase.PRACTICE_FINISHED,
+                stimulusId = null,
+                currentLampIndex = -1,
+                results = TrialResults()
+            )
+        }
+    }
+
+    private fun startMainTest() {
+        if (state.value.phase != TestPhase.PRACTICE_FINISHED) return
+        state.update { it.copy(isPractice = false, phase = TestPhase.COUNTDOWN, countdown = COUNTDOWN_SECONDS) }
+        phaseJob = null
+        startCountdown()
     }
 }

@@ -12,6 +12,8 @@ data class State(
     /** Последняя попытка завершилась пропуском сигнала. */
     val lastTrialMissed: Boolean = false,
     val results: TrialResults = TrialResults(),
+    /** Идёт тренировка: попытки не сохраняются. */
+    val isPractice: Boolean = true,
     /** Ошибка звукового устройства; тест в этом случае не проводится. */
     val audioError: String? = null,
 

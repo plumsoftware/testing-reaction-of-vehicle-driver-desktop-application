@@ -18,16 +18,24 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import data.model.dto.test.TestDTO
 import data.model.regular.settings.Settings
+import data.model.regular.settings.workbookFiles
 import domain.storage.SessionStorage
 import domain.storage.WorkbookStorage
+import model.tests.ResponseKeys
 import moe.tlaster.precompose.navigation.Navigator
 import moe.tlaster.precompose.viewmodel.viewModel
 import other.components.test.LeadCar
 import other.components.test.RoadView
+import tests.common.PRACTICE_TRIALS
 import tests.common.RoadSceneHeader
 import tests.common.TestPhase
+import tests.common.LocalPressedResponseKeys
 import tests.common.TestScreenScaffold
+import tests.common.keyboardResponses
 import tests.common.rememberRoadScroll
+import tests.common.respondsWithKeyboard
+import tests.common.responseHint
+import tests.common.testStatusText
 import tests.pvt_brake_lights.store.Effect
 import tests.pvt_brake_lights.store.Event
 import tests.pvt_brake_lights.viewmodel.PvtBrakeLightsViewModel
@@ -71,25 +79,40 @@ fun PvtBrakeLights(
     val roadScroll = rememberRoadScroll(isDriving = state.phase != TestPhase.COUNTDOWN)
     val stimulusId = state.stimulusId
 
+    val keyboard = state.testDTO.respondsWithKeyboard
+
     TestScreenScaffold(
         phase = state.phase,
         result = state.testDTO,
         saveStatus = state.saveStatus,
-        onBack = { viewModel.onEvent(Event.BackClicked) }
+        resultFiles = settings.workbookFiles,
+        onBack = { viewModel.onEvent(Event.BackClicked) },
+        onStartMainTest = { viewModel.onEvent(Event.StartMainTest) },
+        onResponseKey = keyboardResponses(
+            keyboard,
+            mapOf(ResponseKeys.BRAKE.key to { pressNanos -> viewModel.onEvent(Event.OnBrakePressed(pressNanos)) })
+        )
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             RoadView(
                 roadScroll = roadScroll,
                 leadCar = LeadCar(brakeLightsOn = state.phase == TestPhase.STIMULUS),
-                onBrakePress = { pressNanos -> viewModel.onEvent(Event.OnBrakePressed(pressNanos)) },
+                onBrakePress = if (keyboard) null else { pressNanos -> viewModel.onEvent(Event.OnBrakePressed(pressNanos)) },
+                brakePressed = keyboard && ResponseKeys.BRAKE.key in LocalPressedResponseKeys.current,
                 stimulusKey = if (state.phase == TestPhase.STIMULUS) stimulusId else null,
                 onStimulusDrawn = { drawNanos ->
                     if (stimulusId != null) viewModel.onEvent(Event.OnStimulusDrawn(stimulusId, drawNanos))
                 }
             )
             RoadSceneHeader(
-                status = if (state.phase == TestPhase.COUNTDOWN) "Начало через ${state.countdown}" else "Тест $durationMinutes мин",
-                instruction = "Загорелись стоп-сигналы впереди идущей машины — нажмите тормоз",
+                status = if (state.isPractice) {
+                    testStatusText(state.phase, state.countdown, state.results.presented, PRACTICE_TRIALS, isPractice = true)
+                } else if (state.phase == TestPhase.COUNTDOWN) {
+                    "Начало через ${state.countdown}"
+                } else {
+                    "Тест $durationMinutes мин"
+                },
+                instruction = "Загорелись стоп-сигналы впереди идущей машины — ${responseHint(keyboard, ResponseKeys.BRAKE)}",
                 modifier = Modifier.align(Alignment.TopCenter)
             )
 

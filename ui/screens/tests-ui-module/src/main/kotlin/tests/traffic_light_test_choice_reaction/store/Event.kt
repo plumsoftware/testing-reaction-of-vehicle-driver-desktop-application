@@ -10,4 +10,7 @@ sealed class Event {
     data class OnStimulusDrawn(val stimulusId: Int, val drawNanos: Long) : Event()
 
     data object StartTimer : Event()
+
+    /** Тренировка окончена, испытуемый начинает зачётную часть. */
+    data object StartMainTest : Event()
 }

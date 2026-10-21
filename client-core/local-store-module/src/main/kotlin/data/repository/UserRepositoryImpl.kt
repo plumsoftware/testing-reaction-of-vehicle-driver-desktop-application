@@ -4,6 +4,7 @@ import HashRepositoryImpl
 import app.cash.sqldelight.db.QueryResult
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import data.CryptographyRepositoryImpl
+import data.KeyScope
 import data.constant.DatabaseConstants
 import data.constant.GeneralConstants
 import data.model.either.local.LocalEither
@@ -24,7 +25,7 @@ class UserRepositoryImpl(
 ) : UserRepository {
 
     private val hashRepository = HashRepositoryImpl()
-    private val cryptographyRepository = CryptographyRepositoryImpl()
+    private val cryptographyRepository: CryptographyRepositoryImpl
 
     private val usersDatabaseDriver: JdbcSqliteDriver
     private val sessionsDatabaseDriver: JdbcSqliteDriver
@@ -54,6 +55,28 @@ class UserRepositoryImpl(
         val sessionsDatabase =
             Database(driver = sessionsDatabaseDriver)
         sessionsDatabase.sqldelight_users_schemeQueries.create()
+
+        cryptographyRepository = CryptographyRepositoryImpl(
+            scope = if (mode == Mode.ETHERNET) KeyScope.NETWORK else KeyScope.LOCAL,
+            canGenerateKey = { isTableEmpty(usersDatabaseDriver, "Users") && isTableEmpty(sessionsDatabaseDriver, "Sessions") }
+        )
+    }
+
+    /** Отсутствующая таблица тоже считается пустой. */
+    private fun isTableEmpty(driver: JdbcSqliteDriver, table: String): Boolean {
+        val exists = driver.executeQuery(
+            identifier = null,
+            sql = "SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name = '$table'",
+            mapper = { cursor -> QueryResult.Value(cursor.next().value && (cursor.getLong(0) ?: 0L) > 0L) },
+            parameters = 0
+        ).value
+        if (!exists) return true
+        return driver.executeQuery(
+            identifier = null,
+            sql = "SELECT EXISTS(SELECT 1 FROM $table)",
+            mapper = { cursor -> QueryResult.Value(cursor.next().value && cursor.getLong(0) == 0L) },
+            parameters = 0
+        ).value
     }
 
     override suspend fun getAllUsers(): List<Users> {

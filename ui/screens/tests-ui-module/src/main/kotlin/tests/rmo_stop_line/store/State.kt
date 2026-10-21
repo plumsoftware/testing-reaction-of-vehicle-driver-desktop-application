@@ -16,6 +16,8 @@ data class State(
     /** Положение, в котором машина остановлена торможением (доля пути до линии). */
     val stoppedProgress: Float? = null,
     val results: TrialResults = TrialResults(),
+    /** Идёт тренировка: попытки не сохраняются. */
+    val isPractice: Boolean = true,
 
     val testDTO: TestDTO = TestDTO(),
     val saveStatus: SaveStatus = SaveStatus.SAVING,

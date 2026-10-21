@@ -9,7 +9,8 @@ data class State(
     val user: User = User.empty(),
     val sessions: List<SessionDTO> = emptyList(),
     val filteredSessionsList: List<SessionDTO> = emptyList(),
-    val selectedChipList: MutableList<Boolean> = MutableList(UIConstants.lineChartParams.size) { it == 0 },
+    /** Какие линии показаны на графике; неизменяемый список — иначе StateFlow не заметит изменения. */
+    val selectedChipList: List<Boolean> = List(UIConstants.lineChartParams.size) { it == 0 },
 
     val login: String = "",
     val password: String = "",

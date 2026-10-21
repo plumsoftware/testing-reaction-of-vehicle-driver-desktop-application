@@ -19,6 +19,7 @@ import other.components.SaveStatus
 import tests.common.COUNTDOWN_SECONDS
 import tests.common.Foreperiod
 import tests.common.TestPhase
+import tests.common.PRACTICE_TRIALS
 import tests.common.TrialResults
 import tests.common.randomForeperiodMs
 import tests.common.saveTestResult
@@ -50,7 +51,7 @@ class RmoStopLineViewModel(
     private val workBookStorage: WorkbookStorage,
     private val sessionStorage: SessionStorage,
 ) : ViewModel() {
-    val state = MutableStateFlow(State(testDTO = testDTO))
+    val state = MutableStateFlow(State(testDTO = testDTO, isPractice = testDTO.withPractice))
     val effect = MutableSharedFlow<Effect>()
 
     private var phaseJob: Job? = null
@@ -58,6 +59,8 @@ class RmoStopLineViewModel(
 
     fun onEvent(event: Event) {
         when (event) {
+            Event.StartMainTest -> startMainTest()
+
             Event.StartInitTimer -> startCountdown()
 
             is Event.OnBrakePressed -> onBrake(pressNanos = event.pressNanos)
@@ -153,16 +156,20 @@ class RmoStopLineViewModel(
                 phaseJob = viewModelScope.launch { pauseThenNextTrial() }
             }
 
-            TestPhase.COUNTDOWN, TestPhase.FEEDBACK, TestPhase.FINISHED -> {}
+            TestPhase.COUNTDOWN, TestPhase.FEEDBACK, TestPhase.PRACTICE_FINISHED, TestPhase.FINISHED -> {}
         }
     }
 
     private suspend fun pauseThenNextTrial() {
         delay(FEEDBACK_MS)
-        if (state.value.results.presented >= state.value.testDTO.count) finishTest() else startForeperiod()
+        if (state.value.results.presented >= trialsTarget()) finishTest() else startForeperiod()
     }
 
     private fun finishTest() {
+        if (state.value.isPractice) {
+            finishPractice()
+            return
+        }
         val results = state.value.results
         val errors = results.reactionTimesMs
         // Для РДО «среднее» в БД — средняя абсолютная ошибка, «SD» — SD ошибки со знаком
@@ -241,6 +248,27 @@ class RmoStopLineViewModel(
                 }
             }
         }
+    }
+
+    /** Сколько попыток в текущей части: тренировочной или зачётной. */
+    private fun trialsTarget(): Int = if (state.value.isPractice) PRACTICE_TRIALS else state.value.testDTO.count
+
+    /** Тренировочные попытки отбрасываются, ждём, пока испытуемый начнёт зачётную часть. */
+    private fun finishPractice() {
+        phaseJob?.cancel()
+        state.update {
+            it.copy(
+                phase = TestPhase.PRACTICE_FINISHED,
+                results = TrialResults()
+            )
+        }
+    }
+
+    private fun startMainTest() {
+        if (state.value.phase != TestPhase.PRACTICE_FINISHED) return
+        state.update { it.copy(isPractice = false, phase = TestPhase.COUNTDOWN, countdown = COUNTDOWN_SECONDS) }
+        phaseJob = null
+        startCountdown()
     }
 
     companion object {

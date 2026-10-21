@@ -16,14 +16,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import data.model.dto.test.TestDTO
 import data.model.regular.settings.Settings
+import data.model.regular.settings.workbookFiles
 import domain.storage.SessionStorage
 import domain.storage.WorkbookStorage
+import model.tests.ResponseKeys
 import moe.tlaster.precompose.navigation.Navigator
 import moe.tlaster.precompose.viewmodel.viewModel
 import other.components.test.GasPedalButton
 import other.components.test.TRAFFIC_LIGHT_HEIGHT_IN_LAMPS
 import other.components.test.TrafficLight
+import tests.common.LocalPressedResponseKeys
 import tests.common.TestScreenScaffold
+import tests.common.keyboardResponses
+import tests.common.respondsWithKeyboard
+import tests.common.responseHint
 import tests.common.statusTextStyle
 import tests.common.testStatusText
 import tests.traffic_light_test_difference_reaction.store.Effect
@@ -68,11 +74,19 @@ fun TrafficLightTestDifferenceReaction(
         viewModel.onEvent(Event.StartTimer)
     }
 
+    val keyboard = state.testDTO.respondsWithKeyboard
+
     TestScreenScaffold(
         phase = state.phase,
         result = state.testDTO,
         saveStatus = state.saveStatus,
-        onBack = { viewModel.onEvent(Event.BackCLicked) }
+        resultFiles = settings.workbookFiles,
+        onBack = { viewModel.onEvent(Event.BackCLicked) },
+        onStartMainTest = { viewModel.onEvent(Event.StartMainTest) },
+        onResponseKey = keyboardResponses(
+            keyboard,
+            mapOf(ResponseKeys.GAS.key to { pressNanos -> viewModel.onEvent(Event.OnGasPedalPressed(pressNanos)) })
+        )
     ) {
         // Высота сцены: статус + светофор + педаль ≈ 10.1 размера лампы
         val lampSize = min(
@@ -86,7 +100,7 @@ fun TrafficLightTestDifferenceReaction(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = testStatusText(state.phase, state.countdown, state.results.presented, state.testDTO.count),
+                text = testStatusText(state.phase, state.countdown, state.results.presented, state.testDTO.count, state.isPractice),
                 style = statusTextStyle()
             )
 
@@ -102,7 +116,8 @@ fun TrafficLightTestDifferenceReaction(
 
             GasPedalButton(
                 height = lampSize * PEDAL_HEIGHT_IN_LAMPS,
-                onPress = { pressNanos -> viewModel.onEvent(Event.OnGasPedalPressed(pressNanos)) }
+                onPress = if (keyboard) null else { pressNanos -> viewModel.onEvent(Event.OnGasPedalPressed(pressNanos)) },
+                pressed = keyboard && ResponseKeys.GAS.key in LocalPressedResponseKeys.current
             )
         }
     }

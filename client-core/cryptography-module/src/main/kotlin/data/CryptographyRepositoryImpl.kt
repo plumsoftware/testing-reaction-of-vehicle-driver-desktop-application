@@ -1,20 +1,26 @@
 package data
 
-import data.model.Config
+import data.model.Cryptography
 import domain.CryptographyRepository
-import getConfig
 import javax.crypto.Cipher
 import javax.crypto.spec.SecretKeySpec
 
-class CryptographyRepositoryImpl : CryptographyRepository {
+/**
+ * @param canGenerateKey вызывается, если ключа ещё нет: true разрешает создать новый
+ * (только когда в базах нет данных, зашифрованных прежним ключом).
+ */
+class CryptographyRepositoryImpl(
+    scope: KeyScope = KeyScope.LOCAL,
+    canGenerateKey: () -> Boolean = { false },
+) : CryptographyRepository {
 
-    private var config: Config = getConfig()
+    private val cryptography: Cryptography = CryptographyKeyStore.load(scope = scope, canGenerate = canGenerateKey)
 
-    private val ALGORITHM = config.cryptography.algorithm
-    private val TRANSFORMATION = config.cryptography.transformation
+    private val ALGORITHM = cryptography.algorithm
+    private val TRANSFORMATION = cryptography.transformation
 
     override suspend fun encode(text: String): String {
-        val secretKey = generateSecretKey(key = config.cryptography.secretKey)
+        val secretKey = generateSecretKey(key = cryptography.secretKey)
         val cipher = Cipher.getInstance(TRANSFORMATION)
         cipher.init(Cipher.ENCRYPT_MODE, secretKey)
         val encryptedBytes = cipher.doFinal(text.toByteArray())
@@ -22,7 +28,7 @@ class CryptographyRepositoryImpl : CryptographyRepository {
     }
 
     override suspend fun decode(text: String): String {
-        val secretKey = generateSecretKey(key = config.cryptography.secretKey)
+        val secretKey = generateSecretKey(key = cryptography.secretKey)
         val cipher = Cipher.getInstance(TRANSFORMATION)
         cipher.init(Cipher.DECRYPT_MODE, secretKey)
         val decryptedBytes = cipher.doFinal(text.hexToByteArray())

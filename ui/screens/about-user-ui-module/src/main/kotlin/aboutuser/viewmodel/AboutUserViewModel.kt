@@ -67,6 +67,8 @@ class AboutUserViewModel(
                         testNumberFilter = event.filter
                     )
                 }
+                // Фильтр применяется сразу при вводе
+                filterSessionsDTO()
             }
 
             Event.FilterSessions -> filterSessionsDTO()
@@ -92,14 +94,10 @@ class AboutUserViewModel(
             }
 
             is Event.OnFilterChipClick -> {
-                val list = state.value.selectedChipList
-                list.set(index = event.index, element = event.selected)
-
-                println("===${list}===")
-
                 state.update {
                     it.copy(
-                        selectedChipList = list
+                        selectedChipList = it.selectedChipList.toMutableList()
+                            .apply { set(event.index, event.selected) }
                     )
                 }
             }

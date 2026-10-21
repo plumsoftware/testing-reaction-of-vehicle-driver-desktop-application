@@ -11,16 +11,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AccountBox
 import androidx.compose.material.icons.rounded.AccountCircle
-import androidx.compose.material.icons.rounded.Build
 import androidx.compose.material.icons.rounded.Face
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.ThumbUp
 import androidx.compose.material.icons.rounded.DateRange
 import androidx.compose.material.icons.rounded.Lock
-import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.Person
-import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -29,14 +26,11 @@ import androidx.compose.ui.unit.dp
 import newuser.login.store.Effect
 import newuser.login.store.Event
 import newuser.login.viewmodel.LoginViewModel
-import data.constant.TestConstants
-import data.model.dto.test.InputDevice
 import data.model.dto.test.PreTestState
 import data.model.dto.test.ResponseHand
 import data.model.dto.test.TestDTO
 import data.model.dto.test.VisionCorrection
 import data.model.regular.user.DrivingLicenseCategory
-import data.model.regular.user.Interval
 import domain.storage.UserStorage
 import moe.tlaster.precompose.navigation.Navigator
 import moe.tlaster.precompose.viewmodel.viewModel
@@ -241,51 +235,6 @@ fun Login(navigator: Navigator, userStorage: UserStorage, block: (TestDTO) -> Un
                     },
                     isError = showErrors && preTest.responseHand == null,
                     list = ResponseHand.entries,
-                    modifier = Modifier.weight(1.0f)
-                )
-                AuthSpinnerField(
-                    text = preTest.inputDevice?.toString() ?: "",
-                    labelHint = "устройство ввода",
-                    label = "Устройство ввода",
-                    leadingIcon = Icons.Rounded.Build,
-                    onValueChange = {
-                        loginViewModel.onEvent(Event.OnInputDeviceChanged(it as InputDevice))
-                    },
-                    isError = showErrors && preTest.inputDevice == null,
-                    list = InputDevice.entries,
-                    modifier = Modifier.weight(1.0f)
-                )
-            }
-        }
-
-        FormSection(title = "Параметры теста") {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                AuthSpinnerField(
-                    text = if (state.value.count == 0) "" else state.value.count.toString(),
-                    labelHint = "количество попыток",
-                    label = "Количество попыток",
-                    leadingIcon = Icons.Rounded.Refresh,
-                    onValueChange = {
-                        it as Int
-                        loginViewModel.onEvent(Event.OnCountChanged(it))
-                    },
-                    isError = state.value.isCountError,
-                    list = TestConstants.counts.toList(),
-                    modifier = Modifier.weight(1.0f)
-                )
-                AuthSpinnerField(
-                    text = if (state.value.selectedInterval == Interval()) "" else state.value.selectedInterval.toString(),
-                    labelHint = "интервал сигнала",
-                    label = "Интервал сигнала, с",
-                    leadingIcon = Icons.Rounded.Notifications,
-                    onValueChange = {
-                        loginViewModel.onEvent(Event.OnIntervalChanged(it as Interval))
-                    },
-                    isError = state.value.isIntervalError,
-                    list = TestConstants.Tests.intervals.toList(),
                     modifier = Modifier.weight(1.0f)
                 )
             }

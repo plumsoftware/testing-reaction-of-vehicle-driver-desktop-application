@@ -61,12 +61,14 @@ data class ApproachToStopLine(val progress: Float)
  * @param approach режим подъезда к стоп-линии; null — машина едет «на месте», стоп-линии нет.
  * @param stimulusKey идентификатор текущего предъявления сигнала; сообщается первая отрисовка
  * красной лампы или включённых стоп-сигналов впереди идущей машины.
- * @param onBrakePress System.nanoTime() нажатия педали тормоза.
+ * @param onBrakePress System.nanoTime() нажатия педали тормоза мышью; null — ответ с клавиатуры.
+ * @param brakePressed тормоз нажат клавишей — педаль показывается нажатой.
  */
 @Composable
 fun RoadView(
-    onBrakePress: (Long) -> Unit,
+    onBrakePress: ((Long) -> Unit)?,
     modifier: Modifier = Modifier,
+    brakePressed: Boolean = false,
     roadScroll: Float = 0f,
     lampIndex: Int? = null,
     leadCar: LeadCar? = null,
@@ -83,6 +85,7 @@ fun RoadView(
         val carLength = min(laneHeight * 0.65f / CAR_IMAGE_BODY_HEIGHT, maxWidth * 0.14f)
         val carY = (laneHeight - carLength) / 2
         val stopLineX = maxWidth * STOP_LINE_POSITION
+        val trafficLightX = maxWidth * TRAFFIC_LIGHT_POSITION
 
         val carX: Dp = if (approach != null) {
             val startX = maxWidth - carLength - maxWidth * 0.02f
@@ -101,7 +104,7 @@ fun RoadView(
             ) {
                 if (lampIndex != null) {
                     val lampSize = sideHeight / 5.2f
-                    val lightX = if (approach != null) stopLineX - lampSize * 1.6f else maxWidth * TRAFFIC_LIGHT_POSITION
+                    val lightX = if (approach != null) stopLineX - lampSize * 1.6f else trafficLightX
                     SmallTrafficLightTopSideView(
                         currentLampIndex = lampIndex,
                         lampSize = lampSize,
@@ -177,7 +180,7 @@ fun RoadView(
                     .background(RoadColor.roadSide),
                 contentAlignment = Alignment.Center
             ) {
-                StopPedalButton(height = bottomHeight * 0.85f, onPress = onBrakePress)
+                StopPedalButton(height = bottomHeight * 0.85f, onPress = onBrakePress, pressed = brakePressed)
             }
         }
     }

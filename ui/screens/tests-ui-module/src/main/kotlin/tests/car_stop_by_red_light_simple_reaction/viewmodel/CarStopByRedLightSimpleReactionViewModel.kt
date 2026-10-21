@@ -22,6 +22,8 @@ import tests.common.Foreperiod
 import tests.common.lampName
 import tests.common.StimulusClock
 import tests.common.TestPhase
+import tests.common.TrialResults
+import tests.common.PRACTICE_TRIALS
 import tests.common.isAnticipation
 import tests.common.randomForeperiodMs
 import tests.common.saveTestResult
@@ -41,7 +43,7 @@ class CarStopByRedLightSimpleReactionViewModel(
     private val workBookStorage: WorkbookStorage,
     private val sessionStorage: SessionStorage,
 ) : ViewModel() {
-    val state = MutableStateFlow(State(testDTO = testDTO))
+    val state = MutableStateFlow(State(testDTO = testDTO, isPractice = testDTO.withPractice))
     val effect = MutableSharedFlow<Effect>()
 
     private val clock = StimulusClock()
@@ -50,6 +52,8 @@ class CarStopByRedLightSimpleReactionViewModel(
 
     fun onEvent(event: Event) {
         when (event) {
+            Event.StartMainTest -> startMainTest()
+
             Event.StartInitTimer -> startCountdown()
 
             is Event.OnStimulusDrawn -> clock.onDrawn(id = event.stimulusId, nanos = event.drawNanos)
@@ -141,17 +145,21 @@ class CarStopByRedLightSimpleReactionViewModel(
             }
 
             // Во время отсчёта, паузы после попытки и на экране итогов нажатия не учитываются
-            TestPhase.COUNTDOWN, TestPhase.FEEDBACK, TestPhase.FINISHED -> {}
+            TestPhase.COUNTDOWN, TestPhase.FEEDBACK, TestPhase.PRACTICE_FINISHED, TestPhase.FINISHED -> {}
         }
     }
 
     /** Показывает остановившуюся (или проехавшую на красный) машину, затем следующая попытка. */
     private suspend fun pauseThenNextTrial() {
         delay(FEEDBACK_MS)
-        if (state.value.results.presented >= state.value.testDTO.count) finishTest() else startForeperiod()
+        if (state.value.results.presented >= trialsTarget()) finishTest() else startForeperiod()
     }
 
     private fun finishTest() {
+        if (state.value.isPractice) {
+            finishPractice()
+            return
+        }
         val result = state.value.testDTO.withResults(state.value.results)
         state.update {
             it.copy(phase = TestPhase.FINISHED, testDTO = result, saveStatus = SaveStatus.SAVING)
@@ -172,6 +180,28 @@ class CarStopByRedLightSimpleReactionViewModel(
             }
             state.update { it.copy(saveStatus = status) }
         }
+    }
+
+    /** Сколько попыток в текущей части: тренировочной или зачётной. */
+    private fun trialsTarget(): Int = if (state.value.isPractice) PRACTICE_TRIALS else state.value.testDTO.count
+
+    /** Тренировочные попытки отбрасываются, ждём, пока испытуемый начнёт зачётную часть. */
+    private fun finishPractice() {
+        phaseJob?.cancel()
+        state.update {
+            it.copy(
+                phase = TestPhase.PRACTICE_FINISHED,
+                stimulusId = null,
+                results = TrialResults()
+            )
+        }
+    }
+
+    private fun startMainTest() {
+        if (state.value.phase != TestPhase.PRACTICE_FINISHED) return
+        state.update { it.copy(isPractice = false, phase = TestPhase.COUNTDOWN, countdown = COUNTDOWN_SECONDS) }
+        phaseJob = null
+        startCountdown()
     }
 
     companion object {

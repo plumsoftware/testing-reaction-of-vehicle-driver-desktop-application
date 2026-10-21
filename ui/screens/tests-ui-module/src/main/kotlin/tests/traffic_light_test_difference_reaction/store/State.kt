@@ -14,6 +14,8 @@ data class State(
     /** Идентификатор текущего предъявления сигнала, null вне фазы STIMULUS. */
     val stimulusId: Int? = null,
     val results: TrialResults = TrialResults(),
+    /** Идёт тренировка: попытки не сохраняются. */
+    val isPractice: Boolean = true,
 
     val testDTO: TestDTO = TestDTO(),
     val saveStatus: SaveStatus = SaveStatus.SAVING,

@@ -90,7 +90,7 @@ class WorkbookRepositoryImpl : WorkbookRepository {
     ) {
         extensions.forEachIndexed { index, extension ->
 
-            val path = "$folderPath\\${ExcelConstants.FILE_NAME}${extension.lowercase()}"
+            val path = ExcelConstants.workbookFile(folderPath, extension).path
 
             if (getWorkbook(path = path) == null) {
                 val folder = File(folderPath)
@@ -117,7 +117,7 @@ class WorkbookRepositoryImpl : WorkbookRepository {
         extensions: MutableList<String>,
     ) {
         extensions.forEach { extension ->
-            val path = "$folderPath\\${ExcelConstants.FILE_NAME}${extension.lowercase()}"
+            val path = ExcelConstants.workbookFile(folderPath, extension).path
 
             val workbook: Workbook = getWorkbook(path = path) ?: return@forEach
             val sheet = workbook.getSheetAt(0)

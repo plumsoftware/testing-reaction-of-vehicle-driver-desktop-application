@@ -78,7 +78,12 @@ class SettingsRepositoryImpl : SettingsRepository {
         var jsonString = settingsFile.readText()
 
         if (jsonString.isNotEmpty()) {
-            val settings: Settings = Json { ignoreUnknownKeys = true }.decodeFromString<Settings>(jsonString)
+            var settings: Settings = Json { ignoreUnknownKeys = true }.decodeFromString<Settings>(jsonString)
+            // Настройки, перенесённые с Windows (или записанные старой версией на macOS/Linux)
+            if (GeneralConstants.isForeignWindowsPath(settings.localFolderToTable)) {
+                settings = settings.copy(localFolderToTable = SettingsConstants.LOCAL_FOLDER_TO_TABLE)
+                saveData(settings = settings)
+            }
             println("User settings to load is: $settings")
             return settings
         } else {
@@ -107,7 +112,7 @@ class SettingsRepositoryImpl : SettingsRepository {
     private suspend fun createFolderAndFileIfNotExists() {
         val folder = File(GeneralConstants.Paths.PATH_TO_SETTINGS_FOLDER)
         if (!folder.exists()) {
-            folder.mkdir()
+            folder.mkdirs()
         }
         withContext(Dispatchers.IO) {
             File(GeneralConstants.Paths.PATH_TO_SETTINGS_FILE).createNewFile()

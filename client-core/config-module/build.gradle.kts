@@ -12,4 +12,7 @@ repositories {
 dependencies {
 //    Serialization
     implementation(globalVersions.serialization.json)
+
+//    DPAPI для защиты ключа шифрования на Windows
+    implementation(globalVersions.jna.platform)
 }

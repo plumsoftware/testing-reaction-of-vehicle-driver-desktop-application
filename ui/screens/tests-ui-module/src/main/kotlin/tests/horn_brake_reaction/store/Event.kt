@@ -7,4 +7,7 @@ sealed class Event {
     data class OnBrakePressed(val pressNanos: Long) : Event()
 
     data object BackClicked : Event()
+
+    /** Тренировка окончена, испытуемый начинает зачётную часть. */
+    data object StartMainTest : Event()
 }

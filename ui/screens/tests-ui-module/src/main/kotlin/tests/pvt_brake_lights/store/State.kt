@@ -14,6 +14,8 @@ data class State(
     /** Сообщение на «приборной панели» после ответа (время реакции или «Фальстарт»), 1 с. */
     val feedbackText: String? = null,
     val results: TrialResults = TrialResults(),
+    /** Идёт тренировка: попытки не сохраняются. */
+    val isPractice: Boolean = true,
 
     val testDTO: TestDTO = TestDTO(),
     val saveStatus: SaveStatus = SaveStatus.SAVING,

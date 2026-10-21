@@ -23,6 +23,8 @@ coroutines = "1.11.0"
 
 hash = "0.6.0"
 
+jna = "5.17.0"
+
 [libraries]
 #Precompose
 precompose-viewmodel = { module = "moe.tlaster:precompose-viewmodel", version.ref = "precompose" }
@@ -58,6 +60,9 @@ kotlin-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", 
 
 #Hash
 hash = {module = "dev.whyoleg.cryptography:cryptography-bom", version.ref = "hash"}
+
+#JNA (DPAPI на Windows)
+jna-platform = { module = "net.java.dev.jna:jna-platform", version.ref = "jna" }
 
 [plugins]
 #Serialization

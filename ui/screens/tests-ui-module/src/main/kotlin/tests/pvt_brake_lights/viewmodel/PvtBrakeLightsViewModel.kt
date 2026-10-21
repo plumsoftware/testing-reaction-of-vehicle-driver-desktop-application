@@ -21,6 +21,7 @@ import tests.common.COUNTDOWN_SECONDS
 import tests.common.Foreperiod
 import tests.common.StimulusClock
 import tests.common.TestPhase
+import tests.common.PRACTICE_TRIALS
 import tests.common.TrialResults
 import tests.common.isAnticipation
 import tests.common.randomForeperiodMs
@@ -53,7 +54,7 @@ class PvtBrakeLightsViewModel(
     private val workBookStorage: WorkbookStorage,
     private val sessionStorage: SessionStorage,
 ) : ViewModel() {
-    val state = MutableStateFlow(State(testDTO = testDTO.copy(interval = PVT_INTERVAL)))
+    val state = MutableStateFlow(State(testDTO = testDTO.copy(interval = PVT_INTERVAL), isPractice = testDTO.withPractice))
     val effect = MutableSharedFlow<Effect>()
 
     private val clock = StimulusClock()
@@ -66,6 +67,8 @@ class PvtBrakeLightsViewModel(
 
     fun onEvent(event: Event) {
         when (event) {
+            Event.StartMainTest -> startMainTest()
+
             Event.StartInitTimer -> startCountdown()
 
             is Event.OnStimulusDrawn -> clock.onDrawn(id = event.stimulusId, nanos = event.drawNanos)
@@ -94,9 +97,13 @@ class PvtBrakeLightsViewModel(
 
     private fun isTimeOver(): Boolean = System.nanoTime() - testStartNanos >= durationNanos
 
+    /** Тренировка заканчивается по числу попыток, зачётная часть — по времени. */
+    private fun isOver(): Boolean =
+        if (state.value.isPractice) state.value.results.presented >= PRACTICE_TRIALS else isTimeOver()
+
     /** Интервал до следующего сигнала; если время теста вышло — сигнал не предъявляется. */
     private fun startInterval() {
-        if (isTimeOver()) {
+        if (isOver()) {
             finishTest()
             return
         }
@@ -104,7 +111,7 @@ class PvtBrakeLightsViewModel(
         phaseJob = viewModelScope.launch {
             foreperiod = Foreperiod(randomForeperiodMs(PVT_INTERVAL))
             delay(foreperiod.durationMs)
-            if (isTimeOver()) finishTest() else showBrakeLights()
+            if (isOver()) finishTest() else showBrakeLights()
         }
     }
 
@@ -165,7 +172,7 @@ class PvtBrakeLightsViewModel(
                 startInterval()
             }
 
-            TestPhase.COUNTDOWN, TestPhase.FEEDBACK, TestPhase.FINISHED -> {}
+            TestPhase.COUNTDOWN, TestPhase.FEEDBACK, TestPhase.PRACTICE_FINISHED, TestPhase.FINISHED -> {}
         }
     }
 
@@ -180,6 +187,10 @@ class PvtBrakeLightsViewModel(
     }
 
     private fun finishTest() {
+        if (state.value.isPractice) {
+            finishPractice()
+            return
+        }
         phaseJob?.cancel()
         feedbackJob?.cancel()
         val results = state.value.results
@@ -246,6 +257,27 @@ class PvtBrakeLightsViewModel(
                 add(TestMetric("pvt_slowest10_speed", "Средняя скорость 10 % самых медленных реакций", -it, "1/с"))
             }
         }
+    }
+
+    /** Тренировочные попытки отбрасываются, ждём, пока испытуемый начнёт зачётную часть. */
+    private fun finishPractice() {
+        phaseJob?.cancel()
+        feedbackJob?.cancel()
+        state.update {
+            it.copy(
+                phase = TestPhase.PRACTICE_FINISHED,
+                stimulusId = null,
+                feedbackText = null,
+                results = TrialResults()
+            )
+        }
+    }
+
+    private fun startMainTest() {
+        if (state.value.phase != TestPhase.PRACTICE_FINISHED) return
+        state.update { it.copy(isPractice = false, phase = TestPhase.COUNTDOWN, countdown = COUNTDOWN_SECONDS) }
+        phaseJob = null
+        startCountdown()
     }
 
     companion object {

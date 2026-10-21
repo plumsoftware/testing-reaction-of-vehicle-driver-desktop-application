@@ -242,16 +242,14 @@ fun AboutUserPage(navigator: Navigator, userStorage: UserStorage, sessionStorage
                                     .padding(ExtensionPadding.mediumAsymmetricalContentPadding)
                                     .padding(start = ExtensionPadding.largeHorPadding)
                             ) {
-                                state.value.selectedChipList.forEachIndexed { index, _ ->
-                                    var selected by remember { mutableStateOf(index == 0) }
+                                state.value.selectedChipList.forEachIndexed { index, selected ->
                                     FilterChip(
                                         selected = selected,
                                         onClick = {
-                                            selected = !selected
                                             aboutUserViewModel.onEvent(
                                                 Event.OnFilterChipClick(
                                                     index = index,
-                                                    selected = selected
+                                                    selected = !selected
                                                 )
                                             )
                                         },

@@ -20,6 +20,8 @@ import tests.common.Foreperiod
 import tests.common.HornPlayer
 import tests.common.StimulusClock
 import tests.common.TestPhase
+import tests.common.TrialResults
+import tests.common.PRACTICE_TRIALS
 import tests.common.isAnticipation
 import tests.common.randomForeperiodMs
 import tests.common.reactionTimeMetrics
@@ -44,7 +46,7 @@ class HornBrakeReactionViewModel(
     private val workBookStorage: WorkbookStorage,
     private val sessionStorage: SessionStorage,
 ) : ViewModel() {
-    val state = MutableStateFlow(State(testDTO = testDTO))
+    val state = MutableStateFlow(State(testDTO = testDTO, isPractice = testDTO.withPractice))
     val effect = MutableSharedFlow<Effect>()
 
     private val clock = StimulusClock()
@@ -61,6 +63,8 @@ class HornBrakeReactionViewModel(
 
     fun onEvent(event: Event) {
         when (event) {
+            Event.StartMainTest -> startMainTest()
+
             Event.StartInitTimer -> if (player != null) startCountdown()
 
             is Event.OnBrakePressed -> onBrake(pressNanos = event.pressNanos)
@@ -149,16 +153,20 @@ class HornBrakeReactionViewModel(
                 phaseJob = viewModelScope.launch { pauseThenNextTrial() }
             }
 
-            TestPhase.COUNTDOWN, TestPhase.FEEDBACK, TestPhase.FINISHED -> {}
+            TestPhase.COUNTDOWN, TestPhase.FEEDBACK, TestPhase.PRACTICE_FINISHED, TestPhase.FINISHED -> {}
         }
     }
 
     private suspend fun pauseThenNextTrial() {
         delay(FEEDBACK_MS)
-        if (state.value.results.presented >= state.value.testDTO.count) finishTest() else startForeperiod()
+        if (state.value.results.presented >= trialsTarget()) finishTest() else startForeperiod()
     }
 
     private fun finishTest() {
+        if (state.value.isPractice) {
+            finishPractice()
+            return
+        }
         val results = state.value.results
         val audioMetrics = listOfNotNull(
             player?.let { TestMetric("audio_buffer_ms", "Буфер аудиовыхода", it.bufferMs, "мс") }
@@ -186,6 +194,27 @@ class HornBrakeReactionViewModel(
             }
             state.update { it.copy(saveStatus = status) }
         }
+    }
+
+    /** Сколько попыток в текущей части: тренировочной или зачётной. */
+    private fun trialsTarget(): Int = if (state.value.isPractice) PRACTICE_TRIALS else state.value.testDTO.count
+
+    /** Тренировочные попытки отбрасываются, ждём, пока испытуемый начнёт зачётную часть. */
+    private fun finishPractice() {
+        phaseJob?.cancel()
+        state.update {
+            it.copy(
+                phase = TestPhase.PRACTICE_FINISHED,
+                results = TrialResults()
+            )
+        }
+    }
+
+    private fun startMainTest() {
+        if (state.value.phase != TestPhase.PRACTICE_FINISHED) return
+        state.update { it.copy(isPractice = false, phase = TestPhase.COUNTDOWN, countdown = COUNTDOWN_SECONDS) }
+        phaseJob = null
+        startCountdown()
     }
 
     companion object {

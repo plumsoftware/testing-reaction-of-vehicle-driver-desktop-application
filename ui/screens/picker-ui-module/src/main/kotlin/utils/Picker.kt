@@ -10,6 +10,6 @@ fun showFilePicker(fileSelectionMode: Int = JFileChooser.DIRECTORIES_ONLY): File
     return if (result == JFileChooser.APPROVE_OPTION) {
         fileChooser.selectedFile
     } else {
-        File("C:\\")
+        File(System.getProperty("user.home"))
     }
 }

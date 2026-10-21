@@ -14,6 +14,8 @@ data class State(
     /** Последняя попытка завершилась пропуском: машина проехала на красный. */
     val lastTrialMissed: Boolean = false,
     val results: TrialResults = TrialResults(),
+    /** Идёт тренировка: попытки не сохраняются. */
+    val isPractice: Boolean = true,
 
     val testDTO: TestDTO = TestDTO(),
     val saveStatus: SaveStatus = SaveStatus.SAVING,

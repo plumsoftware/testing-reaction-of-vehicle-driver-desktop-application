@@ -12,7 +12,6 @@ import data.model.dto.test.PreTestState
 import data.model.dto.test.TestDTO
 import data.model.either.local.LocalEither
 import data.model.regular.user.DrivingLicenseCategory
-import data.model.regular.user.Interval
 import data.model.regular.user.User
 import domain.storage.UserStorage
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -56,11 +55,9 @@ class LoginViewModel(
                 if (
                     state.value.login.isEmpty() ||
                     state.value.password.isEmpty() ||
-                    state.value.count == 0 ||
                     state.value.drivingLicenseCategory == DrivingLicenseCategory.Empty ||
                     state.value.experience < 0 ||
                     state.value.age < 0 ||
-                    state.value.selectedInterval == Interval() ||
                     !state.value.preTestState.isComplete
                 ) {
                     isErrorsStatus()
@@ -85,8 +82,6 @@ class LoginViewModel(
                                 println("User to test is $user")
                                 val testDto = TestDTO(
                                     user = user,
-                                    count = state.value.count,
-                                    interval = state.value.selectedInterval,
                                     preTestState = state.value.preTestState,
                                 )
                                 state.update {
@@ -109,14 +104,6 @@ class LoginViewModel(
                 }
             }
 
-            is Event.OnCountChanged -> {
-                state.update {
-                    it.copy(
-                        count = event.count
-                    )
-                }
-            }
-
             is Event.OnDrivingLicenseCategoryChanged -> {
                 state.update {
                     it.copy(
@@ -133,14 +120,6 @@ class LoginViewModel(
                 }
             }
 
-            is Event.OnIntervalChanged -> {
-                state.update {
-                    it.copy(
-                        selectedInterval = event.interval
-                    )
-                }
-            }
-
             is Event.OnVisionCorrectionChanged -> updatePreTestState {
                 it.copy(visionCorrection = event.visionCorrection)
             }
@@ -153,7 +132,6 @@ class LoginViewModel(
 
             is Event.OnResponseHandChanged -> updatePreTestState { it.copy(responseHand = event.responseHand) }
 
-            is Event.OnInputDeviceChanged -> updatePreTestState { it.copy(inputDevice = event.inputDevice) }
 
             is Event.OnAgeChanged -> {
                 state.update {
@@ -174,10 +152,8 @@ class LoginViewModel(
             it.copy(
                 isLoginError = state.value.login.isEmpty(),
                 isPasswordError = state.value.password.isEmpty(),
-                isCountError = state.value.count == 0,
                 isDrivingLicenseCategoryError = state.value.drivingLicenseCategory == DrivingLicenseCategory.Empty,
                 isExperienceError = state.value.experience < 0,
-                isIntervalError = state.value.selectedInterval == Interval(),
                 isAgeError = state.value.age < 0,
                 showPreTestErrors = true
             )

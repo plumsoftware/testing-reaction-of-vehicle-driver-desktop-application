@@ -17,20 +17,26 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.coerceIn
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import data.model.dto.test.TestDTO
 import data.model.regular.settings.Settings
+import data.model.regular.settings.workbookFiles
 import domain.storage.SessionStorage
 import domain.storage.WorkbookStorage
+import model.tests.ResponseKeys
 import moe.tlaster.precompose.navigation.Navigator
 import moe.tlaster.precompose.viewmodel.viewModel
 import other.components.test.TRAFFIC_LIGHT_HEIGHT_IN_LAMPS
 import other.components.test.TrafficLight
 import other.components.test.onPressTimestamp
 import other.components.test.trafficLightLampColors
+import tests.common.LocalPressedResponseKeys
 import tests.common.TestScreenScaffold
+import tests.common.keyboardResponses
+import tests.common.respondsWithKeyboard
 import tests.common.statusTextStyle
 import tests.common.testStatusText
 import tests.traffic_light_test_choice_reaction.store.Effect
@@ -72,11 +78,23 @@ fun TrafficLightTestChoiceReaction(
         viewModel.onEvent(Event.StartTimer)
     }
 
+    val keyboard = state.testDTO.respondsWithKeyboard
+
     TestScreenScaffold(
         phase = state.phase,
         result = state.testDTO,
         saveStatus = state.saveStatus,
-        onBack = { viewModel.onEvent(Event.BackCLicked) }
+        resultFiles = settings.workbookFiles,
+        onBack = { viewModel.onEvent(Event.BackCLicked) },
+        onStartMainTest = { viewModel.onEvent(Event.StartMainTest) },
+        onResponseKey = keyboardResponses(
+            keyboard,
+            ResponseKeys.LAMPS.withIndex().associate { (index, binding) ->
+                binding.key to { pressNanos: Long ->
+                    viewModel.onEvent(Event.OnLampButtonPressed(lampIndex = index, pressNanos = pressNanos))
+                }
+            }
+        )
     ) {
         // Высота сцены: статус + светофор + кнопки ≈ 8.2 размера лампы; ширина кнопок ≈ 7.8 лампы
         val lampSize = min((maxHeight - 72.dp) / (TRAFFIC_LIGHT_HEIGHT_IN_LAMPS + 2.3f), maxWidth / 7.8f)
@@ -88,7 +106,7 @@ fun TrafficLightTestChoiceReaction(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = testStatusText(state.phase, state.countdown, state.results.presented, state.testDTO.count),
+                text = testStatusText(state.phase, state.countdown, state.results.presented, state.testDTO.count, state.isPractice),
                 style = statusTextStyle()
             )
 
@@ -109,10 +127,23 @@ fun TrafficLightTestChoiceReaction(
                             .size(width = lampSize * 2.2f, height = lampSize)
                             .clip(MaterialTheme.shapes.small)
                             .background(color)
-                            .onPressTimestamp { pressNanos ->
-                                viewModel.onEvent(Event.OnLampButtonPressed(lampIndex = index, pressNanos = pressNanos))
-                            }
-                    )
+                            .then(
+                                if (keyboard) Modifier
+                                else Modifier.onPressTimestamp { pressNanos ->
+                                    viewModel.onEvent(Event.OnLampButtonPressed(lampIndex = index, pressNanos = pressNanos))
+                                }
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        // При ответе с клавиатуры на кнопке подписана её клавиша
+                        if (keyboard) {
+                            Text(
+                                text = ResponseKeys.LAMPS[index].keyLabel,
+                                style = MaterialTheme.typography.headlineMedium,
+                                color = Color.Black
+                            )
+                        }
+                    }
                 }
             }
         }
