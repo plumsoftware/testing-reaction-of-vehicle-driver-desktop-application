@@ -1,5 +1,7 @@
 package presentation.settings.store
 
+import data.model.regular.settings.PedalBindings
+
 sealed class Event {
     data object BackClicked : Event()
 
@@ -10,6 +12,8 @@ sealed class Event {
 
 
     data object SelectLocalFolderToTable : Event()
+
+    data class PedalsChanged(val pedals: PedalBindings) : Event()
 
     data object ExportKeyClicked : Event()
 }

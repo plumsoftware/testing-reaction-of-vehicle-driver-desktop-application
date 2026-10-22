@@ -97,6 +97,11 @@ class SettingsViewModel(
             }
 //            endregion
 
+            is Event.PedalsChanged -> {
+                state.update { it.copy(settings = it.settings.copy(pedals = event.pedals)) }
+                save(state = state)
+            }
+
 //            region::Local folder
             Event.SelectLocalFolderToTable -> {
                 val selectedLocalFolderToTable: File = showFilePicker()
@@ -122,7 +127,8 @@ class SettingsViewModel(
                         SettingsConstants.XLS to state.value.isXlsFormat,
                         SettingsConstants.XLTX to state.value.isXltxFormat,
                     ),
-                    localFolderToTable = state.value.selectedLocalFolderToTable.path
+                    localFolderToTable = state.value.selectedLocalFolderToTable.path,
+                    pedals = state.value.settings.pedals
                 )
             )
         }

@@ -6,6 +6,7 @@ import domain.repository.WorkbookRepository
 import org.apache.poi.ss.usermodel.*
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.apache.poi.xssf.usermodel.XSSFWorkbookType
+import utlis.formatExcelDateTimeSeconds
 import utlis.parseToExcelDateTime
 import java.io.File
 import java.io.FileInputStream
@@ -56,6 +57,11 @@ class WorkbookRepositoryImpl : WorkbookRepository {
         Column("ОС", 12000, IndexedColors.GREY_25_PERCENT),
         Column("Версия программы", 8000, IndexedColors.GREY_25_PERCENT),
         Column("Версия методики", 8000, IndexedColors.GREY_25_PERCENT),
+        Column("Начало теста", 12000, IndexedColors.LIGHT_YELLOW),
+        Column("Начало зачётной части", 12000, IndexedColors.LIGHT_YELLOW),
+        Column("Окончание теста", 12000, IndexedColors.LIGHT_YELLOW),
+        Column("Длительность зачётной части, с", 10000, IndexedColors.LIGHT_YELLOW),
+        Column("Тренировка перед тестом", 10000, IndexedColors.LIGHT_YELLOW),
     )
 
     /** Лист с каждой попыткой: одна строка на сигнал или фальстарт. */
@@ -174,6 +180,14 @@ class WorkbookRepositoryImpl : WorkbookRepository {
                 rowItem.createCell(32).setCellValue(environment.operatingSystem)
                 rowItem.createCell(33).setCellValue(environment.appVersion)
                 rowItem.createCell(34).setCellValue(environment.methodVersion)
+
+                startedAtMillis?.let { rowItem.createCell(35).setCellValue(formatExcelDateTimeSeconds(it)) }
+                mainStartedAtMillis?.let { rowItem.createCell(36).setCellValue(formatExcelDateTimeSeconds(it)) }
+                finishedAtMillis?.let { rowItem.createCell(37).setCellValue(formatExcelDateTimeSeconds(it)) }
+                if (mainStartedAtMillis != null && finishedAtMillis != null) {
+                    rowItem.createCell(38).setCellValue((finishedAtMillis - mainStartedAtMillis) / 1000.0)
+                }
+                rowItem.createCell(39).setCellValue(if (withPractice) "да" else "нет")
 
                 trials.forEach { trial ->
                     val trialRow = trialsSheet.createRow(trialsSheet.lastRowNum + 1)

@@ -41,13 +41,16 @@ import data.constant.TestConstants
 import data.model.dto.test.InputDevice
 import data.model.regular.user.Interval
 import kotlinx.coroutines.launch
+import data.model.regular.settings.PedalBindings
 import model.tests.ReactionTest
+import model.tests.ResponseInput
+import model.tests.unassignedPedals
 import other.components.AuthSpinnerField
 import testmenu.store.StartStep
 import testmenu.viewmodel.TestMenuViewModel
 
 /**
- * Окно перед запуском теста: шаг 1 — устройство ввода, количество попыток и интервал;
+ * Окно перед запуском теста: шаг 1 — устройство ввода (клавиатура, мышь или педали), количество попыток и интервал;
  * шаг 2 — обучение слайдами под выбранное устройство; на последнем слайде можно пропустить тренировку.
  * Для тестов с фиксированной методикой (PVT) попытки и интервал не выбираются.
  */
@@ -58,6 +61,7 @@ fun TestStartDialog(
     count: Int,
     interval: Interval,
     inputDevice: InputDevice,
+    pedals: PedalBindings,
     onCountChange: (Int) -> Unit,
     onIntervalChange: (Interval) -> Unit,
     onInputDeviceChange: (InputDevice) -> Unit,
@@ -84,6 +88,7 @@ fun TestStartDialog(
                         count = count,
                         interval = interval,
                         inputDevice = inputDevice,
+                        pedals = pedals,
                         onCountChange = onCountChange,
                         onIntervalChange = onIntervalChange,
                         onInputDeviceChange = onInputDeviceChange,
@@ -93,7 +98,7 @@ fun TestStartDialog(
 
                     StartStep.TUTORIAL -> TutorialStep(
                         test = test,
-                        keyboard = inputDevice == InputDevice.KEYBOARD,
+                        input = ResponseInput(device = inputDevice, pedals = pedals),
                         onBack = onBackToParameters,
                         onStart = onStart
                     )
@@ -109,6 +114,7 @@ private fun ParametersStep(
     count: Int,
     interval: Interval,
     inputDevice: InputDevice,
+    pedals: PedalBindings,
     onCountChange: (Int) -> Unit,
     onIntervalChange: (Interval) -> Unit,
     onInputDeviceChange: (InputDevice) -> Unit,
@@ -122,10 +128,11 @@ private fun ParametersStep(
         ) {
             Text(text = "Чем будете отвечать?", style = MaterialTheme.typography.titleMedium)
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.fillMaxWidth()) {
-                TestMenuViewModel.selectableInputDevices.forEach { device ->
+                TestMenuViewModel.selectableInputDevices(test).forEach { device ->
                     DeviceCard(
                         device = device,
                         test = test,
+                        pedals = pedals,
                         selected = device == inputDevice,
                         onClick = { onInputDeviceChange(device) },
                         modifier = Modifier.weight(1f)
@@ -161,12 +168,24 @@ private fun ParametersStep(
                 )
             }
         }
+        // Педали выбраны, но нужная тесту не назначена: тест не на что будет нажимать
+        val missingPedals = if (inputDevice == InputDevice.PEDALS) test.unassignedPedals(pedals) else emptyList()
+        if (missingPedals.isNotEmpty()) {
+            Text(
+                text = "Не назначена педаль: ${missingPedals.joinToString { "«$it»" }}. " +
+                    "Назначьте её в разделе «Настройки» → «Педали» или выберите другое устройство.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.error
+            )
+        }
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
             modifier = Modifier.fillMaxWidth()
         ) {
             TextButton(onClick = onDismiss) { Text("Отмена", style = MaterialTheme.typography.bodyMedium) }
-            Button(onClick = onNext) { Text("Далее: обучение", style = MaterialTheme.typography.bodyMedium) }
+            Button(onClick = onNext, enabled = missingPedals.isEmpty()) {
+                Text("Далее: обучение", style = MaterialTheme.typography.bodyMedium)
+            }
         }
     }
 }
@@ -175,6 +194,7 @@ private fun ParametersStep(
 private fun DeviceCard(
     device: InputDevice,
     test: ReactionTest,
+    pedals: PedalBindings,
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -193,18 +213,28 @@ private fun DeviceCard(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Box(modifier = Modifier.height(96.dp), contentAlignment = Alignment.Center) {
-                if (device == InputDevice.KEYBOARD) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                when (device) {
+                    InputDevice.KEYBOARD -> Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         test.responses.map { it.keyLabel }.distinct().forEach { KeyCap(label = it, height = 48.dp) }
                     }
-                } else {
-                    MouseIllustration()
+
+                    InputDevice.PEDALS -> Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        test.responses.mapNotNull { it.pedal }.distinct().forEach { pedal ->
+                            KeyCap(label = pedal.toString(), height = 48.dp)
+                        }
+                    }
+
+                    else -> MouseIllustration()
                 }
             }
             Text(text = device.toString(), style = MaterialTheme.typography.titleMedium)
             Text(
-                text = if (device == InputDevice.KEYBOARD) "Рекомендуется: пальцы лежат на клавишах, рука не двигается"
-                else "Нажатие левой кнопкой по элементу на экране",
+                text = when (device) {
+                    InputDevice.KEYBOARD -> "Рекомендуется: пальцы лежат на клавишах, рука не двигается"
+                    InputDevice.PEDALS -> if (test.unassignedPedals(pedals).isEmpty()) "Нажатие педали ногой, как в автомобиле"
+                    else "Сначала назначьте педали: «Настройки» → «Педали»"
+                    else -> "Нажатие левой кнопкой по элементу на экране"
+                },
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -215,11 +245,11 @@ private fun DeviceCard(
 @Composable
 private fun TutorialStep(
     test: ReactionTest,
-    keyboard: Boolean,
+    input: ResponseInput,
     onBack: () -> Unit,
     onStart: (withPractice: Boolean) -> Unit,
 ) {
-    val slides = tutorialSlides(test = test, keyboard = keyboard)
+    val slides = tutorialSlides(test = test, input = input)
     val pagerState = rememberPagerState(pageCount = { slides.size })
     val scope = rememberCoroutineScope()
     val page = pagerState.currentPage

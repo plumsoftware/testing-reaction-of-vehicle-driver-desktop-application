@@ -22,6 +22,7 @@ import tests.common.TestPhase
 import tests.common.TrialResults
 import tests.common.PRACTICE_TRIALS
 import tests.common.isAnticipation
+import tests.common.markPartStarted
 import tests.common.randomForeperiodMs
 import tests.common.saveTestResult
 import tests.common.withResults
@@ -78,6 +79,7 @@ class TrafficLightTestChoiceReactionViewModel(
                 state.update { it.copy(countdown = second) }
                 delay(1000)
             }
+            state.update { it.copy(testDTO = it.testDTO.markPartStarted(isPractice = it.isPractice)) }
             startForeperiod()
         }
     }

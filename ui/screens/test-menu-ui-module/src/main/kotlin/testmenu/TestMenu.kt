@@ -10,6 +10,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import data.model.dto.test.TestDTO
+import data.model.regular.settings.PedalBindings
 import moe.tlaster.precompose.navigation.Navigator
 import moe.tlaster.precompose.viewmodel.viewModel
 import other.components.BackButton
@@ -25,6 +26,8 @@ import testmenu.viewmodel.TestMenuViewModel
 fun TestMenu(
     navigator: Navigator,
     testDto: TestDTO,
+    /** Клавиши педалей из настроек: без них педали в окне перед тестом не выбрать. */
+    pedals: PedalBindings = PedalBindings(),
     block: (TestDTO) -> Unit = {}
 ) {
 
@@ -56,6 +59,7 @@ fun TestMenu(
             count = state.count,
             interval = state.interval,
             inputDevice = state.inputDevice,
+            pedals = pedals,
             onCountChange = { testMenuViewModel.onEvent(Event.CountChanged(it)) },
             onIntervalChange = { testMenuViewModel.onEvent(Event.IntervalChanged(it)) },
             onInputDeviceChange = { testMenuViewModel.onEvent(Event.InputDeviceChanged(it)) },

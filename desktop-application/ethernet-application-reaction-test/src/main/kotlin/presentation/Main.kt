@@ -211,6 +211,7 @@ fun main() = run {
                             TestMenu(
                                 navigator = navigator,
                                 testDto = mainState.value.testDTO,
+                                pedals = mainState.value.settings.pedals,
                                 block = {
                                     mainViewModel.onEvent(
                                         Event.ChangeTestDto(

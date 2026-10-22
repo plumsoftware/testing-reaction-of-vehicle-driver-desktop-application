@@ -23,12 +23,11 @@ import moe.tlaster.precompose.viewmodel.viewModel
 import other.components.test.RoadView
 import tests.common.RoadSceneHeader
 import tests.common.TestPhase
-import tests.common.LocalPressedResponseKeys
 import tests.common.TestScreenScaffold
-import tests.common.keyboardResponses
+import tests.common.keyResponses
 import tests.common.rememberRoadScroll
-import tests.common.respondsWithKeyboard
-import tests.common.responseHint
+import tests.common.isPressed
+import tests.common.responseInput
 import tests.common.testStatusText
 import tests.horn_brake_reaction.store.Effect
 import tests.horn_brake_reaction.store.Event
@@ -70,7 +69,8 @@ fun HornBrakeReaction(
             (state.phase == TestPhase.FEEDBACK && state.lastTrialMissed)
     val roadScroll = rememberRoadScroll(isDriving)
 
-    val keyboard = state.testDTO.respondsWithKeyboard
+    val input = state.testDTO.responseInput(settings)
+    val usesKeys = input.usesKeys
 
     TestScreenScaffold(
         phase = state.phase,
@@ -79,16 +79,16 @@ fun HornBrakeReaction(
         resultFiles = settings.workbookFiles,
         onBack = { viewModel.onEvent(Event.BackClicked) },
         onStartMainTest = { viewModel.onEvent(Event.StartMainTest) },
-        onResponseKey = keyboardResponses(
-            keyboard,
-            mapOf(ResponseKeys.BRAKE.key to { pressNanos -> viewModel.onEvent(Event.OnBrakePressed(pressNanos)) })
+        onResponseKey = keyResponses(
+            input,
+            mapOf(ResponseKeys.BRAKE to { pressNanos -> viewModel.onEvent(Event.OnBrakePressed(pressNanos)) })
         )
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             RoadView(
                 roadScroll = roadScroll,
-                onBrakePress = if (keyboard) null else { pressNanos -> viewModel.onEvent(Event.OnBrakePressed(pressNanos)) },
-                brakePressed = keyboard && ResponseKeys.BRAKE.key in LocalPressedResponseKeys.current
+                onBrakePress = if (usesKeys) null else { pressNanos -> viewModel.onEvent(Event.OnBrakePressed(pressNanos)) },
+                brakePressed = input.isPressed(ResponseKeys.BRAKE)
             )
             val audioError = state.audioError
             if (audioError != null) {
@@ -101,7 +101,7 @@ fun HornBrakeReaction(
             } else {
                 RoadSceneHeader(
                     status = testStatusText(state.phase, state.countdown, state.results.presented, state.testDTO.count, state.isPractice),
-                    instruction = "Услышали звуковой сигнал — ${responseHint(keyboard, ResponseKeys.BRAKE)}",
+                    instruction = "Услышали звуковой сигнал — ${input.hint(ResponseKeys.BRAKE)}",
                     modifier = Modifier.align(Alignment.TopCenter)
                 )
             }

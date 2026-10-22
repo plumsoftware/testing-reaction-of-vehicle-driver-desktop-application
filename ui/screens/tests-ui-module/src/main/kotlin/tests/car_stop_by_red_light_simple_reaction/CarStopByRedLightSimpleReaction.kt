@@ -22,12 +22,11 @@ import tests.car_stop_by_red_light_simple_reaction.store.Event
 import tests.car_stop_by_red_light_simple_reaction.viewmodel.CarStopByRedLightSimpleReactionViewModel
 import tests.common.RoadSceneHeader
 import tests.common.TestPhase
-import tests.common.LocalPressedResponseKeys
 import tests.common.TestScreenScaffold
-import tests.common.keyboardResponses
+import tests.common.keyResponses
 import tests.common.rememberRoadScroll
-import tests.common.respondsWithKeyboard
-import tests.common.responseHint
+import tests.common.isPressed
+import tests.common.responseInput
 import tests.common.testStatusText
 
 @Composable
@@ -73,7 +72,8 @@ fun CarStopByRedLightSimpleReaction(
     val lampIndex = if (state.phase == TestPhase.STIMULUS || state.phase == TestPhase.FEEDBACK) 0 else 2
     val stimulusId = state.stimulusId
 
-    val keyboard = state.testDTO.respondsWithKeyboard
+    val input = state.testDTO.responseInput(settings)
+    val usesKeys = input.usesKeys
 
     TestScreenScaffold(
         phase = state.phase,
@@ -82,17 +82,17 @@ fun CarStopByRedLightSimpleReaction(
         resultFiles = settings.workbookFiles,
         onBack = { viewModel.onEvent(Event.BackClicked) },
         onStartMainTest = { viewModel.onEvent(Event.StartMainTest) },
-        onResponseKey = keyboardResponses(
-            keyboard,
-            mapOf(ResponseKeys.BRAKE.key to { pressNanos -> viewModel.onEvent(Event.OnBrakePressed(pressNanos)) })
+        onResponseKey = keyResponses(
+            input,
+            mapOf(ResponseKeys.BRAKE to { pressNanos -> viewModel.onEvent(Event.OnBrakePressed(pressNanos)) })
         )
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             RoadView(
                 roadScroll = roadScroll,
                 lampIndex = lampIndex,
-                onBrakePress = if (keyboard) null else { pressNanos -> viewModel.onEvent(Event.OnBrakePressed(pressNanos)) },
-                brakePressed = keyboard && ResponseKeys.BRAKE.key in LocalPressedResponseKeys.current,
+                onBrakePress = if (usesKeys) null else { pressNanos -> viewModel.onEvent(Event.OnBrakePressed(pressNanos)) },
+                brakePressed = input.isPressed(ResponseKeys.BRAKE),
                 stimulusKey = if (state.phase == TestPhase.STIMULUS) stimulusId else null,
                 onStimulusDrawn = { drawNanos ->
                     if (stimulusId != null) viewModel.onEvent(Event.OnStimulusDrawn(stimulusId, drawNanos))
@@ -100,7 +100,7 @@ fun CarStopByRedLightSimpleReaction(
             )
             RoadSceneHeader(
                 status = testStatusText(state.phase, state.countdown, state.results.presented, state.testDTO.count, state.isPractice),
-                instruction = "Загорелся красный — ${responseHint(keyboard, ResponseKeys.BRAKE)}",
+                instruction = "Загорелся красный — ${input.hint(ResponseKeys.BRAKE)}",
                 modifier = Modifier.align(Alignment.TopCenter)
             )
         }

@@ -12,6 +12,11 @@ import data.model.regular.user.Interval
  *
  * @param validCount учтено правильных реакций (n).
  * @param environment null — сведения о рабочем месте не записывались.
+ * @param startedAt начало теста (первый сигнал после обратного отсчёта; с тренировкой — начало тренировки),
+ * формат `yyyy-MM-dd HH:mm:ss`; null — сессия записана раньше.
+ * @param mainStartedAt начало зачётной части; совпадает с [startedAt], если тренировку пропустили.
+ * @param finishedAt окончание теста (момент сохранения результата).
+ * @param withPractice была ли тренировка перед зачётной частью; null — сессия записана раньше.
  */
 data class SessionDTO(
     val sessionId: Long,
@@ -39,4 +44,8 @@ data class SessionDTO(
     val userSessionNumber: Int? = null,
     val preTestState: PreTestState = PreTestState(),
     val environment: TestEnvironment? = null,
+    val startedAt: String? = null,
+    val mainStartedAt: String? = null,
+    val finishedAt: String? = null,
+    val withPractice: Boolean? = null,
 )

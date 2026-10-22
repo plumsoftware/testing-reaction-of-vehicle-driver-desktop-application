@@ -37,7 +37,11 @@ CREATE TABLE IF NOT EXISTS Sessions (
     computer_name TEXT,
     operating_system TEXT,
     app_version TEXT,
-    method_version TEXT
+    method_version TEXT,
+    started_at TEXT,
+    main_started_at TEXT,
+    finished_at TEXT,
+    with_practice INTEGER
 );
 
 selectAllSessions{
@@ -82,8 +86,16 @@ INSERT OR ABORT INTO Sessions (
     computer_name,
     operating_system,
     app_version,
-    method_version)
+    method_version,
+    started_at,
+    main_started_at,
+    finished_at,
+    with_practice)
 VALUES (
+?,
+?,
+?,
+?,
 ?,
 ?,
 ?,

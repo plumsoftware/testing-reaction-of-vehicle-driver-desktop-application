@@ -45,9 +45,11 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import data.model.dto.test.InputDevice
 import data.model.dto.test.TestDTO
+import data.model.regular.settings.Settings
 import java.io.File
 import kotlinx.coroutines.delay
 import model.tests.ResponseBinding
+import model.tests.ResponseInput
 import other.components.BackButton
 import other.components.ResultLabels
 import other.components.SaveStatus
@@ -74,7 +76,7 @@ fun TestScreenScaffold(
     onBack: () -> Unit,
     onStartMainTest: () -> Unit,
     onResponseKey: ResponseKeyHandler? = null,
-    keyboardHint: String = "Выбрана клавиатура — отвечайте клавишами, мышь не используется",
+    keyboardHint: String = mouseIgnoredHint(result.preTestState.inputDevice),
     resultLabels: ResultLabels = ResultLabels(),
     content: @Composable BoxWithConstraintsScope.() -> Unit
 ) {
@@ -171,7 +173,7 @@ private fun PracticeFinishedComponent(onStart: () -> Unit) {
 }
 
 /**
- * Ответ с клавиатуры: получает клавишу и System.nanoTime() нажатия, возвращает true,
+ * Ответ клавишей (клавиатура или педали): получает клавишу и System.nanoTime() нажатия, возвращает true,
  * если клавиша — ответ в этом тесте.
  */
 typealias ResponseKeyHandler = (key: Key, pressNanos: Long) -> Boolean
@@ -236,21 +238,33 @@ private fun Modifier.responseKeys(
 /** Клавиши, которые сейчас удерживаются, — чтобы показать педаль нажатой. */
 val LocalPressedResponseKeys = compositionLocalOf<List<Key>> { emptyList() }
 
-/** Обработчик ответа: при ответе с клавиатуры — клавиша, иначе null (отвечают мышью). */
-fun keyboardResponses(keyboard: Boolean, bindings: Map<Key, (Long) -> Unit>): ResponseKeyHandler? =
-    if (!keyboard) null else { key, pressNanos ->
-        val onPress = bindings[key]
+/**
+ * Обработчик ответа клавишами (клавиатура или педали); null — отвечают мышью.
+ * Клавиша каждого ответа берётся из [input]: у педалей — назначенная в настройках.
+ */
+fun keyResponses(input: ResponseInput, bindings: Map<ResponseBinding, (Long) -> Unit>): ResponseKeyHandler? {
+    if (!input.usesKeys) return null
+    val byKey = bindings.entries.mapNotNull { (binding, onPress) -> input.keyOf(binding)?.let { it to onPress } }.toMap()
+    return { key, pressNanos ->
+        val onPress = byKey[key]
         onPress?.invoke(pressNanos)
         onPress != null
     }
+}
 
-/** Испытуемый отвечает с клавиатуры (выбрано в окне перед запуском теста). */
-val TestDTO.respondsWithKeyboard: Boolean
-    get() = preTestState.inputDevice == InputDevice.KEYBOARD
+/** Как испытуемый отвечает в этом тесте (устройство выбрано в окне перед запуском, педали — в настройках). */
+fun TestDTO.responseInput(settings: Settings): ResponseInput =
+    ResponseInput(device = preTestState.inputDevice, pedals = settings.pedals)
 
-/** Подсказка над сценой: «нажмите «Пробел»» или «нажмите педаль тормоза». */
-fun responseHint(keyboard: Boolean, binding: ResponseBinding): String =
-    if (keyboard) "нажмите «${binding.keyLabel}»" else "нажмите ${binding.mouseTarget}"
+/** Клавиша или педаль ответа [binding] сейчас удерживается. */
+@Composable
+fun ResponseInput.isPressed(binding: ResponseBinding): Boolean =
+    usesKeys && keyOf(binding)?.let { it in LocalPressedResponseKeys.current } == true
+
+/** Подсказка при нажатии мыши, когда отвечают клавишами. */
+private fun mouseIgnoredHint(device: InputDevice?): String =
+    if (device == InputDevice.PEDALS) "Выбраны педали — отвечайте педалями, мышь не используется"
+    else "Выбрана клавиатура — отвечайте клавишами, мышь не используется"
 
 /** Стиль текста статуса над тестом. */
 @Composable

@@ -70,7 +70,7 @@ class SessionRepositoryImpl_(
             parameters = 0
         ).value
 
-        methodV2Columns.filter { (name, _) -> name !in existing }.forEach { (name, type) ->
+        addedColumns.filter { (name, _) -> name !in existing }.forEach { (name, type) ->
             sessionsDatabaseDriver.execute(
                 identifier = null,
                 sql = "ALTER TABLE Sessions ADD COLUMN $name $type",
@@ -111,10 +111,10 @@ class SessionRepositoryImpl_(
         const val SCHEMA_VERSION_SD_IN_SECONDS = 1L
 
         /**
-         * Столбцы версии методики 2. В БД, созданных раньше, таблица Sessions уже существует
+         * Столбцы, добавленные после первой версии (методика 2, затем время начала/окончания и тренировка). В БД, созданных раньше, таблица Sessions уже существует
          * (CREATE TABLE IF NOT EXISTS её не меняет), поэтому недостающие столбцы добавляются здесь.
          */
-        val methodV2Columns = listOf(
+        val addedColumns = listOf(
             "valid_count" to "INTEGER",
             "wrong_responses" to "INTEGER",
             "omissions" to "INTEGER",
@@ -137,6 +137,10 @@ class SessionRepositoryImpl_(
             "operating_system" to "TEXT",
             "app_version" to "TEXT",
             "method_version" to "TEXT",
+            "started_at" to "TEXT",
+            "main_started_at" to "TEXT",
+            "finished_at" to "TEXT",
+            "with_practice" to "INTEGER",
         )
     }
 
@@ -210,7 +214,11 @@ class SessionRepositoryImpl_(
                     computer_name = environment?.computerName,
                     operating_system = environment?.operatingSystem,
                     app_version = environment?.appVersion,
-                    method_version = environment?.methodVersion
+                    method_version = environment?.methodVersion,
+                    started_at = startedAt,
+                    main_started_at = mainStartedAt,
+                    finished_at = finishedAt,
+                    with_practice = withPractice?.let { if (it) 1L else 0L }
                 )
                 val newSessionId = queries.lastInsertRowId().executeAsOne()
                 trials.forEach { trial ->
@@ -312,7 +320,11 @@ class SessionRepositoryImpl_(
                 operatingSystem = operating_system ?: "",
                 appVersion = app_version ?: "",
                 methodVersion = methodVersion
-            )
+            ),
+            startedAt = started_at,
+            mainStartedAt = main_started_at,
+            finishedAt = finished_at,
+            withPractice = with_practice?.let { it != 0L }
         )
     }
 

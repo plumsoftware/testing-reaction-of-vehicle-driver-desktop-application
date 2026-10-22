@@ -23,6 +23,7 @@ import tests.common.TestPhase
 import tests.common.TrialResults
 import tests.common.PRACTICE_TRIALS
 import tests.common.isAnticipation
+import tests.common.markPartStarted
 import tests.common.randomForeperiodMs
 import tests.common.reactionTimeMetrics
 import tests.common.saveTestResult
@@ -84,6 +85,7 @@ class HornBrakeReactionViewModel(
                 state.update { it.copy(countdown = second) }
                 delay(1000)
             }
+            state.update { it.copy(testDTO = it.testDTO.markPartStarted(isPractice = it.isPractice)) }
             startForeperiod()
         }
     }

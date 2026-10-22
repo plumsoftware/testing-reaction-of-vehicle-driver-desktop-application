@@ -16,7 +16,8 @@ data class Settings(
         SettingsConstants.XLTX to false,
     ),
     @SerialName("networkDrive") val networkDrive: String = SettingsConstants.NETWORK_DRIVE,
-    @SerialName("localFolderToTable") val localFolderToTable: String = SettingsConstants.LOCAL_FOLDER_TO_TABLE
+    @SerialName("localFolderToTable") val localFolderToTable: String = SettingsConstants.LOCAL_FOLDER_TO_TABLE,
+    @SerialName("pedals") val pedals: PedalBindings = PedalBindings(),
 )
 
 /** Excel-файлы, в которые записываются результаты (по включённым форматам). */

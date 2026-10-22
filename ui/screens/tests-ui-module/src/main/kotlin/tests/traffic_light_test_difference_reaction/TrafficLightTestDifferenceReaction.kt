@@ -25,11 +25,10 @@ import moe.tlaster.precompose.viewmodel.viewModel
 import other.components.test.GasPedalButton
 import other.components.test.TRAFFIC_LIGHT_HEIGHT_IN_LAMPS
 import other.components.test.TrafficLight
-import tests.common.LocalPressedResponseKeys
 import tests.common.TestScreenScaffold
-import tests.common.keyboardResponses
-import tests.common.respondsWithKeyboard
-import tests.common.responseHint
+import tests.common.keyResponses
+import tests.common.isPressed
+import tests.common.responseInput
 import tests.common.statusTextStyle
 import tests.common.testStatusText
 import tests.traffic_light_test_difference_reaction.store.Effect
@@ -74,7 +73,8 @@ fun TrafficLightTestDifferenceReaction(
         viewModel.onEvent(Event.StartTimer)
     }
 
-    val keyboard = state.testDTO.respondsWithKeyboard
+    val input = state.testDTO.responseInput(settings)
+    val usesKeys = input.usesKeys
 
     TestScreenScaffold(
         phase = state.phase,
@@ -83,9 +83,9 @@ fun TrafficLightTestDifferenceReaction(
         resultFiles = settings.workbookFiles,
         onBack = { viewModel.onEvent(Event.BackCLicked) },
         onStartMainTest = { viewModel.onEvent(Event.StartMainTest) },
-        onResponseKey = keyboardResponses(
-            keyboard,
-            mapOf(ResponseKeys.GAS.key to { pressNanos -> viewModel.onEvent(Event.OnGasPedalPressed(pressNanos)) })
+        onResponseKey = keyResponses(
+            input,
+            mapOf(ResponseKeys.GAS to { pressNanos -> viewModel.onEvent(Event.OnGasPedalPressed(pressNanos)) })
         )
     ) {
         // Высота сцены: статус + светофор + педаль ≈ 10.1 размера лампы
@@ -116,8 +116,8 @@ fun TrafficLightTestDifferenceReaction(
 
             GasPedalButton(
                 height = lampSize * PEDAL_HEIGHT_IN_LAMPS,
-                onPress = if (keyboard) null else { pressNanos -> viewModel.onEvent(Event.OnGasPedalPressed(pressNanos)) },
-                pressed = keyboard && ResponseKeys.GAS.key in LocalPressedResponseKeys.current
+                onPress = if (usesKeys) null else { pressNanos -> viewModel.onEvent(Event.OnGasPedalPressed(pressNanos)) },
+                pressed = input.isPressed(ResponseKeys.GAS)
             )
         }
     }

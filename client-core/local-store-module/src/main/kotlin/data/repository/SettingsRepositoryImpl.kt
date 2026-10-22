@@ -21,46 +21,13 @@ class SettingsRepositoryImpl : SettingsRepository {
 
     override fun saveData(settings: Settings) {
         println("SettingsRepositoryImpl: User settings to save is: $settings")
-//        val jsonString = Json.encodeToString("""{$settings}""".trimIndent())
+        // Сериализатор сам экранирует кавычки и обратные слэши в путях
+        createFolderIfNotExists().writeText(settingsJson.encodeToString(Settings.serializer(), settings))
+    }
 
-//        Folder
-        val settingsFile = createFolderIfNotExists()
-        val stringBuffer = StringBuffer()
-        stringBuffer.append("\t\"dataFormats\" : \n\t{\n")
-        settings.dataFormats.forEach { (key, value) ->
-            if (key != SettingsConstants.XLTX)
-                stringBuffer
-                    .append("\t\t\"$key\" : $value,\n")
-            else
-                stringBuffer
-                    .append("\t\t\"$key\" : $value\n")
-        }
-        stringBuffer.append("\t},\n")
-
-//        Network drive & local drive
-        stringBuffer
-            .append("\t\"networkDrive\" : \"${settings.networkDrive}\"")
-            .append(",\n")
-
-//        Local folder to table
-        stringBuffer
-            .append(
-                "\t\"localFolderToTable\" : \"${
-                    settings.localFolderToTable.replace(
-                        "\\",
-                        "\\\\"
-                    )
-                }\""
-            )
-
-        val jsonString =
-            "{\n" +
-                    "\t\"isDarkTheme\" : ${settings.isDarkTheme}," + "\n" +
-                    stringBuffer.toString() + "\n" +
-                    "}"
-
-        settingsFile.writeText(jsonString)
-        println("SettingsRepositoryImpl: json to save: $jsonString")
+    private val settingsJson = Json {
+        prettyPrint = true
+        encodeDefaults = true
     }
 
     override fun loadSettings(scope: CoroutineScope): Settings {

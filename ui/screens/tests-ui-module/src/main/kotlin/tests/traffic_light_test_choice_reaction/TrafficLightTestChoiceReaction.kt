@@ -33,10 +33,9 @@ import other.components.test.TRAFFIC_LIGHT_HEIGHT_IN_LAMPS
 import other.components.test.TrafficLight
 import other.components.test.onPressTimestamp
 import other.components.test.trafficLightLampColors
-import tests.common.LocalPressedResponseKeys
 import tests.common.TestScreenScaffold
-import tests.common.keyboardResponses
-import tests.common.respondsWithKeyboard
+import tests.common.keyResponses
+import tests.common.responseInput
 import tests.common.statusTextStyle
 import tests.common.testStatusText
 import tests.traffic_light_test_choice_reaction.store.Effect
@@ -78,7 +77,8 @@ fun TrafficLightTestChoiceReaction(
         viewModel.onEvent(Event.StartTimer)
     }
 
-    val keyboard = state.testDTO.respondsWithKeyboard
+    val input = state.testDTO.responseInput(settings)
+    val usesKeys = input.usesKeys
 
     TestScreenScaffold(
         phase = state.phase,
@@ -87,10 +87,10 @@ fun TrafficLightTestChoiceReaction(
         resultFiles = settings.workbookFiles,
         onBack = { viewModel.onEvent(Event.BackCLicked) },
         onStartMainTest = { viewModel.onEvent(Event.StartMainTest) },
-        onResponseKey = keyboardResponses(
-            keyboard,
+        onResponseKey = keyResponses(
+            input,
             ResponseKeys.LAMPS.withIndex().associate { (index, binding) ->
-                binding.key to { pressNanos: Long ->
+                binding to { pressNanos: Long ->
                     viewModel.onEvent(Event.OnLampButtonPressed(lampIndex = index, pressNanos = pressNanos))
                 }
             }
@@ -128,7 +128,7 @@ fun TrafficLightTestChoiceReaction(
                             .clip(MaterialTheme.shapes.small)
                             .background(color)
                             .then(
-                                if (keyboard) Modifier
+                                if (usesKeys) Modifier
                                 else Modifier.onPressTimestamp { pressNanos ->
                                     viewModel.onEvent(Event.OnLampButtonPressed(lampIndex = index, pressNanos = pressNanos))
                                 }
@@ -136,9 +136,9 @@ fun TrafficLightTestChoiceReaction(
                         contentAlignment = Alignment.Center
                     ) {
                         // При ответе с клавиатуры на кнопке подписана её клавиша
-                        if (keyboard) {
+                        if (usesKeys) {
                             Text(
-                                text = ResponseKeys.LAMPS[index].keyLabel,
+                                text = input.label(ResponseKeys.LAMPS[index]),
                                 style = MaterialTheme.typography.headlineMedium,
                                 color = Color.Black
                             )

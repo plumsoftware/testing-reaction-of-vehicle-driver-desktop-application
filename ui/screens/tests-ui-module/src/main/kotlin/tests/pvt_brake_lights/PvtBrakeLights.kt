@@ -29,12 +29,11 @@ import other.components.test.RoadView
 import tests.common.PRACTICE_TRIALS
 import tests.common.RoadSceneHeader
 import tests.common.TestPhase
-import tests.common.LocalPressedResponseKeys
 import tests.common.TestScreenScaffold
-import tests.common.keyboardResponses
+import tests.common.keyResponses
 import tests.common.rememberRoadScroll
-import tests.common.respondsWithKeyboard
-import tests.common.responseHint
+import tests.common.isPressed
+import tests.common.responseInput
 import tests.common.testStatusText
 import tests.pvt_brake_lights.store.Effect
 import tests.pvt_brake_lights.store.Event
@@ -79,7 +78,8 @@ fun PvtBrakeLights(
     val roadScroll = rememberRoadScroll(isDriving = state.phase != TestPhase.COUNTDOWN)
     val stimulusId = state.stimulusId
 
-    val keyboard = state.testDTO.respondsWithKeyboard
+    val input = state.testDTO.responseInput(settings)
+    val usesKeys = input.usesKeys
 
     TestScreenScaffold(
         phase = state.phase,
@@ -88,17 +88,17 @@ fun PvtBrakeLights(
         resultFiles = settings.workbookFiles,
         onBack = { viewModel.onEvent(Event.BackClicked) },
         onStartMainTest = { viewModel.onEvent(Event.StartMainTest) },
-        onResponseKey = keyboardResponses(
-            keyboard,
-            mapOf(ResponseKeys.BRAKE.key to { pressNanos -> viewModel.onEvent(Event.OnBrakePressed(pressNanos)) })
+        onResponseKey = keyResponses(
+            input,
+            mapOf(ResponseKeys.BRAKE to { pressNanos -> viewModel.onEvent(Event.OnBrakePressed(pressNanos)) })
         )
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             RoadView(
                 roadScroll = roadScroll,
                 leadCar = LeadCar(brakeLightsOn = state.phase == TestPhase.STIMULUS),
-                onBrakePress = if (keyboard) null else { pressNanos -> viewModel.onEvent(Event.OnBrakePressed(pressNanos)) },
-                brakePressed = keyboard && ResponseKeys.BRAKE.key in LocalPressedResponseKeys.current,
+                onBrakePress = if (usesKeys) null else { pressNanos -> viewModel.onEvent(Event.OnBrakePressed(pressNanos)) },
+                brakePressed = input.isPressed(ResponseKeys.BRAKE),
                 stimulusKey = if (state.phase == TestPhase.STIMULUS) stimulusId else null,
                 onStimulusDrawn = { drawNanos ->
                     if (stimulusId != null) viewModel.onEvent(Event.OnStimulusDrawn(stimulusId, drawNanos))
@@ -112,7 +112,7 @@ fun PvtBrakeLights(
                 } else {
                     "Тест $durationMinutes мин"
                 },
-                instruction = "Загорелись стоп-сигналы впереди идущей машины — ${responseHint(keyboard, ResponseKeys.BRAKE)}",
+                instruction = "Загорелись стоп-сигналы впереди идущей машины — ${input.hint(ResponseKeys.BRAKE)}",
                 modifier = Modifier.align(Alignment.TopCenter)
             )
 

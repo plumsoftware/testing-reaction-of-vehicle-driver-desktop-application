@@ -17,6 +17,7 @@ import domain.storage.SettingsStorage
 import moe.tlaster.precompose.navigation.Navigator
 import moe.tlaster.precompose.viewmodel.viewModel
 import other.components.BackButton
+import other.components.PedalSettingsCard
 import other.extension.padding.ExtensionPadding
 import other.extension.size.ConstantSize
 import presentation.settings.store.Effect
@@ -139,6 +140,13 @@ fun SettingsPage(navigator: Navigator, settingsStorage: SettingsStorage, block: 
                         }
                     }
                 }
+            }
+
+            item {
+                PedalSettingsCard(
+                    pedals = state.settings.pedals,
+                    onChange = { settingsViewModel.onEvent(Event.PedalsChanged(pedals = it)) }
+                )
             }
 
             item {

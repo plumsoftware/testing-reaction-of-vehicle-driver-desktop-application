@@ -166,6 +166,15 @@ private fun SessionDetails(sessionDTO: SessionDTO, trials: List<TrialRecord>?) =
         )
     }
 
+    if (startedAt != null || finishedAt != null || withPractice != null) {
+        DetailsSection("Проведение теста") {
+            startedAt?.let { Line("Начало теста", it) }
+            mainStartedAt?.takeIf { it != startedAt }?.let { Line("Начало зачётной части", it) }
+            finishedAt?.let { Line("Окончание", it) }
+            withPractice?.let { Line("Тренировка перед тестом", if (it) "была" else "пропущена") }
+        }
+    }
+
     DetailsSection("Водитель на момент теста") {
         Line("Категория водительского удостоверения", drivingLicenseCategory.toString())
         Line("Стаж вождения", "$experience ${yearsEnding(experience.toIntOrNull() ?: 0)}")

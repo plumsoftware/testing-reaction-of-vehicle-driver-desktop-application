@@ -8,7 +8,9 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import model.tests.ReactionTest
 import model.tests.allReactionTests
+import model.tests.supportsPedals
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
 import testmenu.store.Effect
@@ -36,9 +38,9 @@ class TestMenuViewModel : ViewModel() {
                     it.copy(
                         selectedTest = event.test,
                         step = StartStep.PARAMETERS,
-                        inputDevice = event.testDTO.preTestState.inputDevice
-                            ?.takeIf { device -> device in selectableInputDevices }
-                            ?: it.inputDevice,
+                        inputDevice = listOfNotNull(event.testDTO.preTestState.inputDevice, it.inputDevice)
+                            .firstOrNull { device -> device in selectableInputDevices(event.test) }
+                            ?: InputDevice.KEYBOARD,
                         count = it.count.takeIf { count -> count > 0 }
                             ?: event.testDTO.count.takeIf { count -> count > 0 }
                             ?: DEFAULT_COUNT,
@@ -85,8 +87,9 @@ class TestMenuViewModel : ViewModel() {
     }
 
     companion object {
-        /** Устройства, из которых выбирают в окне перед запуском теста. */
-        val selectableInputDevices = listOf(InputDevice.KEYBOARD, InputDevice.MOUSE)
+        /** Устройства, из которых выбирают в окне перед запуском теста; педали — если тест можно пройти ими. */
+        fun selectableInputDevices(test: ReactionTest): List<InputDevice> =
+            listOfNotNull(InputDevice.KEYBOARD, InputDevice.MOUSE, InputDevice.PEDALS.takeIf { test.supportsPedals })
 
         private const val DEFAULT_COUNT = 10
         private val DEFAULT_INTERVAL = TestConstants.Tests.intervals[1]

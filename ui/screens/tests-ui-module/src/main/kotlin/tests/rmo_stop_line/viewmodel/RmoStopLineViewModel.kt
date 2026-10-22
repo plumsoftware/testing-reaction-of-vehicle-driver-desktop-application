@@ -17,6 +17,7 @@ import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
 import other.components.SaveStatus
 import tests.common.COUNTDOWN_SECONDS
+import tests.common.markPartStarted
 import tests.common.Foreperiod
 import tests.common.TestPhase
 import tests.common.PRACTICE_TRIALS
@@ -80,6 +81,7 @@ class RmoStopLineViewModel(
                 state.update { it.copy(countdown = second) }
                 delay(1000)
             }
+            state.update { it.copy(testDTO = it.testDTO.markPartStarted(isPractice = it.isPractice)) }
             startForeperiod()
         }
     }

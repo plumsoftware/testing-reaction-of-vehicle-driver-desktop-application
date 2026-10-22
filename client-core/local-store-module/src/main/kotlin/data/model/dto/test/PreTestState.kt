@@ -19,11 +19,13 @@ enum class ResponseHand(private val title: String) {
 
 /**
  * Устройство, которым испытуемый отвечает в тесте; выбирается в окне перед запуском теста.
+ * PEDALS — USB-педали, эмулирующие клавиатуру (клавиши назначаются в настройках).
  * TOUCHPAD и OTHER остались для сессий, записанных раньше.
  */
 enum class InputDevice(private val title: String) {
     KEYBOARD("Клавиатура"),
     MOUSE("Мышь"),
+    PEDALS("Педали"),
     TOUCHPAD("Тачпад"),
     OTHER("Другое");
 

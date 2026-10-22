@@ -16,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
 import utlis.EnvironmentCollector
+import utlis.formatDbDateTime
 
 /** Длительность обратного отсчёта перед первым сигналом, с. */
 const val COUNTDOWN_SECONDS = 10
@@ -114,6 +115,15 @@ class Foreperiod(val durationMs: Long) {
         (pressNanos - startNanos) / 1_000_000.0 - durationMs
 }
 
+/**
+ * Отмечает начало части теста — сразу после обратного отсчёта. Начало теста запоминается один раз
+ * (с тренировкой — её начало), начало зачётной части — когда [isPractice] = false.
+ */
+fun TestDTO.markPartStarted(isPractice: Boolean, nowMillis: Long = System.currentTimeMillis()): TestDTO = copy(
+    startedAtMillis = startedAtMillis ?: nowMillis,
+    mainStartedAtMillis = if (isPractice) mainStartedAtMillis else nowMillis
+)
+
 /** Случайный интервал до сигнала, равномерно распределённый в [start; finish], мс. */
 fun randomForeperiodMs(interval: Interval): Long =
     if (interval.finish > interval.start) Random.nextLong(interval.start, interval.finish + 1) else interval.start
@@ -178,6 +188,7 @@ suspend fun saveTestResult(
     val previousSessions = sessionStorage.getSessionsWithUserId(userId = result.user.id)
         .count { it.testId == testId }
     val enriched = result.copy(
+        finishedAtMillis = now.timeInMillis,
         userSessionNumber = previousSessions + 1,
         environment = EnvironmentCollector.collect(),
         // Тренировку можно пропустить, а это влияет на результат — записываем
@@ -213,7 +224,11 @@ suspend fun saveTestResult(
             handedness = enriched.user.handedness,
             userSessionNumber = enriched.userSessionNumber,
             preTestState = enriched.preTestState,
-            environment = enriched.environment
+            environment = enriched.environment,
+            startedAt = enriched.startedAtMillis?.let(::formatDbDateTime),
+            mainStartedAt = enriched.mainStartedAtMillis?.let(::formatDbDateTime),
+            finishedAt = formatDbDateTime(now.timeInMillis),
+            withPractice = enriched.withPractice
         ),
         trials = enriched.trials,
         metrics = enriched.metrics
