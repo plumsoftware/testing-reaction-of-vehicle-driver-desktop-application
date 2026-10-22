@@ -1,6 +1,7 @@
 package newuser.store
 
 import data.model.regular.user.Gender
+import data.model.regular.user.Handedness
 
 sealed class Event {
     data object BackCLicked : Event()
@@ -9,6 +10,7 @@ sealed class Event {
     data class OnSurnameChanged(val surname: String) : Event()
     data class OnPatronymicChanged(val patronymic: String) : Event()
     data class OnGenderChanged(val gender: Gender) : Event()
+    data class OnHandednessChanged(val handedness: Handedness) : Event()
     data class OnLoginChanged(val login: String) : Event()
     data class OnPasswordChanged(val password: String) : Event()
 

@@ -1,15 +1,27 @@
 package newuser
 
-import androidx.compose.animation.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AccountCircle
+import androidx.compose.material.icons.rounded.Face
+import androidx.compose.material.icons.rounded.Lock
+import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.ThumbUp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import data.model.either.AppEither
 import data.model.regular.user.Gender
+import data.model.regular.user.Handedness
 import domain.storage.UserStorage
 import moe.tlaster.precompose.navigation.Navigator
 import moe.tlaster.precompose.viewmodel.viewModel
@@ -18,12 +30,11 @@ import newuser.store.Event
 import newuser.viewmodel.NewUserViewModel
 import other.components.AuthSpinnerField
 import other.components.AuthTextField
-import other.components.BackButton
-import other.components.DefaultButton
-import other.extension.padding.ExtensionPadding
+import other.components.FormMessage
+import other.components.FormScreen
+import other.components.FormSection
 import theme.ExtendedTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewUserPage(navigator: Navigator, userStorage: UserStorage) {
 
@@ -46,150 +57,125 @@ fun NewUserPage(navigator: Navigator, userStorage: UserStorage) {
         }
     }
 
-    Scaffold(
-        topBar = {
-            BackButton(
-                onClick = { newUserViewModel.onEvent(Event.BackCLicked) }
-            )
-        },
-        floatingActionButton = {
-            DefaultButton(
-                onClick = { newUserViewModel.onEvent(Event.SaveNewUser) },
-                content = {
-                    Text(
-                        text = "Сохранить",
-                        style = MaterialTheme.typography.headlineMedium
+    FormScreen(
+        title = "Новый пользователь",
+        subtitle = "Заполните данные водителя. Логин и пароль понадобятся ему для входа в тестирование",
+        primaryButtonText = "Сохранить",
+        onPrimaryClick = { newUserViewModel.onEvent(Event.SaveNewUser) },
+        onBackClick = { newUserViewModel.onEvent(Event.BackCLicked) },
+        message = {
+            val result = state.value.appEither
+            AnimatedVisibility(
+                visible = result !is AppEither.Handle,
+                enter = fadeIn() + expandVertically(),
+                exit = fadeOut() + shrinkVertically()
+            ) {
+                when (result) {
+                    is AppEither.Exception<*> -> FormMessage(text = result.e.toString(), isError = true)
+                    is AppEither.Success<*> -> FormMessage(
+                        text = result.e.toString(),
+                        isError = false,
+                        successContainerColor = ExtendedTheme.colors.successContainer,
+                        onSuccessContainerColor = ExtendedTheme.colors.onSuccessContainer
                     )
-                })
-        },
-        floatingActionButtonPosition = FabPosition.End,
-        modifier = Modifier.fillMaxSize()
+                    AppEither.Handle -> {}
+                }
+            }
+        }
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(ExtensionPadding.mediumAsymmetricalContentPadding),
-            verticalArrangement = ExtensionPadding.mediumVerticalArrangement,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        FormSection(title = "Личные данные") {
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = ExtensionPadding.mediumHorizontalArrangementCenter,
-                modifier = Modifier.fillMaxWidth().wrapContentHeight()
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxWidth()
             ) {
                 AuthTextField(
                     labelHint = "Фамилию",
+                    label = "Фамилия",
+                    leadingIcon = Icons.Rounded.Person,
                     onValueChange = {
                         newUserViewModel.onEvent(Event.OnSurnameChanged(surname = it))
                     },
-                    modifier = Modifier.fillMaxWidth().weight(1.0f),
+                    modifier = Modifier.weight(1.0f),
                     isError = state.value.isSurnameError
                 )
                 AuthTextField(
                     labelHint = "Имя",
+                    label = "Имя",
+                    leadingIcon = Icons.Rounded.Person,
                     onValueChange = {
                         newUserViewModel.onEvent(Event.OnNameChanged(name = it))
                     },
-                    modifier = Modifier.fillMaxWidth().weight(1.0f),
+                    modifier = Modifier.weight(1.0f),
                     isError = state.value.isNameError
                 )
                 AuthTextField(
                     labelHint = "Отчество (при наличии)",
+                    label = "Отчество (при наличии)",
+                    leadingIcon = Icons.Rounded.Person,
                     onValueChange = {
                         newUserViewModel.onEvent(Event.OnPatronymicChanged(patronymic = it))
                     },
-                    modifier = Modifier.fillMaxWidth().weight(1.0f),
+                    modifier = Modifier.weight(1.0f),
                 )
             }
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = ExtensionPadding.mediumHorizontalArrangementCenter,
-                modifier = Modifier.fillMaxWidth().wrapContentHeight()
-            ) {
-                AuthTextField(
-                    labelHint = "Логин",
-                    onValueChange = {
-                        newUserViewModel.onEvent(Event.OnLoginChanged(login = it))
-                    },
-                    modifier = Modifier.fillMaxWidth().weight(1.0f),
-                    isError = state.value.isLoginError
-                )
-                AuthTextField(
-                    labelHint = "Пароль",
-                    onValueChange = {
-                        newUserViewModel.onEvent(Event.OnPasswordChanged(password = it))
-                    },
-                    modifier = Modifier.fillMaxWidth().weight(1.0f),
-                    isError = state.value.isPasswordError
-                )
-            }
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = ExtensionPadding.mediumHorizontalArrangementCenter,
-                modifier = Modifier.fillMaxWidth().wrapContentHeight()
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxWidth(0.667f)
             ) {
                 AuthSpinnerField(
                     text = if (state.value.gender == Gender.EMPTY) "" else state.value.gender.toString(),
                     labelHint = "Пол",
+                    label = "Пол",
+                    leadingIcon = Icons.Rounded.Face,
                     onValueChange = {
                         it as Gender
                         newUserViewModel.onEvent(Event.OnGenderChanged(it))
                     },
                     isError = state.value.isGenderError,
-                    list = Gender.entries,
-                    modifier = Modifier.fillMaxWidth().weight(1.0f),
+                    list = Gender.entries.filter { it != Gender.EMPTY },
+                    modifier = Modifier.weight(1.0f),
+                )
+                AuthSpinnerField(
+                    text = state.value.handedness.toString(),
+                    labelHint = "ведущую руку",
+                    label = "Ведущая рука",
+                    leadingIcon = Icons.Rounded.ThumbUp,
+                    onValueChange = {
+                        newUserViewModel.onEvent(Event.OnHandednessChanged(it as Handedness))
+                    },
+                    isError = state.value.isHandednessError,
+                    list = Handedness.selectable,
+                    modifier = Modifier.weight(1.0f),
                 )
             }
+        }
 
-            when (val result = state.value.appEither) {
-                is AppEither.Exception<*> -> {
-                    AnimatedVisibility(
-                        visible = state.value.appEither == AppEither.Exception(result.e),
-                        enter = fadeIn() + slideInVertically(initialOffsetY = { it }),
-                        exit = fadeOut() + slideOutVertically(targetOffsetY = { it }),
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    ) {
-                        Card(
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.errorContainer,
-                                contentColor = MaterialTheme.colorScheme.onErrorContainer
-                            ),
-                            modifier = Modifier
-                                .wrapContentWidth()
-                        ) {
-                            Text(
-                                text = result.e.toString(),
-                                modifier = Modifier.padding(ExtensionPadding.smallPadding),
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                        }
-                    }
-                }
-
-                AppEither.Handle -> {}
-                is AppEither.Success<*> -> {
-                    AnimatedVisibility(
-                        visible = result == AppEither.Success(result.e),
-                        enter = fadeIn() + slideInVertically(initialOffsetY = { it }),
-                        exit = fadeOut() + slideOutVertically(targetOffsetY = { it }),
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    ) {
-                        Card(
-                            colors = CardDefaults.cardColors(
-                                containerColor = ExtendedTheme.colors.successContainer,
-                                contentColor = ExtendedTheme.colors.onSuccessContainer
-                            ),
-                            modifier = Modifier
-                                .wrapContentWidth()
-                        ) {
-                            Text(
-                                text = result.e.toString(),
-                                modifier = Modifier.padding(ExtensionPadding.smallPadding),
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                        }
-                    }
-                }
+        FormSection(title = "Учётная запись") {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                AuthTextField(
+                    labelHint = "Логин",
+                    label = "Логин",
+                    leadingIcon = Icons.Rounded.AccountCircle,
+                    onValueChange = {
+                        newUserViewModel.onEvent(Event.OnLoginChanged(login = it))
+                    },
+                    modifier = Modifier.weight(1.0f),
+                    isError = state.value.isLoginError
+                )
+                AuthTextField(
+                    labelHint = "Пароль",
+                    label = "Пароль",
+                    leadingIcon = Icons.Rounded.Lock,
+                    isPassword = true,
+                    onValueChange = {
+                        newUserViewModel.onEvent(Event.OnPasswordChanged(password = it))
+                    },
+                    modifier = Modifier.weight(1.0f),
+                    isError = state.value.isPasswordError
+                )
             }
         }
     }

@@ -135,8 +135,9 @@ fun AboutUserPage(navigator: Navigator, userStorage: UserStorage, sessionStorage
                                     textStyle = MaterialTheme.typography.headlineLarge.copy(
                                         fontWeight = FontWeight.Black
                                     ),
-                                    colors = TextFieldDefaults.textFieldColors(
-                                        containerColor = Color.Transparent
+                                    colors = TextFieldDefaults.colors(
+                                        focusedContainerColor = Color.Transparent,
+                                        unfocusedContainerColor = Color.Transparent
                                     )
                                 )
                                 TextField(
@@ -148,8 +149,9 @@ fun AboutUserPage(navigator: Navigator, userStorage: UserStorage, sessionStorage
                                     textStyle = MaterialTheme.typography.headlineLarge.copy(
                                         fontWeight = FontWeight.Black
                                     ),
-                                    colors = TextFieldDefaults.textFieldColors(
-                                        containerColor = Color.Transparent
+                                    colors = TextFieldDefaults.colors(
+                                        focusedContainerColor = Color.Transparent,
+                                        unfocusedContainerColor = Color.Transparent
                                     )
                                 )
                                 TextField(
@@ -165,8 +167,9 @@ fun AboutUserPage(navigator: Navigator, userStorage: UserStorage, sessionStorage
                                     textStyle = MaterialTheme.typography.headlineLarge.copy(
                                         fontWeight = FontWeight.Black
                                     ),
-                                    colors = TextFieldDefaults.textFieldColors(
-                                        containerColor = Color.Transparent
+                                    colors = TextFieldDefaults.colors(
+                                        focusedContainerColor = Color.Transparent,
+                                        unfocusedContainerColor = Color.Transparent
                                     )
                                 )
                             }
@@ -187,6 +190,7 @@ fun AboutUserPage(navigator: Navigator, userStorage: UserStorage, sessionStorage
                                 AuthTextField(
                                     text = "",
                                     labelHint = "Пароль",
+                                    isPassword = true,
                                     onValueChange = {
                                         aboutUserViewModel.onEvent(Event.OnPasswordChanged(password = it))
                                     },
@@ -223,9 +227,10 @@ fun AboutUserPage(navigator: Navigator, userStorage: UserStorage, sessionStorage
                                 modifier = Modifier.fillMaxWidth().wrapContentHeight()
                                     .padding(ExtensionPadding.mediumAsymmetricalContentPadding)
                             ) {
-                                if (state.value.sessions.isNotEmpty())
+                                // График строится по тому же фильтру, что и список: разные тесты не смешиваются
+                                if (state.value.filteredSessionsList.isNotEmpty())
                                     LinearChart(
-                                        list = state.value.sessions.take(30),
+                                        list = state.value.filteredSessionsList.takeLast(30),
                                         acceptedLineParams = state.value.selectedChipList
                                     )
                                 else
@@ -237,16 +242,14 @@ fun AboutUserPage(navigator: Navigator, userStorage: UserStorage, sessionStorage
                                     .padding(ExtensionPadding.mediumAsymmetricalContentPadding)
                                     .padding(start = ExtensionPadding.largeHorPadding)
                             ) {
-                                state.value.selectedChipList.forEachIndexed { index, _ ->
-                                    var selected by remember { mutableStateOf(index == 0) }
+                                state.value.selectedChipList.forEachIndexed { index, selected ->
                                     FilterChip(
                                         selected = selected,
                                         onClick = {
-                                            selected = !selected
                                             aboutUserViewModel.onEvent(
                                                 Event.OnFilterChipClick(
                                                     index = index,
-                                                    selected = selected
+                                                    selected = !selected
                                                 )
                                             )
                                         },
@@ -280,9 +283,10 @@ fun AboutUserPage(navigator: Navigator, userStorage: UserStorage, sessionStorage
                                 textStyle = MaterialTheme.typography.bodySmall,
                                 shape = MaterialTheme.shapes.medium,
                                 maxLines = 1,
-                                colors = TextFieldDefaults.outlinedTextFieldColors(
-                                    containerColor = Color.Transparent,
-                                ),
+                                colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent
+                    ),
                                 isError = state.value.isFilterError,
                                 value = state.value.testNumberFilter,
                                 onValueChange = {
@@ -316,7 +320,11 @@ fun AboutUserPage(navigator: Navigator, userStorage: UserStorage, sessionStorage
                     with(state.value.filteredSessionsList) {
                         if (this.isNotEmpty()) {
                             itemsIndexed(this) { _, item ->
-                                SessionCard(item)
+                                SessionCard(
+                                    sessionDTO = item,
+                                    loadTrials = aboutUserViewModel::loadTrials,
+                                    loadMetrics = aboutUserViewModel::loadMetrics
+                                )
                             }
                         } else {
                             item {

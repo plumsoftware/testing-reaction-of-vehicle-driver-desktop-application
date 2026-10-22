@@ -14,6 +14,8 @@ import domain.storage.SettingsStorage
 import moe.tlaster.precompose.navigation.Navigator
 import moe.tlaster.precompose.viewmodel.viewModel
 import other.components.BackButton
+import other.components.PedalSettingsCard
+import other.components.KeyExportCard
 import other.extension.padding.ExtensionPadding
 import other.extension.size.ConstantSize
 import presentation.settings.store.Effect
@@ -149,6 +151,13 @@ fun SettingsPage(navigator: Navigator, settingsStorage: SettingsStorage, block: 
             }
 
             item {
+                PedalSettingsCard(
+                    pedals = state.settings.pedals,
+                    onChange = { settingsViewModel.onEvent(Event.PedalsChanged(pedals = it)) }
+                )
+            }
+
+            item {
                 Column(
                     modifier = Modifier
                         .wrapContentSize(),
@@ -203,6 +212,14 @@ fun SettingsPage(navigator: Navigator, settingsStorage: SettingsStorage, block: 
                         }
                     }
                 }
+            }
+
+            item {
+                KeyExportCard(
+                    description = "Резервная копия ключа. Без него данные в базе не расшифровать, если ключ на этом компьютере потеряется (например, после переустановки Windows). Также нужен при переносе базы на другой компьютер. Храните файл как пароль.",
+                    resultMessage = state.keyExportMessage,
+                    onExportClick = { settingsViewModel.onEvent(Event.ExportKeyClicked) }
+                )
             }
         }
     }

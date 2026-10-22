@@ -15,7 +15,33 @@ CREATE TABLE IF NOT EXISTS Sessions (
     experience TEXT NOT NULL,
     user_age TEXT NOT NULL,
     driving_license_category TEXT NOT NULL,
-    signal_interval TEXT NOT NULL
+    signal_interval TEXT NOT NULL,
+    valid_count INTEGER,
+    wrong_responses INTEGER,
+    omissions INTEGER,
+    premature_responses INTEGER,
+    handedness TEXT,
+    user_session_number INTEGER,
+    vision_correction TEXT,
+    sleep_hours TEXT,
+    well_being TEXT,
+    response_hand TEXT,
+    input_device TEXT,
+    monitor_name TEXT,
+    monitor_size_cm TEXT,
+    monitor_diagonal_inches REAL,
+    screen_resolution TEXT,
+    refresh_rate_hz INTEGER,
+    scale_percent INTEGER,
+    test_window_px TEXT,
+    computer_name TEXT,
+    operating_system TEXT,
+    app_version TEXT,
+    method_version TEXT,
+    started_at TEXT,
+    main_started_at TEXT,
+    finished_at TEXT,
+    with_practice INTEGER
 );
 
 selectAllSessions{
@@ -38,7 +64,33 @@ INSERT OR ABORT INTO Sessions (
     experience,
     user_age,
     driving_license_category,
-    signal_interval)
+    signal_interval,
+    valid_count,
+    wrong_responses,
+    omissions,
+    premature_responses,
+    handedness,
+    user_session_number,
+    vision_correction,
+    sleep_hours,
+    well_being,
+    response_hand,
+    input_device,
+    monitor_name,
+    monitor_size_cm,
+    monitor_diagonal_inches,
+    screen_resolution,
+    refresh_rate_hz,
+    scale_percent,
+    test_window_px,
+    computer_name,
+    operating_system,
+    app_version,
+    method_version,
+    started_at,
+    main_started_at,
+    finished_at,
+    with_practice)
 VALUES (
 ?,
 ?,
@@ -54,11 +106,87 @@ VALUES (
 ?,
 ?,
 ?,
-?);
+?,
+?,
+?,
+?,
+?,
+?,
+?,
+?,
+?,
+?,
+?,
+?,
+?,
+?,
+?,
+?,
+?,
+?,
+?,
+?,
+?,
+?,
+?,
+?,
+?,
+?,
+?
+);
 }
 
 getLastSessionId:
 SELECT MAX(session_id) FROM Sessions;
 
+lastInsertRowId:
+SELECT last_insert_rowid();
+
 getSessionsWithUserId:
 SELECT * FROM Sessions WHERE user_id = ?;
+
+createTrials:
+CREATE TABLE IF NOT EXISTS SessionTrials (
+    trial_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    session_id INTEGER NOT NULL,
+    trial_number INTEGER NOT NULL,
+    stimulus TEXT,
+    foreperiod_ms INTEGER NOT NULL,
+    outcome TEXT NOT NULL,
+    reaction_time_ms REAL
+);
+
+insertTrial:
+INSERT INTO SessionTrials (
+    session_id,
+    trial_number,
+    stimulus,
+    foreperiod_ms,
+    outcome,
+    reaction_time_ms
+) VALUES (?, ?, ?, ?, ?, ?);
+
+getTrialsBySessionId:
+SELECT * FROM SessionTrials WHERE session_id = ? ORDER BY trial_id;
+
+createMetrics:
+CREATE TABLE IF NOT EXISTS SessionMetrics (
+    metric_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    session_id INTEGER NOT NULL,
+    metric_key TEXT NOT NULL,
+    metric_name TEXT NOT NULL,
+    metric_value REAL NOT NULL,
+    metric_unit TEXT NOT NULL
+);
+
+insertMetric:
+INSERT INTO SessionMetrics (
+    session_id,
+    metric_key,
+    metric_name,
+    metric_value,
+    metric_unit
+) VALUES (?, ?, ?, ?, ?);
+
+getMetricsBySessionId:
+SELECT * FROM SessionMetrics WHERE session_id = ? ORDER BY metric_id;

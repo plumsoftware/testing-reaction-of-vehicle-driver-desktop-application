@@ -2,31 +2,32 @@ package tests.car_stop_by_red_light_simple_reaction
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Text
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import data.model.dto.test.TestDTO
 import data.model.regular.settings.Settings
+import data.model.regular.settings.workbookFiles
 import domain.storage.SessionStorage
 import domain.storage.WorkbookStorage
+import model.tests.ResponseKeys
 import moe.tlaster.precompose.navigation.Navigator
 import moe.tlaster.precompose.viewmodel.viewModel
-import other.components.BackButton
-import other.components.TestFinishedComponent
 import other.components.test.RoadView
 import tests.car_stop_by_red_light_simple_reaction.store.Effect
 import tests.car_stop_by_red_light_simple_reaction.store.Event
-import tests.car_stop_by_red_light_simple_reaction.store.State
 import tests.car_stop_by_red_light_simple_reaction.viewmodel.CarStopByRedLightSimpleReactionViewModel
+import tests.common.RoadSceneHeader
+import tests.common.TestPhase
+import tests.common.TestScreenScaffold
+import tests.common.keyResponses
+import tests.common.rememberRoadScroll
+import tests.common.isPressed
+import tests.common.responseInput
+import tests.common.testStatusText
 
 @Composable
 fun CarStopByRedLightSimpleReaction(
@@ -59,46 +60,49 @@ fun CarStopByRedLightSimpleReaction(
         }
     }
 
-    val state = viewModel.state.collectAsState()
-    CarStopByRedLightSimpleReactionContent(state = state, onEvent = viewModel::onEvent)
-}
+    val state by viewModel.state.collectAsState()
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun CarStopByRedLightSimpleReactionContent(
-    state: androidx.compose.runtime.State<State>,
-    onEvent: (Event) -> Unit
-) {
-    Scaffold(
-        topBar = {
-            BackButton {
-                onEvent(Event.BackClicked)
-            }
-        }
+    // Машина едет до торможения; при проезде на красный продолжает ехать
+    val isDriving = state.phase == TestPhase.FOREPERIOD || state.phase == TestPhase.STIMULUS ||
+            (state.phase == TestPhase.FEEDBACK && state.lastTrialMissed)
+
+    val roadScroll = rememberRoadScroll(isDriving)
+
+    // Красный горит с момента сигнала до конца паузы после попытки
+    val lampIndex = if (state.phase == TestPhase.STIMULUS || state.phase == TestPhase.FEEDBACK) 0 else 2
+    val stimulusId = state.stimulusId
+
+    val input = state.testDTO.responseInput(settings)
+    val usesKeys = input.usesKeys
+
+    TestScreenScaffold(
+        phase = state.phase,
+        result = state.testDTO,
+        saveStatus = state.saveStatus,
+        resultFiles = settings.workbookFiles,
+        onBack = { viewModel.onEvent(Event.BackClicked) },
+        onStartMainTest = { viewModel.onEvent(Event.StartMainTest) },
+        onResponseKey = keyResponses(
+            input,
+            mapOf(ResponseKeys.BRAKE to { pressNanos -> viewModel.onEvent(Event.OnBrakePressed(pressNanos)) })
+        )
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            if (state.value.testIsFinished) {
-                TestFinishedComponent(
-                    modifier = Modifier.align(Alignment.Center),
-                    getAverage = { state.value.testDTO.averageValue },
-                    getStdDeviation = { state.value.testDTO.stdDeviationValue },
-                    count = state.value.testDTO.count,
-                    errors = state.value.errors,
-                    id = state.value.testDTO.user.id
-                )
-            } else {
-                RoadView(
-                    onClick = { onEvent(Event.ClickOnStopPedal) },
-                    offsetX = state.value.currentDistance
-                )
-                Text(
-                    text = if (state.value.startCountDownTimer > 0) "Начало через ${state.value.startCountDownTimer}" else "Тест начался",
-                    modifier = Modifier
-                        .padding(top = 20.dp)
-                        .align(Alignment.TopCenter),
-                    style = MaterialTheme.typography.headlineMedium.copy(color = Color.Black)
-                )
-            }
+            RoadView(
+                roadScroll = roadScroll,
+                lampIndex = lampIndex,
+                onBrakePress = if (usesKeys) null else { pressNanos -> viewModel.onEvent(Event.OnBrakePressed(pressNanos)) },
+                brakePressed = input.isPressed(ResponseKeys.BRAKE),
+                stimulusKey = if (state.phase == TestPhase.STIMULUS) stimulusId else null,
+                onStimulusDrawn = { drawNanos ->
+                    if (stimulusId != null) viewModel.onEvent(Event.OnStimulusDrawn(stimulusId, drawNanos))
+                }
+            )
+            RoadSceneHeader(
+                status = testStatusText(state.phase, state.countdown, state.results.presented, state.testDTO.count, state.isPractice),
+                instruction = "Загорелся красный — ${input.hint(ResponseKeys.BRAKE)}",
+                modifier = Modifier.align(Alignment.TopCenter)
+            )
         }
     }
 }

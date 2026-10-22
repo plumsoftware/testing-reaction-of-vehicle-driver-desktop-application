@@ -1,26 +1,29 @@
 [versions]
-kotlin = "1.9.24"
+kotlin = "2.4.21"
 
-precompose = "1.6.0"
+precompose = "1.6.2"
 
-aayChart = "Beta-0.0.5"
+aayChart = "1.1"
 
-material3 = "1.2.1"
+material3 = "1.12.0-alpha03"
+materialIcons = "1.7.3"
 
-junit = "5.7.1"
+junit = "5.14.4"
 
-serializationJson = "1.6.0"
+serializationJson = "1.12.0"
 
-slf4j = "1.7.36"
-apacheSlf4j = "2.8.2"
+slf4j = "2.0.20"
+apacheSlf4j = "2.26.1"
 
-apache = "5.2.3"
+apache = "5.5.1"
 
-sqdelight = "2.0.2"
+sqdelight = "2.4.1"
 
-coroutines = "1.9.0"
+coroutines = "1.11.0"
 
-hash = "0.3.1"
+hash = "0.6.0"
+
+jna = "5.17.0"
 
 [libraries]
 #Precompose
@@ -30,6 +33,7 @@ precompose-molecule = { module = "moe.tlaster:precompose-molecule", version.ref 
 
 #Material
 material3 = { module = "org.jetbrains.compose.material3:material3-desktop", version.ref = "material3" }
+material-icons-core = { module = "org.jetbrains.compose.material:material-icons-core-desktop", version.ref = "materialIcons" }
 
 #JUnit
 junit = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
@@ -56,6 +60,9 @@ kotlin-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", 
 
 #Hash
 hash = {module = "dev.whyoleg.cryptography:cryptography-bom", version.ref = "hash"}
+
+#JNA (DPAPI на Windows)
+jna-platform = { module = "net.java.dev.jna:jna-platform", version.ref = "jna" }
 
 [plugins]
 #Serialization

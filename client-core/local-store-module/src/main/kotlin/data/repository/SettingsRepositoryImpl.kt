@@ -21,46 +21,13 @@ class SettingsRepositoryImpl : SettingsRepository {
 
     override fun saveData(settings: Settings) {
         println("SettingsRepositoryImpl: User settings to save is: $settings")
-//        val jsonString = Json.encodeToString("""{$settings}""".trimIndent())
+        // Сериализатор сам экранирует кавычки и обратные слэши в путях
+        createFolderIfNotExists().writeText(settingsJson.encodeToString(Settings.serializer(), settings))
+    }
 
-//        Folder
-        val settingsFile = createFolderIfNotExists()
-        val stringBuffer = StringBuffer()
-        stringBuffer.append("\t\"dataFormats\" : \n\t{\n")
-        settings.dataFormats.forEach { (key, value) ->
-            if (key != SettingsConstants.XLTX)
-                stringBuffer
-                    .append("\t\t\"$key\" : $value,\n")
-            else
-                stringBuffer
-                    .append("\t\t\"$key\" : $value\n")
-        }
-        stringBuffer.append("\t},\n")
-
-//        Network drive & local drive
-        stringBuffer
-            .append("\t\"networkDrive\" : \"${settings.networkDrive}\"")
-            .append(",\n")
-
-//        Local folder to table
-        stringBuffer
-            .append(
-                "\t\"localFolderToTable\" : \"${
-                    settings.localFolderToTable.replace(
-                        "\\",
-                        "\\\\"
-                    )
-                }\""
-            )
-
-        val jsonString =
-            "{\n" +
-                    "\t\"isDarkTheme\" : ${settings.isDarkTheme}," + "\n" +
-                    stringBuffer.toString() + "\n" +
-                    "}"
-
-        settingsFile.writeText(jsonString)
-        println("SettingsRepositoryImpl: json to save: $jsonString")
+    private val settingsJson = Json {
+        prettyPrint = true
+        encodeDefaults = true
     }
 
     override fun loadSettings(scope: CoroutineScope): Settings {
@@ -78,7 +45,12 @@ class SettingsRepositoryImpl : SettingsRepository {
         var jsonString = settingsFile.readText()
 
         if (jsonString.isNotEmpty()) {
-            val settings: Settings = Json { ignoreUnknownKeys = true }.decodeFromString<Settings>(jsonString)
+            var settings: Settings = Json { ignoreUnknownKeys = true }.decodeFromString<Settings>(jsonString)
+            // Настройки, перенесённые с Windows (или записанные старой версией на macOS/Linux)
+            if (GeneralConstants.isForeignWindowsPath(settings.localFolderToTable)) {
+                settings = settings.copy(localFolderToTable = SettingsConstants.LOCAL_FOLDER_TO_TABLE)
+                saveData(settings = settings)
+            }
             println("User settings to load is: $settings")
             return settings
         } else {
@@ -107,7 +79,7 @@ class SettingsRepositoryImpl : SettingsRepository {
     private suspend fun createFolderAndFileIfNotExists() {
         val folder = File(GeneralConstants.Paths.PATH_TO_SETTINGS_FOLDER)
         if (!folder.exists()) {
-            folder.mkdir()
+            folder.mkdirs()
         }
         withContext(Dispatchers.IO) {
             File(GeneralConstants.Paths.PATH_TO_SETTINGS_FILE).createNewFile()

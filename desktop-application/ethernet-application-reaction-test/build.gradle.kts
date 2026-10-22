@@ -19,10 +19,33 @@ val macExtraPlistKeys: String
 plugins {
     kotlin("jvm")
     id("org.jetbrains.compose")
+    kotlin("plugin.compose")
 }
 
 group = "ru.plumsoftware"
 version = "1.0-SNAPSHOT"
+
+val appName = "Тест на реакцию"
+val appVersion = providers.gradleProperty("app.version").get()
+
+// Название и версия для экрана «О программе» (читает getProgramData() из config-module)
+val generateProgramInfo by tasks.registering {
+    val outputDir = layout.buildDirectory.dir("generated/program-info")
+    val name = appName
+    val version = appVersion
+    inputs.property("name", name)
+    inputs.property("version", version)
+    outputs.dir(outputDir)
+    doLast {
+        val file = outputDir.get().file("program.properties").asFile
+        file.parentFile.mkdirs()
+        file.writeText("name=$name\nversion=$version\n", Charsets.UTF_8)
+    }
+}
+
+sourceSets.main {
+    resources.srcDir(generateProgramInfo)
+}
 
 repositories {
     mavenCentral()
@@ -46,6 +69,7 @@ dependencies {
 
 //    Modules
     implementation(project(path = ":client-core:local-store-module"))
+    implementation(project(path = ":client-core:config-module"))
 
     implementation(project(path = ":ui:screens:authorization-ui-module"))
     implementation(project(path = ":ui:core:theme-ui-module"))
@@ -71,8 +95,8 @@ compose.desktop {
             )
             modules("java.sql")
 
-            packageName = "Тест на реакцию"
-            packageVersion = "1.0.0"
+            packageName = appName
+            packageVersion = appVersion
             description =
                 "Это программа для тестирования сложной сенсомоторной реакции водителя на зрительный раздражитель. Разработчики: студент СибАДИ Дейч Вячеслав Сергеевич, преподаватель кафедры ЦТ Селезнёва Елена Викторовна, преподаватель кафедры АТ Белякова Александра Владимировна."
             copyright = "© 2024 Дейч Вячеслав Сергеевич. All rights reserved."
@@ -80,18 +104,18 @@ compose.desktop {
             licenseFile.set(project.file("LICENSE.txt"))
 
             windows {
-                packageVersion = "1.0.0"
-                msiPackageVersion = "1.0.0"
-                exePackageVersion = "1.0.0"
+                packageVersion = appVersion
+                msiPackageVersion = appVersion
+                exePackageVersion = appVersion
                 iconFile.set(project.file("main_icon.ico"))
             }
             macOS {
-                packageVersion = "1.0.0"
-                dmgPackageVersion = "1.0.0"
-                pkgPackageVersion = "1.0.0"
-                packageBuildVersion = "1.0.0"
-                dmgPackageBuildVersion = "1.0.0"
-                pkgPackageBuildVersion = "1.0.0"
+                packageVersion = appVersion
+                dmgPackageVersion = appVersion
+                pkgPackageVersion = appVersion
+                packageBuildVersion = appVersion
+                dmgPackageBuildVersion = appVersion
+                pkgPackageBuildVersion = appVersion
                 iconFile.set(project.file("main_icon.icns"))
 
                 bundleID = "ru.plumsoftware.reactiontest"
@@ -100,9 +124,9 @@ compose.desktop {
                 }
             }
             linux {
-                packageVersion = "1.0.0"
-                debPackageVersion = "1.0.0"
-                rpmPackageVersion = "1.0.0"
+                packageVersion = appVersion
+                debPackageVersion = appVersion
+                rpmPackageVersion = appVersion
                 iconFile.set(project.file("main_icon.png"))
             }
         }

@@ -17,6 +17,7 @@ import domain.storage.SettingsStorage
 import moe.tlaster.precompose.navigation.Navigator
 import moe.tlaster.precompose.viewmodel.viewModel
 import other.components.BackButton
+import other.components.KeyExportCard
 import other.extension.padding.ExtensionPadding
 import other.extension.size.ConstantSize
 import presentation.settings.store.Effect
@@ -156,6 +157,14 @@ fun SettingsPage(
                         }
                     }
                 }
+            }
+
+            item {
+                KeyExportCard(
+                    description = "Сетевой режим: ключ нужен на каждом компьютере с программой тестов. Сохраните config.json и положите его на тех компьютерах в папку app рядом с программой. Храните файл как пароль — по нему расшифровываются персональные данные.",
+                    resultMessage = state.keyExportMessage,
+                    onExportClick = { settingsViewModel.onEvent(Event.ExportKeyClicked) }
+                )
             }
         }
     }

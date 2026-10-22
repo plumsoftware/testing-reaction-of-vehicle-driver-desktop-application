@@ -10,6 +10,13 @@ fun showFilePicker(fileSelectionMode: Int = JFileChooser.DIRECTORIES_ONLY): File
     return if (result == JFileChooser.APPROVE_OPTION) {
         fileChooser.selectedFile
     } else {
-        File("C:\\")
+        File(System.getProperty("user.home"))
     }
+}
+/** Диалог «Сохранить как» с именем файла [defaultName]; null — пользователь отменил. */
+fun showSaveFilePicker(defaultName: String): File? {
+    val fileChooser = JFileChooser()
+    fileChooser.selectedFile = File(System.getProperty("user.home"), defaultName)
+    val result = fileChooser.showSaveDialog(null)
+    return if (result == JFileChooser.APPROVE_OPTION) fileChooser.selectedFile else null
 }

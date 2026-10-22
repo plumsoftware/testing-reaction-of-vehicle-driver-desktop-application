@@ -1,8 +1,10 @@
 package data.repository
 
 import HashRepositoryImpl
+import app.cash.sqldelight.db.QueryResult
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import data.CryptographyRepositoryImpl
+import data.KeyScope
 import data.constant.DatabaseConstants
 import data.constant.GeneralConstants
 import data.model.either.local.LocalEither
@@ -23,7 +25,7 @@ class UserRepositoryImpl(
 ) : UserRepository {
 
     private val hashRepository = HashRepositoryImpl()
-    private val cryptographyRepository = CryptographyRepositoryImpl()
+    private val cryptographyRepository: CryptographyRepositoryImpl
 
     private val usersDatabaseDriver: JdbcSqliteDriver
     private val sessionsDatabaseDriver: JdbcSqliteDriver
@@ -48,10 +50,33 @@ class UserRepositoryImpl(
         val userDatabase =
             Database(driver = usersDatabaseDriver)
         userDatabase.sqldelight_users_schemeQueries.create()
+        addHandednessColumnIfMissing()
 
         val sessionsDatabase =
             Database(driver = sessionsDatabaseDriver)
         sessionsDatabase.sqldelight_users_schemeQueries.create()
+
+        cryptographyRepository = CryptographyRepositoryImpl(
+            scope = if (mode == Mode.ETHERNET) KeyScope.NETWORK else KeyScope.LOCAL,
+            canGenerateKey = { isTableEmpty(usersDatabaseDriver, "Users") && isTableEmpty(sessionsDatabaseDriver, "Sessions") }
+        )
+    }
+
+    /** Отсутствующая таблица тоже считается пустой. */
+    private fun isTableEmpty(driver: JdbcSqliteDriver, table: String): Boolean {
+        val exists = driver.executeQuery(
+            identifier = null,
+            sql = "SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name = '$table'",
+            mapper = { cursor -> QueryResult.Value(cursor.next().value && (cursor.getLong(0) ?: 0L) > 0L) },
+            parameters = 0
+        ).value
+        if (!exists) return true
+        return driver.executeQuery(
+            identifier = null,
+            sql = "SELECT EXISTS(SELECT 1 FROM $table)",
+            mapper = { cursor -> QueryResult.Value(cursor.next().value && cursor.getLong(0) == 0L) },
+            parameters = 0
+        ).value
     }
 
     override suspend fun getAllUsers(): List<Users> {
@@ -59,13 +84,7 @@ class UserRepositoryImpl(
             Database(driver = usersDatabaseDriver)
         val userList =
             database.sqldelight_users_schemeQueries.getAllUsers().executeAsList().reversed()
-                .map {
-                    val user_name = decode(text = it.user_name)
-                    val user_surname = decode(text = it.user_surname)
-                    val user_patronymic = decode(text = it.user_patronymic ?: "")
-                    val user_gender = cryptographyRepository.encode(text = it.gender)
-                    it.copy(user_name = user_name, user_surname = user_surname, user_patronymic = user_patronymic, gender = user_gender)
-                }
+                .map { decodeRow(it) }
         return userList
     }
 
@@ -75,6 +94,7 @@ class UserRepositoryImpl(
             Database(driver = usersDatabaseDriver)
         val passwordHash = hashRepository.hash(text = user.password)
         val encodedGender = cryptographyRepository.encode(user.gender.toString())
+        val encodedHandedness = cryptographyRepository.encode(user.handedness.toString())
         with(encodeUser(user = user)) {
             database.sqldelight_users_schemeQueries.transaction {
                 database.sqldelight_users_schemeQueries.insertNewUser(
@@ -84,6 +104,7 @@ class UserRepositoryImpl(
                     user_surname = surname,
                     user_patronymic = patronymic,
                     gender = encodedGender,
+                    handedness = encodedHandedness,
                 )
             }
         }
@@ -105,6 +126,7 @@ class UserRepositoryImpl(
         val passwordHash = hashRepository.hash(text = user.password)
         val encodedUser = encodeUser(user = user)
         val encodedGender = cryptographyRepository.encode(user.gender.toString())
+        val encodedHandedness = cryptographyRepository.encode(user.handedness.toString())
         with(encodedUser) {
             database.sqldelight_users_schemeQueries.updateUser(
                 user_login = login,
@@ -113,6 +135,7 @@ class UserRepositoryImpl(
                 user_surname = surname,
                 user_patronymic = patronymic,
                 gender = encodedGender,
+                handedness = encodedHandedness,
                 user_id = id
             )
         }
@@ -137,6 +160,7 @@ class UserRepositoryImpl(
                     user_login = login,
                     user_password = passwordHash
                 ).executeAsList()
+                    .map { decodeRow(it) }
 
             return LocalEither.Data(executeAsList)
         } catch (e: Exception) {
@@ -158,5 +182,43 @@ class UserRepositoryImpl(
 
     private suspend inline fun decode(text: String): String {
         return cryptographyRepository.decode(text = text)
+    }
+
+    /** Расшифровывает поле, которое может быть пустым (например, у записей до добавления столбца). */
+    private suspend fun decodeOptional(text: String?): String {
+        if (text.isNullOrBlank()) return ""
+        return cryptographyRepository.decode(text = text)
+    }
+
+    private suspend fun decodeRow(row: Users): Users = row.copy(
+        user_name = decode(text = row.user_name),
+        user_surname = decode(text = row.user_surname),
+        user_patronymic = decodeOptional(row.user_patronymic),
+        gender = decode(text = row.gender),
+        handedness = decodeOptional(row.handedness)
+    )
+
+    /** Добавляет столбец handedness в таблицы, созданные до его появления. */
+    private fun addHandednessColumnIfMissing() {
+        val columns = usersDatabaseDriver.executeQuery(
+            identifier = null,
+            sql = "PRAGMA table_info(Users)",
+            mapper = { cursor ->
+                val names = mutableListOf<String>()
+                while (cursor.next().value) {
+                    cursor.getString(1)?.let { names.add(it) }
+                }
+                QueryResult.Value(names)
+            },
+            parameters = 0
+        ).value
+
+        if ("handedness" !in columns) {
+            usersDatabaseDriver.execute(
+                identifier = null,
+                sql = "ALTER TABLE Users ADD COLUMN handedness TEXT NOT NULL DEFAULT ''",
+                parameters = 0
+            )
+        }
     }
 }

@@ -4,6 +4,7 @@ import data.model.either.error.NoSuchUserError
 import data.model.either.local.LocalEither
 import data.model.regular.user.DrivingLicenseCategory
 import data.model.regular.user.Gender
+import data.model.regular.user.Handedness
 import data.model.regular.user.User
 import domain.repository.UserRepository
 import ru.plumsoftware.users.Users
@@ -28,7 +29,8 @@ class GetUserByLoginAndPasswordUseCase(private val userRepository: UserRepositor
                             drivingLicenseCategory = DrivingLicenseCategory.Empty,
                             experience = 0,
                             login = it.user_login,
-                            password = it.user_password
+                            password = it.user_password,
+                            handedness = Handedness.fromString(it.handedness)
                         )
                     }
                     return LocalEither.Data(b = users[0])

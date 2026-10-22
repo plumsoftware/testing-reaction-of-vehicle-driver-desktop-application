@@ -128,8 +128,9 @@ enum class DrivingLicenseCategory {
     };
 
     companion object {
+        /** Принимает и подпись («Нет водительских прав»), и имя константы (`NoDrivingLicense`). */
         fun fromString(value: String): DrivingLicenseCategory {
-            return entries.find { it.toString() == value } ?: Empty
+            return entries.find { it.toString() == value || it.name == value } ?: Empty
         }
     }
 }

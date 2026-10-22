@@ -2,6 +2,7 @@ package newuser.viewmodel
 
 import data.model.either.AppEither
 import data.model.regular.user.Gender
+import data.model.regular.user.Handedness
 import data.model.regular.user.User
 import domain.storage.UserStorage
 import kotlinx.coroutines.SupervisorJob
@@ -40,6 +41,14 @@ class NewUserViewModel(
                 state.update {
                     it.copy(
                         gender = event.gender
+                    )
+                }
+            }
+
+            is Event.OnHandednessChanged -> {
+                state.update {
+                    it.copy(
+                        handedness = event.handedness
                     )
                 }
             }
@@ -91,7 +100,7 @@ class NewUserViewModel(
                         gender = state.value.gender,
                         login = state.value.login,
                         password = state.value.password
-                    )
+                    ).apply { handedness = state.value.handedness }
                     viewModelScope.launch(context = supervisorCoroutineContext) {
                         val isPasswordUnique = userStorage.isPasswordUnique(state.value.password)
                         if (isPasswordUnique) {
@@ -128,14 +137,17 @@ class NewUserViewModel(
                 isSurnameError = state.value.surname.isEmpty(),
                 isLoginError = state.value.login.isEmpty(),
                 isPasswordError = state.value.password.isEmpty(),
-                isGenderError = state.value.gender == Gender.EMPTY
+                isGenderError = state.value.gender == Gender.EMPTY,
+                isHandednessError = state.value.handedness == Handedness.UNKNOWN
             )
         }
 
         return state.value.name.isEmpty() ||
                 state.value.surname.isEmpty() ||
                 state.value.login.isEmpty() ||
-                state.value.gender == Gender.EMPTY
+                state.value.password.isEmpty() ||
+                state.value.gender == Gender.EMPTY ||
+                state.value.handedness == Handedness.UNKNOWN
     }
 
     private fun clearState() {
@@ -145,12 +157,14 @@ class NewUserViewModel(
                 surname = "",
                 patronymic = "",
                 gender = Gender.EMPTY,
+                handedness = Handedness.UNKNOWN,
                 login = "",
                 password = "",
 
                 isNameError = false,
                 isSurnameError = false,
                 isGenderError = false,
+                isHandednessError = false,
                 isLoginError = false,
                 isPasswordError = false,
             )

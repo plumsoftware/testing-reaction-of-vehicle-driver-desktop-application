@@ -6,7 +6,8 @@ CREATE TABLE IF NOT EXISTS Users (
     user_name TEXT NOT NULL,
     user_surname TEXT NOT NULL,
     user_patronymic TEXT DEFAULT "",
-    gender TEXT NOT NULL
+    gender TEXT NOT NULL,
+    handedness TEXT NOT NULL DEFAULT ''
 );
 
 getUserByLoginAndPassword:
@@ -22,8 +23,10 @@ INSERT OR ABORT INTO Users (
     user_name,
     user_surname,
     user_patronymic,
-    gender
+    gender,
+    handedness
 ) VALUES (
+    ?,
     ?,
     ?,
     ?,
@@ -33,7 +36,7 @@ INSERT OR ABORT INTO Users (
 );
 
 updateUser:
-UPDATE Users SET user_login = ?, user_password = ?, user_name = ?, user_surname = ?, user_patronymic = ?, gender = ? WHERE user_id = ?;
+UPDATE Users SET user_login = ?, user_password = ?, user_name = ?, user_surname = ?, user_patronymic = ?, gender = ?, handedness = ? WHERE user_id = ?;
 
 deleteUser:
 DELETE FROM Users WHERE user_id = ?;

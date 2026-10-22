@@ -5,6 +5,16 @@ import about_app.AboutAppPage
 import allusers.UsersPage
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.LaunchedEffect
+import java.io.File
+import other.components.StorageErrorDialog
+import data.MissingCryptographyKeyException
+import data.CryptographyKeyStore
+import androidx.compose.material3.Surface
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.BitmapPainter
@@ -28,6 +38,8 @@ import domain.usecase.settings.GetUserSettingsUseCase
 import domain.usecase.settings.SaveUserSettingsUseCase
 import domain.usecase.sql_database.local.GetAllSessionsDtoFromDatabaseUseCase
 import domain.usecase.sql_database.local.GetLastSessionIdUseCase
+import domain.usecase.sql_database.local.GetSessionMetricsUseCase
+import domain.usecase.sql_database.local.GetSessionTrialsUseCase
 import domain.usecase.sql_database.local.GetUserByLoginAndPasswordUseCase
 import domain.usecase.sql_database.local.InsertOrAbortNewSessionUseCase
 import domain.usecase.sql_database.local.user.DeleteUserUseCase
@@ -54,6 +66,9 @@ import privacypolicy.PrivacyPolicy
 import presentation.settings.SettingsPage
 import testmenu.TestMenu
 import tests.car_stop_by_red_light_simple_reaction.CarStopByRedLightSimpleReaction
+import tests.horn_brake_reaction.HornBrakeReaction
+import tests.pvt_brake_lights.PvtBrakeLights
+import tests.rmo_stop_line.RmoStopLine
 import tests.traffic_light_test_choice_reaction.TrafficLightTestChoiceReaction
 import tests.traffic_light_test_difference_reaction.TrafficLightTestDifferenceReaction
 
@@ -67,15 +82,9 @@ fun main() = run {
 
 //        region::Storage
         /** Integrated **/
-        val userRepository = UserRepositoryImpl()
-        val userStorage = UserStorage(
-            getAllUsersUseCase = GetAllUsersUseCase(userRepository),
-            insertNewUserUseCase = InsertNewUserUseCase(userRepository),
-            updateUserUseCase = UpdateUserUseCase(userRepository),
-            deleteUserUseCase = DeleteUserUseCase(userRepository),
-            isPasswordUniqueUseCase = IsPasswordUniqueUseCase(userRepository),
-            getUserByLoginAndPasswordUseCase = GetUserByLoginAndPasswordUseCase(userRepository)
-        )
+        var storageAttempt by remember { mutableStateOf(0) }
+        // Хранилища создаются один раз (и заново по «Повторить»); без ключа шифрования — окно ошибки, а не падение
+        val databaseResult = remember(storageAttempt) { runCatching { LocalDatabases() } }
 
         val settingsRepository = SettingsRepositoryImpl()
         val settingsStorage = SettingsStorage(
@@ -86,15 +95,6 @@ fun main() = run {
         val workBookStorage = WorkbookStorage(
             createWorkbookIfNotExistsUseCase = CreateWorkbookIfNotExistsUseCase(workbookRepository),
             writeDataToWorkbookUseCase = WriteDataToWorkbookUseCase(workbookRepository)
-        )
-        val sessionRepository = SessionRepositoryImpl_()
-        val sessionStorage = SessionStorage(
-            getLastSessionIdUseCase = GetLastSessionIdUseCase(sessionRepository),
-            getAllSessionsDtoFromDatabaseUseCase = GetAllSessionsDtoFromDatabaseUseCase(
-                sessionRepository
-            ),
-            getSessionsWithUserIdUseCase = GetSessionsWithUserIdUseCase(sessionRepository),
-            insertOrAbortNewSessionUseCase = InsertOrAbortNewSessionUseCase(sessionRepository)
         )
 //        endregion
 
@@ -117,6 +117,24 @@ fun main() = run {
                 LaunchedEffect(key1 = Unit) {
                     mainViewModel.onEvent(Event.LoadSettings)
                 }
+
+                val databases = databaseResult.getOrElse { error ->
+                    AppTheme(useDarkTheme = mainState.value.settings.isDarkTheme) {
+                        Surface(modifier = Modifier.fillMaxSize()) {
+                            StorageErrorDialog(
+                                message = if (error is MissingCryptographyKeyException) error.message.orEmpty()
+                                else "Не удалось открыть базу данных: ${error.message}",
+                                appFolder = if (error is MissingCryptographyKeyException) {
+                                    File(CryptographyKeyStore.importFolderPath())
+                                } else null,
+                                onRetry = { storageAttempt++ }
+                            )
+                        }
+                    }
+                    return@PreComposeApp
+                }
+                val userStorage = databases.userStorage
+                val sessionStorage = databases.sessionStorage
 
                 val homeViewModel: HomeViewModel =
                     viewModel(modelClass = HomeViewModel::class) {
@@ -164,6 +182,7 @@ fun main() = run {
                             TestMenu(
                                 navigator = navigator,
                                 testDto = mainState.value.testDTO,
+                                pedals = mainState.value.settings.pedals,
                                 block = {
                                     mainViewModel.onEvent(
                                         Event.ChangeTestDto(
@@ -266,10 +285,71 @@ fun main() = run {
                                 navigator = navigator
                             )
                         }
+                        scene(route = DesktopRouting.rmoStopLine) {
+                            RmoStopLine(
+                                workBookStorage = workBookStorage,
+                                settings = mainState.value.settings,
+                                testDTO = mainState.value.testDTO,
+                                sessionStorage = sessionStorage,
+                                navigator = navigator
+                            )
+                        }
+                        scene(route = DesktopRouting.hornBrakeReaction) {
+                            HornBrakeReaction(
+                                workBookStorage = workBookStorage,
+                                settings = mainState.value.settings,
+                                testDTO = mainState.value.testDTO,
+                                sessionStorage = sessionStorage,
+                                navigator = navigator
+                            )
+                        }
+                        scene(route = DesktopRouting.pvtBrakeLights10) {
+                            PvtBrakeLights(
+                                durationMinutes = 10,
+                                workBookStorage = workBookStorage,
+                                settings = mainState.value.settings,
+                                testDTO = mainState.value.testDTO,
+                                sessionStorage = sessionStorage,
+                                navigator = navigator
+                            )
+                        }
+                        scene(route = DesktopRouting.pvtBrakeLights5) {
+                            PvtBrakeLights(
+                                durationMinutes = 5,
+                                workBookStorage = workBookStorage,
+                                settings = mainState.value.settings,
+                                testDTO = mainState.value.testDTO,
+                                sessionStorage = sessionStorage,
+                                navigator = navigator
+                            )
+                        }
 //                        endregion
                     }
                 }
             }
         }
     }
+}
+
+/** Локальные БД пользователей и сессий. UserRepositoryImpl создаётся первым: он при необходимости создаёт ключ шифрования. */
+private class LocalDatabases {
+    private val userRepository = UserRepositoryImpl()
+    val userStorage = UserStorage(
+        getAllUsersUseCase = GetAllUsersUseCase(userRepository),
+        insertNewUserUseCase = InsertNewUserUseCase(userRepository),
+        updateUserUseCase = UpdateUserUseCase(userRepository),
+        deleteUserUseCase = DeleteUserUseCase(userRepository),
+        isPasswordUniqueUseCase = IsPasswordUniqueUseCase(userRepository),
+        getUserByLoginAndPasswordUseCase = GetUserByLoginAndPasswordUseCase(userRepository)
+    )
+
+    private val sessionRepository = SessionRepositoryImpl_()
+    val sessionStorage = SessionStorage(
+        getLastSessionIdUseCase = GetLastSessionIdUseCase(sessionRepository),
+        getSessionTrialsUseCase = GetSessionTrialsUseCase(sessionRepository),
+        getSessionMetricsUseCase = GetSessionMetricsUseCase(sessionRepository),
+        getAllSessionsDtoFromDatabaseUseCase = GetAllSessionsDtoFromDatabaseUseCase(sessionRepository),
+        getSessionsWithUserIdUseCase = GetSessionsWithUserIdUseCase(sessionRepository),
+        insertOrAbortNewSessionUseCase = InsertOrAbortNewSessionUseCase(sessionRepository)
+    )
 }

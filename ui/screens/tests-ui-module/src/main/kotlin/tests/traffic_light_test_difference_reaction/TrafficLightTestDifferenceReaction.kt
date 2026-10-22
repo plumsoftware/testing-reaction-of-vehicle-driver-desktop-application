@@ -1,26 +1,43 @@
 package tests.traffic_light_test_difference_reaction
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.coerceIn
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
 import data.model.dto.test.TestDTO
 import data.model.regular.settings.Settings
+import data.model.regular.settings.workbookFiles
 import domain.storage.SessionStorage
 import domain.storage.WorkbookStorage
+import model.tests.ResponseKeys
 import moe.tlaster.precompose.navigation.Navigator
 import moe.tlaster.precompose.viewmodel.viewModel
-import other.components.BackButton
-import other.extension.padding.ExtensionPadding
-import other.components.TestFinishedComponent
-import other.components.TestProccessComponent
 import other.components.test.GasPedalButton
+import other.components.test.TRAFFIC_LIGHT_HEIGHT_IN_LAMPS
+import other.components.test.TrafficLight
+import tests.common.TestScreenScaffold
+import tests.common.keyResponses
+import tests.common.isPressed
+import tests.common.responseInput
+import tests.common.statusTextStyle
+import tests.common.testStatusText
 import tests.traffic_light_test_difference_reaction.store.Effect
 import tests.traffic_light_test_difference_reaction.store.Event
 import tests.traffic_light_test_difference_reaction.viewmodel.TrafficLightTestDifferenceReactionViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+/** Высота педали в размерах лампы. */
+private const val PEDAL_HEIGHT_IN_LAMPS = 3.2f
+
 @Composable
 fun TrafficLightTestDifferenceReaction(
     workBookStorage: WorkbookStorage,
@@ -30,7 +47,7 @@ fun TrafficLightTestDifferenceReaction(
     navigator: Navigator
 ) {
 
-    val trafficLightTestViewModel =
+    val viewModel =
         viewModel(modelClass = TrafficLightTestDifferenceReactionViewModel::class) {
             TrafficLightTestDifferenceReactionViewModel(
                 workbookStorage = workBookStorage,
@@ -40,10 +57,10 @@ fun TrafficLightTestDifferenceReaction(
             )
         }
 
-    val state = trafficLightTestViewModel.state.collectAsState().value
+    val state by viewModel.state.collectAsState()
 
     LaunchedEffect(key1 = Unit) {
-        trafficLightTestViewModel.effect.collect { effect->
+        viewModel.effect.collect { effect ->
             when (effect) {
                 Effect.BackClicked -> {
                     navigator.goBack()
@@ -53,62 +70,55 @@ fun TrafficLightTestDifferenceReaction(
     }
 
     LaunchedEffect(key1 = Unit) {
-        trafficLightTestViewModel.onEvent(Event.StartTimer)
+        viewModel.onEvent(Event.StartTimer)
     }
 
-    Scaffold(
-        topBar = {
-            BackButton(
-                onClick = { trafficLightTestViewModel.onEvent(Event.BackCLicked) }
-            )
-        },
-        modifier = Modifier.fillMaxSize()
+    val input = state.testDTO.responseInput(settings)
+    val usesKeys = input.usesKeys
+
+    TestScreenScaffold(
+        phase = state.phase,
+        result = state.testDTO,
+        saveStatus = state.saveStatus,
+        resultFiles = settings.workbookFiles,
+        onBack = { viewModel.onEvent(Event.BackCLicked) },
+        onStartMainTest = { viewModel.onEvent(Event.StartMainTest) },
+        onResponseKey = keyResponses(
+            input,
+            mapOf(ResponseKeys.GAS to { pressNanos -> viewModel.onEvent(Event.OnGasPedalPressed(pressNanos)) })
+        )
     ) {
+        // Высота сцены: статус + светофор + педаль ≈ 10.1 размера лампы
+        val lampSize = min(
+            (maxHeight - 72.dp) / (TRAFFIC_LIGHT_HEIGHT_IN_LAMPS + PEDAL_HEIGHT_IN_LAMPS + 1f),
+            maxWidth / 5f
+        ).coerceIn(16.dp, 140.dp)
+
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(ExtensionPadding.mediumAsymmetricalContentPadding),
-            verticalArrangement = ExtensionPadding.mediumVerticalArrangement,
+            modifier = Modifier.fillMaxSize().padding(top = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(lampSize * 0.5f, Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (state.userClicked == state.testDTO.count)
-                with(state) {
-                    TestFinishedComponent(
-                        getAverage = trafficLightTestViewModel::getAverage,
-                        getStdDeviation = trafficLightTestViewModel::getStdDeviation,
-                        count = testDTO.count,
-                        errors = errors,
-                        id = testDTO.user.id
-                    )
+            Text(
+                text = testStatusText(state.phase, state.countdown, state.results.presented, state.testDTO.count, state.isPractice),
+                style = statusTextStyle()
+            )
+
+            val stimulusId = state.stimulusId
+            TrafficLight(
+                currentLampIndex = state.currentLampIndex,
+                lampSize = lampSize,
+                stimulusKey = stimulusId,
+                onLampDrawn = { drawNanos ->
+                    if (stimulusId != null) viewModel.onEvent(Event.OnStimulusDrawn(stimulusId, drawNanos))
                 }
-            else
-                Text(
-                    text = if (state.startTimerTime > 0) "Начало через ${state.startTimerTime}" else "Тест начался",
-                    style = MaterialTheme.typography.headlineMedium
-                )
-            with(state) {
-                TestProccessComponent(
-                    userClicked = userClicked,
-                    count = testDTO.count,
-                    currentLampIndex = currentLampIndex
-                )
-            }
-            if (state.userClicked != state.testDTO.count) {
-//            region::Buttons
-                Row(
-                    modifier = Modifier
-                        .weight(1.0f)
-                        .fillMaxWidth()
-                        .padding(ExtensionPadding.smallAsymmetricalContentPadding),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = ExtensionPadding.mediumHorizontalArrangementCenter
-                ) {
-                    GasPedalButton {
-                        trafficLightTestViewModel.onEvent(Event.OnTrafficLightLampButtonClicked)
-                    }
-                }
-//            endregion
-            }
+            )
+
+            GasPedalButton(
+                height = lampSize * PEDAL_HEIGHT_IN_LAMPS,
+                onPress = if (usesKeys) null else { pressNanos -> viewModel.onEvent(Event.OnGasPedalPressed(pressNanos)) },
+                pressed = input.isPressed(ResponseKeys.GAS)
+            )
         }
     }
 }

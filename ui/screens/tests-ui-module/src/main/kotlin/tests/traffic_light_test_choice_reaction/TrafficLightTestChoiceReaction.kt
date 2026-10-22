@@ -1,27 +1,47 @@
 package tests.traffic_light_test_choice_reaction
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.coerceIn
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
 import data.model.dto.test.TestDTO
 import data.model.regular.settings.Settings
+import data.model.regular.settings.workbookFiles
 import domain.storage.SessionStorage
 import domain.storage.WorkbookStorage
+import model.tests.ResponseKeys
 import moe.tlaster.precompose.navigation.Navigator
 import moe.tlaster.precompose.viewmodel.viewModel
-import other.components.BackButton
-import other.extension.padding.ExtensionPadding
-import other.extension.size.ConstantSize
-import other.components.TestFinishedComponent
-import other.components.TestProccessComponent
+import other.components.test.TRAFFIC_LIGHT_HEIGHT_IN_LAMPS
+import other.components.test.TrafficLight
+import other.components.test.onPressTimestamp
+import other.components.test.trafficLightLampColors
+import tests.common.TestScreenScaffold
+import tests.common.keyResponses
+import tests.common.responseInput
+import tests.common.statusTextStyle
+import tests.common.testStatusText
 import tests.traffic_light_test_choice_reaction.store.Effect
 import tests.traffic_light_test_choice_reaction.store.Event
 import tests.traffic_light_test_choice_reaction.viewmodel.TrafficLightTestChoiceReactionViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TrafficLightTestChoiceReaction(
     workBookStorage: WorkbookStorage,
@@ -31,7 +51,7 @@ fun TrafficLightTestChoiceReaction(
     navigator: Navigator
 ) {
 
-    val trafficLightTestChoiceReactionViewModel =
+    val viewModel =
         viewModel(modelClass = TrafficLightTestChoiceReactionViewModel::class) {
             TrafficLightTestChoiceReactionViewModel(
                 workbookStorage = workBookStorage,
@@ -41,10 +61,10 @@ fun TrafficLightTestChoiceReaction(
             )
         }
 
-    val state = trafficLightTestChoiceReactionViewModel.state.collectAsState().value
+    val state by viewModel.state.collectAsState()
 
     LaunchedEffect(key1 = Unit) {
-        trafficLightTestChoiceReactionViewModel.effect.collect { effect->
+        viewModel.effect.collect { effect ->
             when (effect) {
                 Effect.BackClicked -> {
                     navigator.goBack()
@@ -54,100 +74,77 @@ fun TrafficLightTestChoiceReaction(
     }
 
     LaunchedEffect(key1 = Unit) {
-        trafficLightTestChoiceReactionViewModel.onEvent(Event.StartTimer)
+        viewModel.onEvent(Event.StartTimer)
     }
 
-    Scaffold(
-        topBar = {
-            BackButton(
-                onClick = { trafficLightTestChoiceReactionViewModel.onEvent(Event.BackCLicked) }
-            )
-        },
-        modifier = Modifier.fillMaxSize()
+    val input = state.testDTO.responseInput(settings)
+    val usesKeys = input.usesKeys
+
+    TestScreenScaffold(
+        phase = state.phase,
+        result = state.testDTO,
+        saveStatus = state.saveStatus,
+        resultFiles = settings.workbookFiles,
+        onBack = { viewModel.onEvent(Event.BackCLicked) },
+        onStartMainTest = { viewModel.onEvent(Event.StartMainTest) },
+        onResponseKey = keyResponses(
+            input,
+            ResponseKeys.LAMPS.withIndex().associate { (index, binding) ->
+                binding to { pressNanos: Long ->
+                    viewModel.onEvent(Event.OnLampButtonPressed(lampIndex = index, pressNanos = pressNanos))
+                }
+            }
+        )
     ) {
+        // Высота сцены: статус + светофор + кнопки ≈ 8.2 размера лампы; ширина кнопок ≈ 7.8 лампы
+        val lampSize = min((maxHeight - 72.dp) / (TRAFFIC_LIGHT_HEIGHT_IN_LAMPS + 2.3f), maxWidth / 7.8f)
+            .coerceIn(16.dp, 140.dp)
+
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(ExtensionPadding.mediumAsymmetricalContentPadding),
-            verticalArrangement = ExtensionPadding.mediumVerticalArrangement,
+            modifier = Modifier.fillMaxSize().padding(top = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(lampSize * 0.5f, Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (state.userClicked == state.testDTO.count)
-                with(state) {
-                    TestFinishedComponent(
-                        getAverage = trafficLightTestChoiceReactionViewModel::getAverage,
-                        getStdDeviation = trafficLightTestChoiceReactionViewModel::getStdDeviation,
-                        count = testDTO.count,
-                        errors = errors,
-                        id = testDTO.user.id
-                    )
+            Text(
+                text = testStatusText(state.phase, state.countdown, state.results.presented, state.testDTO.count, state.isPractice),
+                style = statusTextStyle()
+            )
+
+            val stimulusId = state.stimulusId
+            TrafficLight(
+                currentLampIndex = state.currentLampIndex,
+                lampSize = lampSize,
+                stimulusKey = stimulusId,
+                onLampDrawn = { drawNanos ->
+                    if (stimulusId != null) viewModel.onEvent(Event.OnStimulusDrawn(stimulusId, drawNanos))
                 }
-            else
-                Text(
-                    text = if (state.startTimerTime > 0) "Начало через ${state.startTimerTime}" else "Тест начался",
-                    style = MaterialTheme.typography.headlineMedium
-                )
-            with(state) {
-                TestProccessComponent(
-                    userClicked = userClicked,
-                    count = testDTO.count,
-                    currentLampIndex = currentLampIndex
-                )
-            }
-            if (state.userClicked != state.testDTO.count) {
-//            region::Buttons
-                Row(
-                    modifier = Modifier
-                        .weight(1.0f)
-                        .fillMaxWidth()
-                        .padding(ExtensionPadding.smallAsymmetricalContentPadding),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = ExtensionPadding.mediumHorizontalArrangementCenter
-                ) {
-                    Button(
-                        onClick = {
-                            trafficLightTestChoiceReactionViewModel.onEvent(
-                                Event.OnTrafficLightLampButtonClicked(
-                                    clickedLampIndex = 0
-                                )
+            )
+
+            Row(horizontalArrangement = Arrangement.spacedBy(lampSize * 0.4f)) {
+                trafficLightLampColors.forEachIndexed { index, color ->
+                    Box(
+                        modifier = Modifier
+                            .size(width = lampSize * 2.2f, height = lampSize)
+                            .clip(MaterialTheme.shapes.small)
+                            .background(color)
+                            .then(
+                                if (usesKeys) Modifier
+                                else Modifier.onPressTimestamp { pressNanos ->
+                                    viewModel.onEvent(Event.OnLampButtonPressed(lampIndex = index, pressNanos = pressNanos))
+                                }
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        // При ответе с клавиатуры на кнопке подписана её клавиша
+                        if (usesKeys) {
+                            Text(
+                                text = input.label(ResponseKeys.LAMPS[index]),
+                                style = MaterialTheme.typography.headlineMedium,
+                                color = Color.Black
                             )
-                        },
-                        modifier = Modifier.size(ConstantSize.trafficLightLampButtonSize),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Red
-                        ),
-                        shape = MaterialTheme.shapes.small
-                    ) {}
-                    Button(
-                        onClick = {
-                            trafficLightTestChoiceReactionViewModel.onEvent(
-                                Event.OnTrafficLightLampButtonClicked(
-                                    clickedLampIndex = 1
-                                )
-                            )
-                        },
-                        modifier = Modifier.size(ConstantSize.trafficLightLampButtonSize),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Yellow
-                        ),
-                        shape = MaterialTheme.shapes.small
-                    ) {}
-                    Button(
-                        onClick = {
-                            trafficLightTestChoiceReactionViewModel.onEvent(
-                                Event.OnTrafficLightLampButtonClicked(
-                                    clickedLampIndex = 2
-                                )
-                            )
-                        },
-                        modifier = Modifier.size(ConstantSize.trafficLightLampButtonSize),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Green
-                        ),
-                        shape = MaterialTheme.shapes.small
-                    ) {}
+                        }
+                    }
                 }
-//            endregion
             }
         }
     }

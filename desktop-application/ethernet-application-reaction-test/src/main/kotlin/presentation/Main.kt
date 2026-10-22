@@ -3,6 +3,14 @@ package presentation
 import about_app.AboutAppPage
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.LaunchedEffect
+import java.io.File
+import other.components.StorageErrorDialog
+import data.MissingCryptographyKeyException
+import data.CryptographyKeyStore
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.BitmapPainter
@@ -28,6 +36,8 @@ import domain.usecase.settings.GetUserSettingsUseCase
 import domain.usecase.settings.SaveUserSettingsUseCase
 import domain.usecase.sql_database.local.GetAllSessionsDtoFromDatabaseUseCase
 import domain.usecase.sql_database.local.GetLastSessionIdUseCase
+import domain.usecase.sql_database.local.GetSessionMetricsUseCase
+import domain.usecase.sql_database.local.GetSessionTrialsUseCase
 import domain.usecase.sql_database.local.GetUserByLoginAndPasswordUseCase
 import domain.usecase.sql_database.local.InsertOrAbortNewSessionUseCase
 import domain.usecase.sql_database.local.user.DeleteUserUseCase
@@ -55,6 +65,10 @@ import presentation.settings.SettingsPage
 import testmenu.TestMenu
 import tests.traffic_light_test_choice_reaction.TrafficLightTestChoiceReaction
 import tests.traffic_light_test_difference_reaction.TrafficLightTestDifferenceReaction
+import tests.car_stop_by_red_light_simple_reaction.CarStopByRedLightSimpleReaction
+import tests.horn_brake_reaction.HornBrakeReaction
+import tests.pvt_brake_lights.PvtBrakeLights
+import tests.rmo_stop_line.RmoStopLine
 import theme.AppTheme
 
 private lateinit var userRepository: UserRepository
@@ -103,42 +117,58 @@ fun main() = run {
                 }
 
 //                region::Storage
-                if (mainState.value.settings.networkDrive.isNotEmpty()) {
-                    userRepository = UserRepositoryImpl(
-                        mode = Mode.ETHERNET,
-                        directoryPath = mainState.value.settings.networkDrive,
-                        usersDirectory = mainState.value.settings.networkDrive,
-                        sessionsDirectory = mainState.value.settings.networkDrive,
-                    )
-                    sessionRepository = SessionRepositoryImpl_(
-                        mode = Mode.ETHERNET,
-                        directoryPath = mainState.value.settings.networkDrive,
-                        sessionsDirectory = mainState.value.settings.networkDrive,
-                    )
-                    userStorage = UserStorage(
-                        getAllUsersUseCase = GetAllUsersUseCase(userRepository),
-                        insertNewUserUseCase = InsertNewUserUseCase(userRepository),
-                        updateUserUseCase = UpdateUserUseCase(userRepository),
-                        deleteUserUseCase = DeleteUserUseCase(userRepository),
-                        isPasswordUniqueUseCase = IsPasswordUniqueUseCase(userRepository),
-                        getUserByLoginAndPasswordUseCase = GetUserByLoginAndPasswordUseCase(
-                            userRepository
+                val networkDrive = mainState.value.settings.networkDrive
+                var storageAttempt by remember { mutableStateOf(0) }
+                // Репозитории создаются один раз на выбранный диск (и заново по «Повторить»), а не при каждой
+                // перерисовке окна. Ошибка (нет ключа шифрования, диск недоступен) показывается окном, а не роняет программу.
+                val settingsLoaded = mainState.value.settingsLoaded
+                val storageResult: Result<Unit>? = remember(networkDrive, settingsLoaded, storageAttempt) {
+                    if (networkDrive.isEmpty()) {
+                        if (settingsLoaded) Result.failure(
+                            IllegalStateException(
+                                "Сетевой диск не выбран. Откройте настройки и выберите диск, на котором лежит общая база."
+                            )
+                        ) else null
+                    } else runCatching {
+                        userRepository = UserRepositoryImpl(
+                            mode = Mode.ETHERNET,
+                            directoryPath = mainState.value.settings.networkDrive,
+                            usersDirectory = mainState.value.settings.networkDrive,
+                            sessionsDirectory = mainState.value.settings.networkDrive,
                         )
-                    )
-                    sessionStorage = SessionStorage(
-                        getAllSessionsDtoFromDatabaseUseCase = GetAllSessionsDtoFromDatabaseUseCase(
-                            sessionRepository = sessionRepository
-                        ),
-                        insertOrAbortNewSessionUseCase = InsertOrAbortNewSessionUseCase(
-                            sessionRepository = sessionRepository
-                        ),
-                        getSessionsWithUserIdUseCase = GetSessionsWithUserIdUseCase(
-                            sessionRepository
-                        ),
-                        getLastSessionIdUseCase = GetLastSessionIdUseCase(sessionRepository = sessionRepository)
-                    )
+                        sessionRepository = SessionRepositoryImpl_(
+                            mode = Mode.ETHERNET,
+                            directoryPath = mainState.value.settings.networkDrive,
+                            sessionsDirectory = mainState.value.settings.networkDrive,
+                        )
+                        userStorage = UserStorage(
+                            getAllUsersUseCase = GetAllUsersUseCase(userRepository),
+                            insertNewUserUseCase = InsertNewUserUseCase(userRepository),
+                            updateUserUseCase = UpdateUserUseCase(userRepository),
+                            deleteUserUseCase = DeleteUserUseCase(userRepository),
+                            isPasswordUniqueUseCase = IsPasswordUniqueUseCase(userRepository),
+                            getUserByLoginAndPasswordUseCase = GetUserByLoginAndPasswordUseCase(
+                                userRepository
+                            )
+                        )
+                        sessionStorage = SessionStorage(
+                            getAllSessionsDtoFromDatabaseUseCase = GetAllSessionsDtoFromDatabaseUseCase(
+                                sessionRepository = sessionRepository
+                            ),
+                            insertOrAbortNewSessionUseCase = InsertOrAbortNewSessionUseCase(
+                                sessionRepository = sessionRepository
+                            ),
+                            getSessionsWithUserIdUseCase = GetSessionsWithUserIdUseCase(
+                                sessionRepository
+                            ),
+                            getLastSessionIdUseCase = GetLastSessionIdUseCase(sessionRepository = sessionRepository),
+                            getSessionTrialsUseCase = GetSessionTrialsUseCase(sessionRepository = sessionRepository),
+                            getSessionMetricsUseCase = GetSessionMetricsUseCase(sessionRepository = sessionRepository)
+                        )
+                    }
                 }
-
+                // Окно ошибки скрыто, пока пользователь в настройках (там выбирается сетевой диск)
+                var storageErrorHidden by remember { mutableStateOf(false) }
 //                endregion
 
                 AppTheme(useDarkTheme = mainState.value.settings.isDarkTheme) {
@@ -181,6 +211,7 @@ fun main() = run {
                             TestMenu(
                                 navigator = navigator,
                                 testDto = mainState.value.testDTO,
+                                pedals = mainState.value.settings.pedals,
                                 block = {
                                     mainViewModel.onEvent(
                                         Event.ChangeTestDto(
@@ -200,6 +231,7 @@ fun main() = run {
                                 navigator = navigator,
                                 settingsStorage = settingsStorage,
                                 block = {
+                                    storageErrorHidden = false
                                     mainViewModel.onEvent(Event.LoadSettings)
                                 }
                             )
@@ -245,10 +277,78 @@ fun main() = run {
                                 navigator = navigator
                             )
                         }
+                        scene(route = DesktopRouting.carStopByRedLightSimpleReaction) {
+                            CarStopByRedLightSimpleReaction(
+                                workBookStorage = workBookStorage,
+                                settings = mainState.value.settings,
+                                testDTO = mainState.value.testDTO,
+                                sessionStorage = sessionStorage,
+                                navigator = navigator
+                            )
+                        }
+                        scene(route = DesktopRouting.rmoStopLine) {
+                            RmoStopLine(
+                                workBookStorage = workBookStorage,
+                                settings = mainState.value.settings,
+                                testDTO = mainState.value.testDTO,
+                                sessionStorage = sessionStorage,
+                                navigator = navigator
+                            )
+                        }
+                        scene(route = DesktopRouting.hornBrakeReaction) {
+                            HornBrakeReaction(
+                                workBookStorage = workBookStorage,
+                                settings = mainState.value.settings,
+                                testDTO = mainState.value.testDTO,
+                                sessionStorage = sessionStorage,
+                                navigator = navigator
+                            )
+                        }
+                        scene(route = DesktopRouting.pvtBrakeLights10) {
+                            PvtBrakeLights(
+                                durationMinutes = 10,
+                                workBookStorage = workBookStorage,
+                                settings = mainState.value.settings,
+                                testDTO = mainState.value.testDTO,
+                                sessionStorage = sessionStorage,
+                                navigator = navigator
+                            )
+                        }
+                        scene(route = DesktopRouting.pvtBrakeLights5) {
+                            PvtBrakeLights(
+                                durationMinutes = 5,
+                                workBookStorage = workBookStorage,
+                                settings = mainState.value.settings,
+                                testDTO = mainState.value.testDTO,
+                                sessionStorage = sessionStorage,
+                                navigator = navigator
+                            )
+                        }
 //                        endregion
+                    }
+
+                    val storageError = storageResult?.exceptionOrNull()
+                    if (storageError != null && !storageErrorHidden) {
+                        StorageErrorDialog(
+                            message = storageErrorMessage(storageError, networkDrive),
+                            appFolder = if (storageError is MissingCryptographyKeyException) {
+                                File(CryptographyKeyStore.importFolderPath())
+                            } else null,
+                            onRetry = { storageAttempt++ },
+                            onOpenSettings = {
+                                storageErrorHidden = true
+                                navigator.navigate(route = DesktopRouting.settings)
+                            }
+                        )
                     }
                 }
             }
         }
     }
 }
+
+/** Текст ошибки открытия сетевой базы. */
+private fun storageErrorMessage(error: Throwable, networkDrive: String): String =
+    if (error is MissingCryptographyKeyException || networkDrive.isEmpty()) error.message.orEmpty()
+    else "Не удалось открыть базу на сетевом диске $networkDrive: ${error.message}. " +
+        "Проверьте, что диск подключён и выбран в настройках, затем нажмите «Повторить»."

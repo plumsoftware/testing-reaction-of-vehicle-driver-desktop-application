@@ -10,7 +10,7 @@ object SettingsConstants {
 
     const val NETWORK_DRIVE: String = ""
     const val LOCAL_DRIVE: String = ""
-    const val LOCAL_FOLDER_TO_TABLE: String = "C:\\Users\\Default"
+    val LOCAL_FOLDER_TO_TABLE: String = GeneralConstants.DEFAULT_TABLE_FOLDER.path
     val ADMIN: String = System.getProperty("user.name")
 
     val FORMAT_LIST = mapOf<String, XSSFWorkbookType>(

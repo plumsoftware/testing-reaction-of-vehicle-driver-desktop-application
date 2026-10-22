@@ -36,7 +36,7 @@ class MainViewModel(
                     settingsStorage.get(scope = CoroutineScope(supervisorCoroutineContext))
 
                 state.update {
-                    it.copy(settings = settings)
+                    it.copy(settings = settings, settingsLoaded = true)
                 }
             }
 
